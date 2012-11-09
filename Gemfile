@@ -7,11 +7,31 @@ gem 'rails', '3.2.8'
 
 gem 'rails-api'
 
-gem 'sqlite3'
+gem 'mysql2'
 
+gem 'hiredis'
+gem 'redis'
+gem 'resque'
+
+gem 'rspec'
+
+gem 'colorize'
+
+group :development do
+  gem 'debugger'
+  gem 'annotate', '~> 2.4.1.beta'
+  gem 'guard'
+  gem 'rspec-rails'
+end
+
+group :test do
+  gem 'rspec-rails'
+  gem 'syntax'
+  gem 'simplecov', :require => false, :group => :test
+end
 
 # To use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt-ruby', '~> 3.0.0'
 
 # To use Jbuilder templates for JSON
 # gem 'jbuilder'
@@ -21,6 +41,3 @@ gem 'sqlite3'
 
 # Deploy with Capistrano
 # gem 'capistrano', :group => :development
-
-# To use debugger
-# gem 'ruby-debug19', :require => 'ruby-debug'
