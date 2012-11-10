@@ -1,3 +1,5 @@
+```
+
 Client
   Webapp
   iPhone
@@ -57,8 +59,14 @@ stage 3 = SmsSendOut
 
 pipeline.stages = [stage1, stage2, stage3]
 
+POST /pipeline/:id
+hash hash data
+
+
 
 
 input = GoogleDocs
 Templafy
 [SmsIn, Templafy]
+
+```
