@@ -7,10 +7,12 @@ gem 'rails', '3.2.8'
 
 gem 'rails-api'
 
-gem 'mysql2'
+# gem 'mysql2'
+gem 'sqlite3'
 
 gem 'hiredis'
 gem 'redis'
+gem 'redis-objects'
 gem 'resque'
 
 gem 'rspec'
