@@ -7,6 +7,9 @@
 start the mysql server
 `mysql.server start`
 
+If installing with HomeBrew, to set the root password:
+`$(brew --prefix mysql)/bin/mysqladmin -u root YOUR_DESIRED_PASSWORD`
+
 open a mysql console
 `mysql -u root -p`
 
