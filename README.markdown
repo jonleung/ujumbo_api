@@ -1,3 +1,59 @@
+# Official Readme Section
+
+
+## create a mysql database after installing mysql
+- Make sure you have installed mysql first
+
+start the mysql server
+`mysql.server start`
+
+If installing with HomeBrew, to set the root password:
+`$(brew --prefix mysql)/bin/mysqladmin -u root YOUR_DESIRED_PASSWORD`
+
+open a mysql console
+`mysql -u root -p`
+
+create the appropriate databases based on convention:
+```
+create database ujumbo_api_development;
+create database ujumbo_api_development;
+```
+
+then configure your database.yml file appropriately
+
+``` yml
+# /config/database.yml
+development:
+  adapter: mysql2
+  encoding: utf8
+  database: ujumbo_api_development
+  username: root
+  pool: 30
+  password: '1337'
+  host: 127.0.0.1
+  port: 3306
+
+test:
+  adapter: mysql2
+  encoding: utf8
+  database: ujumbo_api_test
+  username: root
+  pool: 30
+  password: '1337'
+  host: 127.0.0.1
+  port: 3306
+
+```
+
+
+# Unofficial Notes and Stuffs
+
+
+
+
+
+
+
 ``` ruby
 
 Client
@@ -70,3 +126,8 @@ Templafy
 [SmsIn, Templafy]
 
 ```
+
+Sometimes it is a product specific pipeline (belongs to entire product)
+Sometimes it is a user specific pipeline (only belongs to )
+
+Lets just go through the user

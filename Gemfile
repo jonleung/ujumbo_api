@@ -1,27 +1,32 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.8'
-
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
-
-gem 'google_drive'
-
 gem 'rails-api'
 
-# gem 'mysql2'
-gem 'sqlite3'
+# Server
+gem 'thin'
+
+# Databse
+gem 'mysql2'
 
 gem 'hiredis'
 gem 'redis'
 gem 'redis-objects'
+
+# Core
+gem 'bcrypt-ruby', '~> 3.0.0'
+
+# Cool Tools
 gem 'resque'
 
-gem 'rspec'
+# Input / Output
+gem 'google_drive'
 
+# Nicities
 gem 'colorize'
 
 group :development do
+  gem 'rspec'
   gem 'debugger'
   gem 'annotate', '~> 2.4.1.beta'
   gem 'guard'
@@ -29,13 +34,14 @@ group :development do
 end
 
 group :test do
+  gem 'rspec'
   gem 'rspec-rails'
   gem 'syntax'
   gem 'simplecov', :require => false, :group => :test
 end
 
 # To use ActiveModel has_secure_password
-gem 'bcrypt-ruby', '~> 3.0.0'
+
 
 # To use Jbuilder templates for JSON
 # gem 'jbuilder'
