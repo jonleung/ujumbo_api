@@ -9,7 +9,7 @@ module Inputs
 
 		#returns list of all the user's filenames
 		def get_all_filenames(username, password)
-			#session = GoogleDrive.login(username, password)
+			session = GoogleDrive.login(username, password)
 			file_list = []
 			for file in session.files
 				file_list.push(file.title)
@@ -21,7 +21,6 @@ module Inputs
 			google_doc = GoogleDoc.new(username, password, doc_name, doc_name)
 			return google_doc
 		end
-
 		
 	end
 end
