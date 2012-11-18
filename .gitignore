@@ -38,6 +38,8 @@ Gemfile.lock
 
 config/*.yml
 config/*.conf
+/config/*.yml
+/config/*.conf
 
 *.rbc
 *.sassc
