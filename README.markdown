@@ -1,3 +1,77 @@
+# AirPennNetAssignment
+Pipeline = pipeline.new
+
+
+pipeline.pipes << GoogleDocListener.new("http://docs.google.com/c80d8EdvlSEF", 
+                                        
+
+#OR
+
+GoogleDocsPipe
+  inputs
+    Array
+  output
+    GoogleDocs: {name:String, pennkey: String, phone: Phone, sms_sent: SMS, email: Email, email_sent: Boolean}
+
+SmsOutPipe
+  inputs
+    Phone
+    Message
+  output
+    :sms_success => true / false
+    :caller_phone
+    :user
+
+EmailOutPipe
+  inputs
+    Phone
+    Message
+  output
+    email_sent(Boolean)
+
+
+product = Product.new
+pipeline = product.pipelines.new
+pipeline.pipes << GoogleDocsMultiPipe.new(GoogleDoc.new({name:String, pennkey: String, phone: Phone, sms_sent: SMS, email: Email, email_sent: Boolean}))
+pipeline.pipes << Templafy.new(Template.new("Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"))
+pipeline.pipes << SmsOut.new("6107610083")
+pipeline.pipes << UpdateDataField({:sms_sent, :sms_success})
+pipeline.pipes << EmailOut.new("contact@pennapps.com")
+pipeline.pipes << UpdateDataField({:email_sent, :email_success})
+pipeline.save
+
+
+Product = product.new
+product.datasources.teachers = GoogleDoc.new({name:String, email: Email),
+product.datasources.mentors = Google.new({name:String, email: Email, phone: Phone, teacher: Teacher, times_missed: Integer})
+
+pipeline = product.pipelines.new
+pipeline.pipes << GoogleDocsListener.new(google_doc)
+pipeline.pipes << product.datasources.teachers.sync(google_doc_listener_id)
+
+pipeline = product.pipelines.new
+pipeline.pipes << GoogleDocsListener.new(google_doc)
+pipeline.pipes << product.datasources.mentors.sync(google_doc_listener_id)
+
+pipeline = Pipeline.new
+pipeline.pipes << SmsIn(Phone.new("6103128302")) # automatically gets the user => student
+pipeline.pipes << Templafy.new(Template.new("Hi :::teacher.name:::, :::student.name::: will not be able to make it to the tutoring session today")) #they get to see all avaialable variables that are autocompleted
+pipeline.pipes << GoogleDocWriter(student_google_doc, {increment: :times_missed})
+pipeline.pipes << 
+
+pipeline =  Pipelinew.new
+pipeline.pipes << PhoneIn(phone_id)
+pipeline.pipes << StaggerCalling(["6107610083", "2412029301", "2142822129"])
+
+
+
+pipeline.pipes << GoogleDoc.new("http://docs.google.com/c80d8EdvlSEF")
+pipeline.pipes << Templafy.new(Template.new("Hi :::name:::"))
+pipeline.pipes << SmsOut.new("6107610083")
+pipeline.save
+
+
+
 call(hash) {
   
   returns hash
