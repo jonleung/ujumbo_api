@@ -1,3 +1,29 @@
+
+
+
+
+Things of intererst:
+
+  Factory Girl
+  Sinatra
+
+  http://www.vaporbase.com/postings/Choosing_a_Schema_for_Dynamic_Records
+  https://github.com/guyboertje/has_flexiblefields
+
+  http://stackoverflow.com/questions/3943708/is-there-a-benefit-to-creating-a-very-generic-data-model-for-a-rails-3-project
+  http://stackoverflow.com/questions/10723955/problems-while-making-a-generic-model-in-ruby-on-rails-3
+
+  http://tonyandrews.blogspot.com/2004/10/otlt-and-eav-two-big-design-mistakes.html
+
+  The idea that you need something generic actually doesnt exist...
+
+Maybe you can have pluginnable code that you can make per application and when you see it a lot you can make it a gem easily.
+This should be the main focus.
+
+Sinatra, different types of things (get, whatever action), have a bunch of them and not some bigass thing.
+
+Allows generality by example.
+
 # AirPennNetAssignment
 Pipeline = pipeline.new
 

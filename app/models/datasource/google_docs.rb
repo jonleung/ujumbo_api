@@ -4,7 +4,7 @@
 #row by row data into a hash
 # contact when updated
 
-module Inputs
+module Datasource
 	class GoogleDocs 
 
 		#returns list of all the user's filenames

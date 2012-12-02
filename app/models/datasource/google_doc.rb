@@ -1,4 +1,4 @@
-module Inputs
+module Datasource
 	class GoogleDoc
 		attr_accessor :session
 		attr_accessor :filename
