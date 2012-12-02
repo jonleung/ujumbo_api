@@ -14,7 +14,7 @@ pipelines.pipes << datasource("users", :create_user)
   Email: "me@jonl.org"
   pennkey: "3283948234"
 =end
-pipelines.pipes << Templatfy.new(Template.new("Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"), type: Message)
+pipelines.pipes << Templatfy.new("Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"), type: Message)
 #fills in the variables with the above hash, if it does not exist, make it an empty string
 =begin
   Message: "Hi Jonathan, your pe"
@@ -41,3 +41,8 @@ pipeline.save
 
 call (env) 
 
+
+
+pipelines.add {class: Templafy, msg: "Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet" do |variable|
+  
+end
