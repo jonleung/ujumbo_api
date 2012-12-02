@@ -2,9 +2,9 @@ class TemplafyPipe < Ujumbo::UjumboRecord::Base
 
   has_one :template
 
-  def input(hash)
-    string = template.fill_in(hash)
-    output_hash = hash.join({message: string})
+  def flow(hash)
+    string = template.fill(hash)
+    output_hash = hash.join({Template: string})
   end
 
 end

@@ -11,10 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121110174948) do
+ActiveRecord::Schema.define(:version => 20121113202602) do
+
+  create_table "products", :force => true do |t|
+    t.string   "name"
+    t.string   "subdomain"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "templates", :force => true do |t|
     t.string   "text"
+    t.string   "variable_regex"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+  end
+
+  create_table "users", :force => true do |t|
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

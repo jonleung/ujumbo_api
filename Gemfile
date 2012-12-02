@@ -7,7 +7,7 @@ gem 'rails-api'
 gem 'thin'
 
 # Databse
-gem 'mysql2'
+gem 'pg'
 
 gem 'hiredis'
 gem 'redis'
@@ -36,6 +36,7 @@ end
 group :test do
   gem 'rspec'
   gem 'rspec-rails'
+  gem 'factory_girl_rails'
   gem 'syntax'
   gem 'simplecov', :require => false, :group => :test
 end
