@@ -7,7 +7,8 @@ gem 'rails-api'
 gem 'thin'
 
 # Databse
-gem 'pg'
+# gem 'pg'
+gem 'sqlite3'
 
 gem 'hiredis'
 gem 'redis'
