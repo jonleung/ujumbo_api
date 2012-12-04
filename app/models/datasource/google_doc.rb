@@ -17,7 +17,7 @@ module Datasource
 		end
 
 		def create_spreadsheet(filename)
-
+			spreadsheet = @session.create_spreadsheet(filename)
 
 		end
 
