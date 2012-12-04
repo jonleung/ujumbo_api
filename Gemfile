@@ -16,15 +16,17 @@ gem 'redis-objects'
 
 # Core
 gem 'bcrypt-ruby', '~> 3.0.0'
-
-# Cool Tools
 gem 'resque'
 
 # Input / Output
 gem 'google_drive'
 
+# Separate
+gem 'httparty'
+
 # Nicities
 gem 'colorize'
+
 
 group :development do
   gem 'rspec'

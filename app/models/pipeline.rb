@@ -2,11 +2,14 @@ class Pipeline < ActiveRecord::Base
   include Redis::Objects
 
   attr_accessible :name, :product_id
-  value :pipes
+  list :pipes, :marshal => true
 
-  def call
-    puts self.pipes
-    return self.pipes
+  def call(hash)
+    obj = {}
+    obj[:params] = hash
+    obj[:pipes] = self.pipes
+    pp obj
+    return obj
   end
 
 
