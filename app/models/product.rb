@@ -1,3 +1,9 @@
 class Product < Ujumbo::UjumboRecord::Base
-  attr_accessible :name, :subdomain
+  include Redis::Objects
+  
+  attr_accessible :name
+  has_many :pipelines
+
+  validates :name, :uniqueness => true
+  
 end

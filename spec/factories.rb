@@ -1,5 +1,5 @@
-FactoryGirl.define
-  factory :template
+# FactoryGirl.define
+#   factory :template
 
-  end
-end
+#   end
+# end
