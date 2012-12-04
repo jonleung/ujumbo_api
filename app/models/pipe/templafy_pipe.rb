@@ -1,4 +1,4 @@
-class TemplafyPipe < Ujumbo::UjumboRecord::Base
+class TemplafyPipe < Pipe::Base
 
   has_one :template
 

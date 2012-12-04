@@ -35,7 +35,7 @@ class ApiClient
         :timeout => 999999
       )
       response = ApiClient.normalize_parameters(result.parsed_response)
-        # `echo #{shell_escape(response.to_s)} | browser` if options[:browser]
+        `echo #{shell_escape(response.to_s)} | browser` if options[:browser]
         pp response
       return response
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121202183425) do
+ActiveRecord::Schema.define(:version => 20121204080103) do
 
   create_table "pipelines", :force => true do |t|
     t.string   "name"
@@ -31,6 +31,11 @@ ActiveRecord::Schema.define(:version => 20121202183425) do
     t.string   "variable_regex"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
+  end
+
+  create_table "triggers", :force => true do |t|
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "users", :force => true do |t|

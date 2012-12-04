@@ -27,11 +27,18 @@ describe "product" do
     pipeline.name = "Users3"
     pipeline.save
 
-    triggers = []
-    triggers << {type: :trigger, subtype: :database, table: :students, on: :create}
-    triggers << {type: :trigger, subtype: :api_call}
-    pipeline.pipes << triggers
-  
+    trigger = Trigger.create
+    trigger.on = :api_call
+    trigger.action = {klass: Pipeline, id: pipeline.id}
+    trigger.save
+
+    debugger
+
+    # triggers = []
+    # triggers << {type: :trigger, subtype: :database, table: :students, on: :create}
+    # triggers << {type: :trigger, subtype: :params}
+    # pipeline.pipes << triggers
+
     text = "Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"
     pipeline.pipes << {type: :template, text: text, variables_hash: {:name => "student:name", :pennkey => "student:pennkey"}}
 
@@ -41,7 +48,7 @@ describe "product" do
 
 
     client = ApiClient.new
-    response = client.post("/pipelines/#{pipeline.id}/call", {sample_string: "sample_string", browser: true})
+    response = client.post("/triggers/#{trigger.id}", {sample_string: "sample_string", browser: true})
   end
 
 end

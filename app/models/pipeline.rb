@@ -4,11 +4,17 @@ class Pipeline < ActiveRecord::Base
   attr_accessible :name, :product_id
   list :pipes, :marshal => true
 
-  def call(hash)
+  def trigger(params)
     obj = {}
     obj[:params] = hash
     obj[:pipes] = self.pipes
     pp obj
+
+
+    # self.pipes.each do |pipe|
+    #   pipe.call
+    # end
+
     return obj
   end
 
