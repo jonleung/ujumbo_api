@@ -1,7 +1,3 @@
-
-
-
-
 Things of intererst:
 
   Factory Girl
