@@ -1,9 +1,13 @@
 class Trigger < Ujumbo::UjumboRecord::Base
-  include Redis::Value
-  include Redis::Objects
+  after_initialize :set_defaults
+  def set_defaults
+    self.action ||= {}
+  end
 
-  value :on, :marshal => true
-  value :action, :marshal => true
+  before_save :clean_hash
+  def clean_hash
+    self.action[:klass] = self.action[:klass].to_s
+  end
 
   API_CALL = :api_call
 
@@ -15,14 +19,14 @@ class Trigger < Ujumbo::UjumboRecord::Base
       return nil
     end
 
-    action = self.action.get
-    debugger
-    klass = action[:klass]
-    id = action[:id]
+    klass = self.action[:klass].constantize
+    id = self.action[:id]
 
     object = klass.find(id)
+
     if object == nil
       return nil 
+      
     else
       return object.trigger(params)
     end

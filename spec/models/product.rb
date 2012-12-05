@@ -4,48 +4,68 @@ describe "product" do
 
   it "can be created" do
     product = Product.new
-    product.name = "AirPennNet"
+    product.name = "AirPennNet#{Product.count}"
     product.save.should == true
   end
 
   it "can have pipelines" do
     product = Product.new
-    product.name = "AirPennNet"
+    product.name = "AirPennNet#{Product.count}"
     product.save.should == true
 
     pipeline = product.pipelines.new
-    pipeline.name = "Users"
+    pipeline.name = "name#{Pipeline.count}"
     pipeline.save
   end
 
   it "can have pipelines advanced" do
     product = Product.new
-    product.name = "AirPennNet3"
+    product.name = "AirPennNet#{Product.count}"
     product.save.should == true
 
-    pipeline = product.pipelines.new
-    pipeline.name = "Users3"
-    pipeline.save
+    pipeline = product.pipelines.create
+    pipeline.name = "CreateUser#{Pipeline.count}"
 
-    trigger = Trigger.create
-    trigger.on = :api_call
-    trigger.action = {klass: Pipeline, id: pipeline.id}
+    # Create User Pipeline
+    trigger = product.trigger.create
+    trigger.on = {:type => :api_call}
+    trigger.action = {:klass => Pipeline, :id => pipeline.id}
     trigger.save
 
-    debugger
 
-    # triggers = []
-    # triggers << {type: :trigger, subtype: :database, table: :students, on: :create}
-    # triggers << {type: :trigger, subtype: :params}
-    # pipeline.pipes << triggers
+    pipeline.pipes << UserPipe.new() insteaad
+
+    pipeline.pipes << { 
+                        :pipe => UserPipe,
+                        :action => :find_or_create, #maybe you want a find or create here
+                        :platform_properties => [:first_name, :last_name, :email, :phone ]
+                        :product_properties => [:pennkey => String, password: => String]
+                        :_key => "_student"
+                      }
+    pipeline.save
+
+    # On Create User Pipeline
+
+    pipeline = product.pipelines.create
+    pipeline.name = "OnCreateUser#{Pipeline.count}"
+    
+    pipeline.pipes <<
+    
+    trigger = Trigger.create
+    trigger.on = {:type => :database, :}
 
     text = "Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"
-    pipeline.pipes << {type: :template, text: text, variables_hash: {:name => "student:name", :pennkey => "student:pennkey"}}
+    pipeline.pipes << {
+                        :pipe => Templafy,
+                        :action => :fill
+                        :text => text,
+                        :variables_hash => {:name => "_student:name", :pennkey => "_student:pennkey"},
+                        :_key => "_message"
+                      }
 
-    pipeline.pipes << {type: :message, subtype: :sms, :recipeint => "student:phone"} #This should know what the previous thing was... but maybe this makes it too dependent?, set has as previous thing, maybe only looks at previous thing if there is more than one instance of it or you can directly specify what you want as the message
-                                                                                                          # in the gui, it should filter by who to send it to to only variables of type students
-    pipeline.pipes << {type: :database, table: :studentsaction, :update => {:sms_sent => true} }
+    pipeline.pipes << {:pipe => Message, :subtype => :sms, :recipeint => "_student:phone", :body => "_message"}
 
+    pipeline.save
 
     client = ApiClient.new
     response = client.post("/triggers/#{trigger.id}", {sample_string: "sample_string", browser: true})

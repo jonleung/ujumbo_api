@@ -1,8 +1,12 @@
 class Pipeline < ActiveRecord::Base
-  include Redis::Objects
 
   attr_accessible :name, :product_id
-  list :pipes, :marshal => true
+  serialize :pipes, Array
+
+  after_initialize :set_defaults
+  def set_defaults
+    self.pipes ||= []
+  end
 
   def trigger(params)
     obj = {}
@@ -10,12 +14,10 @@ class Pipeline < ActiveRecord::Base
     obj[:pipes] = self.pipes
     pp obj
 
+    self.pipes.each do |pipe|
+      new_params = pipe.flow(params)
+    end
 
-    # self.pipes.each do |pipe|
-    #   pipe.call
-    # end
-
-    return obj
   end
 
 

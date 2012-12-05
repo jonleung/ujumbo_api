@@ -3,6 +3,7 @@ class CreatePipelines < ActiveRecord::Migration
     create_table :pipelines do |t|
       t.string :name
       t.integer :product_id
+      t.text :pipes
 
       t.timestamps
     end

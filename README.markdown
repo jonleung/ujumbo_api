@@ -1,3 +1,5 @@
+User.create(:properties => {})
+
 Things of intererst:
 
   Factory Girl

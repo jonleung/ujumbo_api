@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(:version => 20121204080103) do
   create_table "pipelines", :force => true do |t|
     t.string   "name"
     t.integer  "product_id"
+    t.text     "pipes"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
@@ -34,6 +35,8 @@ ActiveRecord::Schema.define(:version => 20121204080103) do
   end
 
   create_table "triggers", :force => true do |t|
+    t.text     "on"
+    t.text     "action"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
