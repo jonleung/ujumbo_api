@@ -14,10 +14,7 @@ class User < Ujumbo::UjumboRecord::Base
 
   after_create :after_create_hook
   def after_create_hook
-    triggers = Trigger.where(on: "database:user:create")
-    triggers.each do |trigger|
-      trigger.activate(self)
-    end
+    triggers = Trigger.trigger("database:user:create", self.attributes)
   end
 
 
