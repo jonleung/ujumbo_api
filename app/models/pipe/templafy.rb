@@ -3,11 +3,7 @@ class Pipe < Ujumbo::UjumboRecord::Base
 
   
   def flow(params)
-    
-  end
-
-  def active_crud
-    
+        
   end
 
   def templafy(hash)

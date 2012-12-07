@@ -33,15 +33,14 @@ describe "product" do
     trigger.save
 
 
-    pipeline.pipes << UserPipe.new() insteaad
-
-    pipeline.pipes << { 
-                        :pipe => UserPipe,
+    pipeline.pipes << UserPipe.new({ 
                         :action => :find_or_create, #maybe you want a find or create here
                         :platform_properties => [:first_name, :last_name, :email, :phone ]
                         :product_properties => [:pennkey => String, password: => String]
                         :_key => "_student"
-                      }
+                      })
+
+    pipeline.pipes << 
     pipeline.save
 
     # On Create User Pipeline

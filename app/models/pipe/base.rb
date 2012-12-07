@@ -1,5 +1,5 @@
 module Pipe
-  class Base < ActiveModel
+  class Base < UjumboRecord
 
   end
 end
