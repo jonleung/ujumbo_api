@@ -1,35 +1,30 @@
-class Trigger < Ujumbo::UjumboRecord::Base
-  after_initialize :set_defaults
-  def set_defaults
-    self.action ||= {}
-  end
+module Trigger
+  include Trigger::Helpers
 
-  before_save :clean_hash
-  def clean_hash
-    self.action[:klass] = self.action[:klass].to_s
-  end
+  def trigger(product_id, channel, hash)
+    base_redis_key = generate_key({product_id: product_id, channel: channel})
+    redis_keys = redis.keys("#{base_redis_key}*")
+    return nil if redis_keys.empty?
 
-  API_CALL = :api_call
+    response_array = []
 
-  def activate(params)
-    if params[:source] == API_CALL && self.on == API_CALL
-      #pass
-    else
-      raise "Trigger source #{params[:source]} does not exist."
-      return nil
+    redis_keys.each do |redis_key|
+      begin
+        hash = Marshal.load(redis.get(redis_key))
+      catch
+        throw "#{redis_key} was not set properly and is not a hash"
+      end
+
+      klass = hash[:_klass].constantize
+      id = hash[:_id]
+      hash.rej
+
+      object = klass.find(id)
+      return nil if object.nil?
+      response_array << response = object.trigger(hash.except(:_id, :_klass))
     end
 
-    klass = self.action[:klass].constantize
-    id = self.action[:id]
-
-    object = klass.find(id)
-
-    if object == nil
-      return nil 
-      
-    else
-      return object.trigger(params)
-    end
+    return response_array
   end
 
 end

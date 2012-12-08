@@ -1,6 +1,6 @@
-require 'active_model'
-
 class Template
+  include ActiveModel
+  
   DEFAULT_VARIABLE_REGEX = /:::(.*?):::/
 
   attr_accessor :text, :variable_regex

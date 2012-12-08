@@ -1,4 +1,5 @@
 class Pipeline < ActiveRecord::Base
+  include Trigger::Triggerable
 
   attr_accessible :name, :product_id
   serialize :pipes, Array
@@ -9,14 +10,17 @@ class Pipeline < ActiveRecord::Base
   end
 
   def trigger(params)
+    puts "TRIGGERED"
+    Log.info("TRIGGERED")
     obj = {}
     obj[:params] = hash
     obj[:pipes] = self.pipes
     pp obj
 
-    self.pipes.each do |pipe|
-      new_params = pipe.flow(params)
-    end
+    # new_params = params
+    # self.pipes.each do |pipe|
+    #   new_params = pipe.flow(new_params)
+    # end
 
   end
 

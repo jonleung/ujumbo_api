@@ -1,12 +1,5 @@
-class Hash
+class Object
   def deep_copy
     Marshal.load(Marshal.dump(self))
   end
 end
-
-class HashWithIndifferentAccess
-  def deep_copy
-    Marshal.load(Marshal.dump(self))
-  end
-end
-
