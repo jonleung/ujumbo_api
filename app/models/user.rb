@@ -1,4 +1,4 @@
-class User < Ujumbo::UjumboRecord::Base  
+class User < ActiveRecord::Base  
   attr_accessible :first_name, :last_name, :phone, :email
 
   after_save :before_save_hook

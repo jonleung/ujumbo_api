@@ -1,4 +1,4 @@
-class Pipe < Ujumbo::UjumboRecord::Base
+class Pipe < ActiveRecord::Base
   serialize :variable_regex
   serialize :variables_hash
 

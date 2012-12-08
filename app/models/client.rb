@@ -1,4 +1,4 @@
-class Client < Ujumbo::UjumboRecord::Base
+class Client < ActiveRecord::Base
 
 
 end

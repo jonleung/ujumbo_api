@@ -52,7 +52,7 @@ And so this lets us do
 and then to actually call this
 
 ```ruby
-class User < Ujumbo::UjumboRecord::base
+class User < ActiveRecord::Base
 
   after_create :after_create_hook
   
