@@ -1,4 +1,4 @@
-module Trigger
+class Trigger
   module Triggerable
     include ActiveModel
     include Trigger::Helpers
@@ -10,38 +10,39 @@ module Trigger
     #   end
     # end
 
-    def set_trigger(product_id, channel, properties)
-      set_trigger_via_mysql(product_id, channel, properties)
+    def create_trigger(product_id, channel, properties)
+      create_trigger_via_mysql(product_id, channel, properties)
     end
 
-    def set_trigger_via_mysql(product_id, channel, properties)
+    def create_trigger_via_mysql(product_id, channel, properties)
       #   TODO: Allow you to set triggers before the id is set
-      throw "#{self}'s id is not set. Please make sure it is set before setting the trigger"
+      throw "#{self}'s id is not set. Please make sure it is set before setting the trigger" if self.id.nil?
 
       trigger = Trigger.new
       trigger.product_id = product_id
       trigger.channel = channel
-      trigger.properties
+      trigger.properties = properties
 
-      trigger.triggered_class = self.class
-      # if self.id.nil?
-      # else
-      #   trigger.triggered_id = self.id
+      trigger.triggered_class = self.class.to_s
+      trigger.triggered_id = self.id
+              
       trigger.save
+
+      return trigger.id
     end
 
-    def set_trigger_via_redis(product_id, channel, properties)
-        key = generate_key({product_id: self.product_id, channel: channel})
+    # def create_trigger_via_redis(product_id, channel, properties)
+    #     key = generate_key({product_id: self.product_id, channel: channel})
 
-        hash = {
-          _klass: self.class.to_s,
-          _id: self.id,
-        }
-        hash.merge!(properties)
+    #     hash = {
+    #       _klass: self.class.to_s,
+    #       _id: self.id,
+    #     }
+    #     hash.merge!(properties)
 
-        $redis.set(redis_key, Marshal.dump(hash))
-      end
-    end
+    #     $redis.set(redis_key, Marshal.dump(hash))
+    #   end
+    # end
 
   end
 end

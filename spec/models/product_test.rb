@@ -18,7 +18,7 @@ describe "product" do
     pipeline.save
   end
 
-  it "can have triggering working" do
+  it "triggering works without pipelining" do
     product = Product.new
     product.name = "AirPennNet#{Product.count}"
     product.save.should == true
@@ -33,14 +33,74 @@ describe "product" do
     #                     :variables_hash => {:name => "_student:name", :pennkey => "_student:pennkey"},
     #                   })
 
-    pipeline.set_trigger(product.id, "database:user:create", {type: "student"})
+    user_create_trigger_id = pipeline.create_trigger(product.id, "database:user:create", {type: "student"})
+    api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})
 
     client = ApiClient.new
-    response = client.post("/triggers/#{trigger.id}", {sample_string: "sample_string", browser: true})
+    response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student", params1: "fuck", params2: "yes", debug: "browser"})
 
     pp response
     response.should_not == nil
   end
+
+  it "user pipe is working" do
+    product = Product.new
+    product.name = "AirPennNet#{Product.count}"
+    product.save.should == true
+
+    pipeline = product.pipelines.new
+    pipeline.name = "name#{Pipeline.count}"
+
+    pipeline.pipes << UserPipe.new({ 
+                        :action => :find_or_create,
+                        :platform_properties => [:first_name, :last_name, :email, :phone]
+                        :product_properties => [:pennkey => String, password: => String]
+                        :type => "student"
+                      })
+
+    pipeline.save
+
+    api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})
+
+    client = ApiClient.new
+    response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student", })
+
+    response.should_not == nil
+  end
+
+  # it "user pipe is working" do
+  #   product = Product.new
+  #   product.name = "AirPennNet#{Product.count}"
+  #   product.save.should == true
+
+  #   pipeline = product.pipelines.new
+  #   pipeline.name = "name#{Pipeline.count}"
+  #   pipeline.save
+
+  #   pipeline.pipes << UserPipe.new({ 
+  #                       :action => :find_or_create,
+  #                       :platform_properties => [:first_name, :last_name, :email, :phone]
+  #                       :product_properties => [:pennkey => String, password: => String]
+  #                       :type => "student"
+  #                     })
+
+  #   text = "Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"
+  #   pipeline.pipes << TemplafyPipe.new({
+  #                       :text => text,
+  #                       :variables_hash => {:name => "_student:name", :pennkey => "_student:pennkey"},
+  #                     })
+
+  #   user_create_trigger_id = pipeline.create_trigger(product.id, "database:user:create", {type: "student"})
+  #   api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})
+
+  #   client = ApiClient.new
+  #   response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student", })
+
+  #   pp response
+  #   response.should_not == nil
+  # end
+
+
 
   # it "can have pipelines advanced" do
   #   product = Product.new

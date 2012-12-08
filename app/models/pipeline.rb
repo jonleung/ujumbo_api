@@ -9,11 +9,10 @@ class Pipeline < ActiveRecord::Base
     self.pipes ||= []
   end
 
-  def trigger(params)
+  def trigger(pipelined_hash)
     puts "TRIGGERED"
-    Log.info("TRIGGERED")
     obj = {}
-    obj[:params] = hash
+    obj[:params] = pipelined_hash
     obj[:pipes] = self.pipes
     pp obj
 

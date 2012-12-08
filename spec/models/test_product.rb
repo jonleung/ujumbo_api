@@ -35,6 +35,8 @@ describe "product" do
 
     pipeline.set_trigger(product.id, "database:user:create", {type: "student"}).should_not == nil
 
+    
+
   end
 
   # it "can have pipelines advanced" do

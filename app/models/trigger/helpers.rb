@@ -1,4 +1,4 @@
-module Trigger
+class Trigger
   module Helpers
 
     def generate_key(hash)

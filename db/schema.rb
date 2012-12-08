@@ -27,21 +27,22 @@ ActiveRecord::Schema.define(:version => 20121208053346) do
     t.datetime "updated_at", :null => false
   end
 
-  create_table "templates", :force => true do |t|
-    t.string   "text"
-    t.string   "variable_regex"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
-  end
-
   create_table "triggers", :force => true do |t|
-    t.text     "on"
-    t.text     "action"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.integer  "product_id"
+    t.string   "channel"
+    t.text     "properties"
+    t.string   "triggered_class"
+    t.integer  "triggered_id"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
   end
 
   create_table "users", :force => true do |t|
+    t.integer  "product_id"
+    t.string   "email"
+    t.string   "phone"
+    t.string   "first_name"
+    t.string   "last_name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
