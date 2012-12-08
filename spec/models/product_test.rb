@@ -33,8 +33,13 @@ describe "product" do
     #                     :variables_hash => {:name => "_student:name", :pennkey => "_student:pennkey"},
     #                   })
 
-    pipeline.set_trigger(product.id, "database:user:create", {type: "student"}).should != nil
+    pipeline.set_trigger(product.id, "database:user:create", {type: "student"})
 
+    client = ApiClient.new
+    response = client.post("/triggers/#{trigger.id}", {sample_string: "sample_string", browser: true})
+
+    pp response
+    response.should_not == nil
   end
 
   # it "can have pipelines advanced" do

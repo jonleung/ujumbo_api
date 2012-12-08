@@ -1,9 +1,7 @@
 class TriggerController < ApplicationController
 
-  def create
-  end
-
   def activate
+    debugger
     trigger = Trigger.find(params[:id])
     params.merge!(:source => Trigger::API_CALL)
     response = trigger.activate(params)

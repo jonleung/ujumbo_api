@@ -3,14 +3,14 @@ module Trigger
 
   def trigger(product_id, channel, hash)
     base_redis_key = generate_key({product_id: product_id, channel: channel})
-    redis_keys = redis.keys("#{base_redis_key}*")
+    redis_keys = $redis.keys("#{base_redis_key}*")
     return nil if redis_keys.empty?
 
     response_array = []
 
     redis_keys.each do |redis_key|
       begin
-        hash = Marshal.load(redis.get(redis_key))
+        hash = Marshal.load($redis.get(redis_key))
       catch
         throw "#{redis_key} was not set properly and is not a hash"
       end
