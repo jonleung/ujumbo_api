@@ -56,7 +56,7 @@ describe "product" do
     api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})
 
     client = ApiClient.new
-    response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student"})
+    response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student", first_name: "jonathan", last_name: "leung", phone: "610761083", email: "jonleung@seas.upenn.edu"})
 
     pp response
     response.should_not == nil

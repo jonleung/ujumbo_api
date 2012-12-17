@@ -1,4 +1,5 @@
 class Pipeline < ActiveRecord::Base
+  belongs_to :product
   include Trigger::Triggerable
 
   attr_accessible :name, :product_id

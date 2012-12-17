@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base  
+  belongs_to :product
+
   serialize :product_properties
   attr_accessible :first_name, :last_name, :phone, :email, :product_properties
 
