@@ -57,7 +57,7 @@ EmailOutPipe
 product = Product.new
 pipeline = product.pipelines.new
 pipeline.pipes << GoogleDocsMultiPipe.new(GoogleDoc.new({name:String, pennkey: String, phone: Phone, sms_sent: SMS, email: Email, email_sent: Boolean}))
-pipeline.pipes << Templafy.new(Template.new("Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"))
+pipeline.pipes << Template.new(Template.new("Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"))
 pipeline.pipes << SmsOut.new("6107610083")
 pipeline.pipes << UpdateDataField({:sms_sent, :sms_success})
 pipeline.pipes << EmailOut.new("contact@pennapps.com")
@@ -79,7 +79,7 @@ pipeline.pipes << product.datasources.mentors.sync(google_doc_listener_id)
 
 pipeline = Pipeline.new
 pipeline.pipes << SmsIn(Phone.new("6103128302")) # automatically gets the user => student
-pipeline.pipes << Templafy.new(Template.new("Hi :::teacher.name:::, :::student.name::: will not be able to make it to the tutoring session today")) #they get to see all avaialable variables that are autocompleted
+pipeline.pipes << Template.new(Template.new("Hi :::teacher.name:::, :::student.name::: will not be able to make it to the tutoring session today")) #they get to see all avaialable variables that are autocompleted
 pipeline.pipes << GoogleDocWriter(student_google_doc, {increment: :times_missed})
 pipeline.pipes << 
 
@@ -90,7 +90,7 @@ pipeline.pipes << StaggerCalling(["6107610083", "2412029301", "2142822129"])
 
 
 pipeline.pipes << GoogleDoc.new("http://docs.google.com/c80d8EdvlSEF")
-pipeline.pipes << Templafy.new(Template.new("Hi :::name:::"))
+pipeline.pipes << Template.new(Template.new("Hi :::name:::"))
 pipeline.pipes << SmsOut.new("6107610083")
 pipeline.save
 
@@ -234,7 +234,7 @@ the idea is that you implicitly pass all the variables from the beginning of the
 to the end of the pipeline
 
 pipeline.input = GoogleDocsListener.listen("http://docs.google.com/3rw8efjoi")
-pipeline.pipes = [TemplafyPipe.new(template_id)]
+pipeline.pipes = [TemplatePipe.new(template_id)]
 pipeline.output = SmsListener.listen(new_phone_number)
 pipeline.save
 
@@ -276,8 +276,8 @@ hash hash data
 
 
 input = GoogleDocs
-Templafy
-[SmsIn, Templafy]
+Template
+[SmsIn, Template]
 
 ```
 

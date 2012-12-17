@@ -1,4 +1,4 @@
-class TemplafyPipe < ActiveRecord::Migration
+class TemplatePipe < ActiveRecord::Migration
   def up
   end
 

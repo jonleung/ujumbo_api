@@ -62,37 +62,38 @@ describe "product" do
     response.should_not == nil
   end
 
-  # it "user pipe and template pipe is working" do
-  #   product = Product.new
-  #   product.name = "AirPennNet#{Product.count}"
-  #   product.save.should == true
+  it "user pipe and template pipe is working" do
+    product = Product.new
+    product.name = "AirPennNet#{Product.count}"
+    product.save.should == true
 
-  #   pipeline = product.pipelines.new
-  #   pipeline.name = "name#{Pipeline.count}"
-  #   pipeline.save
+    pipeline = product.pipelines.new
+    pipeline.name = "name#{Pipeline.count}"
+    pipeline.save
 
-  #   pipeline.pipes << UserPipe.new({ 
-  #                       :action => UserPipe::ACTIONS[:create],
-  #                       :key => "student",
-  #                       :platform_properties_keys => [:first_name, :last_name, :email, :phone],
-  #                       :product_properties_type_hash => { :pennkey => String, password: String }
-  #                     })
+    pipeline.pipes << UserPipe.new({ 
+                        :action => UserPipe::ACTIONS[:create],
+                        :key => "student",
+                        :platform_properties_keys => [:first_name, :last_name, :email, :phone],
+                        :product_properties_type_hash => { :pennkey => String, password: String }
+                      })
 
-  #   text = "Hi :::name:::, your PennKey is :::pennkey:::. Just reply to this message when you have successfully connected to the internet."
-  #   pipeline.pipes << TemplafyPipe.new({
-  #                       :action => :fill,
-  #                       :text => text,
-  #                       :variables_hash => {:name => "Users:student:name", :pennkey => "Users:student:pennkey"},
-  #                     })
+    text = "Hi :::name:::, your PennKey is :::pennkey:::. Just reply to this message when you have successfully connected to the internet."
+    pipeline.pipes << TemplatePipe.new({
+                        :action => :fill,
+                        :key => "message",
+                        :text => text,
+                        :variables_hash => {:name => "Users:student:name", :pennkey => "Users:student:pennkey"},
+                      })
 
-  #   user_create_trigger_id = pipeline.create_trigger(product.id, "database:user:create", {type: "student"})
-  #   api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})
+    user_create_trigger_id = pipeline.create_trigger(product.id, "database:user:create", {type: "student"})
+    api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})
 
-  #   client = ApiClient.new
-  #   response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student", })
+    client = ApiClient.new
+    response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, type: "student", })
 
-  #   pp response
-  #   response.should_not == nil
-  # end
+    pp response
+    response.should_not == nil
+  end
 
 end

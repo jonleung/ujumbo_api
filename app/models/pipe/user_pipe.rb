@@ -13,21 +13,24 @@ class UserPipe < ActiveRecord::Base
   end
 
   def flow(pipelined_hash)
-    _key = "_#{self.key}".to_sym
+    
+    key = self.key.to_sym
     
     case self.action
     when ACTIONS[:create]
       user = create_user(pipelined_hash)
 
       pipelined_hash[:Users] ||= {}
-      if pipelined_hash[:Users][_key].nil?
-         pipelined_hash[:Users][_key] = user.attributes
+      if pipelined_hash[:Users][key].nil?
+         pipelined_hash[:Users][key] = user.attributes
       else
-        raise "There is another User keyed into #{_key}"
+        raise "There is another User keyed into #{key}"
       end
     else
       raise "#{self.action} is invalid for a UserPipe"
     end
+
+    return pipelined_hash
   end
 
   def create_user(pipelined_hash)

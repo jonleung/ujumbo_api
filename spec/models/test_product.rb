@@ -28,7 +28,7 @@ describe "product" do
     pipeline.save
 
     # text = "Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"
-    # pipeline.pipes << TemplafyPipe.new({
+    # pipeline.pipes << TemplatePipe.new({
     #                     :text => text,
     #                     :variables_hash => {:name => "_student:name", :pennkey => "_student:pennkey"},
     #                   })
@@ -75,7 +75,7 @@ describe "product" do
   #   pipeline.name = "OnCreateUser#{Pipeline.count}"
 
   #   text = "Hi :::name:::, your PennKey is :::pennkey:::. Just with anything back to this message when you have finished setting u AirPennNet"
-  #   pipeline.pipes << TemplafyPipe.new({
+  #   pipeline.pipes << TemplatePipe.new({
   #                       :action => :fill
   #                       :text => text,
   #                       :variables_hash => {:name => "_student:name", :pennkey => "_student:pennkey"},
