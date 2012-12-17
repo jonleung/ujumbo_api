@@ -1,6 +1,8 @@
 class Trigger < ActiveRecord::Base
   include Trigger::Helpers
 
+  API_CALL = :api_call
+
   serialize :properties
   attr_accessible :product_id, :channel, :properties, :on_class, :on_id
 
@@ -18,15 +20,19 @@ class Trigger < ActiveRecord::Base
     def trigger_via_mysql(product_id, channel, hash)
       response_array = []
 
-      triggers = Trigger.where(product_id: product_id, channel: channel)
+      triggers = Trigger.where(product_id: pr0oduct_id, channel: channel)
+      
       triggers.each do |trigger|
-        match = true
+        debugger
+        match = false
+
         trigger.properties.each do |required_key, required_value|
           if hash[required_key] != required_value
-            match = false 
+            match = true
             break
           end
         end
+
         if match
           klass = trigger.triggered_class.constantize
           id = trigger.triggered_id

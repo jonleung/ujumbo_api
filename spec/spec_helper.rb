@@ -52,3 +52,11 @@ end
 
 # puts "Flusing Redis: #{Redis.current.flushall}"
 # puts "Reseting SQL: #{system("rake db:reset RAILS_ENV=test")}"
+
+=begin
+  
+RAILS_ENV=test rake db:drop
+RAILS_ENV=test rake db:create
+RAILS_ENV=test rake db:migrate
+  
+=end

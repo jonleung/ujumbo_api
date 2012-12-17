@@ -10,8 +10,13 @@ module Pipe
       filled_variables_hash = translate_hash(self.variables_hash, pipelined_hash)
       text = template.fill(filled_variables_hash)
 
+      _key = "_#{self.key}".to_sym
       pipelined_hash[:Templates] ||= {}
-      pipelined_hash[:Templates]["_#{key}".to_sym] = text
+      if pipelined_hash[:Templates][_key].nil?
+        pipelined_hash[:Templates][_key] = text
+      else
+        raise "There is another Template keyed into #{_key}"
+      end
 
       return pipelined_hash
     end

@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base  
-  attr_accessible :first_name, :last_name, :phone, :email
+  serialize :product_properties
+  attr_accessible :first_name, :last_name, :phone, :email, :product_properties
 
   after_save :before_save_hook
   def before_save_hook

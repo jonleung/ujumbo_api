@@ -16,10 +16,9 @@ class Pipeline < ActiveRecord::Base
     obj[:pipes] = self.pipes
     pp obj
 
-    # new_params = params
-    # self.pipes.each do |pipe|
-    #   new_params = pipe.flow(new_params)
-    # end
+    self.pipes.each do |pipe|
+      pipelined_hash = pipe.flow(pipelined_hash)
+    end
 
   end
 
