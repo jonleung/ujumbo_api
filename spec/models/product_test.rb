@@ -71,20 +71,28 @@ describe "product" do
     pipeline.name = "name#{Pipeline.count}"
     pipeline.save
 
-    pipeline.pipes << UserPipe.new({ 
-                        :action => UserPipe::ACTIONS[:create],
-                        :key => "student",
-                        :platform_properties_keys => [:first_name, :last_name, :email, :phone],
-                        :product_properties_type_hash => { :pennkey => String, password: String }
-                      })
+    # User Pipe
+    user_pipe = UserPipe.new({ 
+                  :action => UserPipe::ACTIONS[:create],
+                  :platform_properties_keys => [:first_name, :last_name, :email, :phone],
+                  :product_properties_type_hash => { :pennkey => String, password: String }
+                })
+    pipeline.connect_pipe(user_pipe)
 
+    # Template Pipe
     text = "Hi :::name:::, your PennKey is :::pennkey:::. Just reply to this message when you have successfully connected to the internet."
-    pipeline.pipes << TemplatePipe.new({
-                        :action => :fill,
-                        :key => "message",
+    template_pipe = TemplatePipe.new({
+                        :action => TemplatePipe::ACTIONS[:fill],
                         :text => text,
-                        :variables_hash => {:name => "Users:student:name", :pennkey => "Users:student:pennkey"},
-                      })
+                        :variables_hash => {:name => "Users:#{user_pipe.id}:name", :pennkey => "Users:#{user_pipe.id}:pennkey"},
+                    })
+    pipeline.pipes << template_pipe
+
+    # Sms Pipe
+    sms_pipe = SmsPipe.new({
+                :action => SmsPipe::ACTIONS[:send],
+                :template => Template
+               })
 
     user_create_trigger_id = pipeline.create_trigger(product.id, "database:user:create", {type: "student"})
     api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {type: "student"})

@@ -7,9 +7,10 @@ gem 'rails-api'
 gem 'thin'
 
 # Databse
-# gem 'pg'
+gem 'pg'
+gem "mongo_mapper"
 # gem 'sqlite3'
-gem 'mysql2'
+# gem 'mysql2'
 
 gem 'hiredis'
 gem 'redis'

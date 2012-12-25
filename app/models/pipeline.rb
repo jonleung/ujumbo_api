@@ -10,6 +10,10 @@ class Pipeline < ActiveRecord::Base
     self.pipes ||= []
   end
 
+  def add_pipe(active_record)
+    pipes << { klass: active_record.class.to_s, id: active_record.id }
+  end
+
   def trigger(pipelined_hash)
     puts "TRIGGERED"
     obj = {}
@@ -20,7 +24,6 @@ class Pipeline < ActiveRecord::Base
     self.pipes.each do |pipe|
       pipelined_hash = pipe.flow(pipelined_hash)
     end
-
   end
 
 
