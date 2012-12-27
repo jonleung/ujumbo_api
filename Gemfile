@@ -8,7 +8,7 @@ gem 'thin'
 
 # Databse
 gem 'pg'
-gem "mongo_mapper"
+gem "mongoid"
 # gem 'sqlite3'
 # gem 'mysql2'
 
