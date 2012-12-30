@@ -1,15 +1,14 @@
-class Product
+class Thing
   include Mongoid::Document
   self.mass_assignment_sanitizer = :strict
   include Mongoid::Timestamps
   include Mongoid::Paranoia
 
-  has_many :pipelines
-  has_many :triggers
+  belongs_to :product
 
   field :name, type: String
+  field :product_properties, type: Hash
 
-  attr_accessible :name
-  validates_uniqueness_of :name 
-  
+  attr_accessible :name, :product_properties
+
 end

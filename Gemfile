@@ -7,8 +7,10 @@ gem 'rails-api'
 gem 'thin'
 
 # Databse
-# gem 'pg'
-gem 'sqlite3'
+gem 'pg'
+gem "mongoid"
+# gem 'sqlite3'
+# gem 'mysql2'
 
 gem 'hiredis'
 gem 'redis'
@@ -34,6 +36,7 @@ group :development do
   gem 'annotate', '~> 2.4.1.beta'
   gem 'guard'
   gem 'rspec-rails'
+  gem 'show_in_browser'
 end
 
 group :test do
