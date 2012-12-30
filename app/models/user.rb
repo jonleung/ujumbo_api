@@ -1,25 +1,26 @@
-class User < ActiveRecord::Base  
-  belongs_to :product
+class User < Thing
 
-  serialize :product_properties
-  attr_accessible :first_name, :last_name, :phone, :email, :product_properties
+  field :first_name, type: String
+  field :last_name, type: String
+  field :email, type: String
+  field :phone, type: String
+
+  field :role, type: String
+
+  attr_accessible :first_name, :last_name, :phone, :email, :product_properties, :role
 
   after_save :before_save_hook
   def before_save_hook
     if self.new_record?
     else
-      triggers = Trigger.where(on: "database:user:save")
-      triggers.each do |trigger|
-        trigger.activate(self)
-      end
+      Trigger.trigger(self.product_id, "database:user:save", self.attributes)
+    end
     return true
   end
 
   after_create :after_create_hook
   def after_create_hook
-    triggers = Trigger.trigger("database:user:create", self.attributes)
+    Trigger.trigger(self.product_id, "database:user:create", self.attributes)
   end
-
-
 
 end

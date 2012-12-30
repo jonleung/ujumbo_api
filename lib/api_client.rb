@@ -1,4 +1,5 @@
 require 'httparty'
+require 'show_in_browser'
 
 class ApiClient
   include HTTParty
@@ -26,16 +27,16 @@ class ApiClient
     end
   end
 
-  def post(endpoint, options={})
+  def post(endpoint, params={}, options={debug: false})
     begin
       result = self.class.post(
         endpoint,
-        :body => options.to_json,
+        :body => params.to_json,
         :headers => { 'Content-Type' => 'application/json' },
         :timeout => 999999
       )
       response = ApiClient.normalize_parameters(result.parsed_response)
-        `echo #{shell_escape(response.to_s)} | browser` if options[:debug] == "browser"
+        ShowInBrowser.show(response) if options[:debug] == true
         pp response
       return response
 
@@ -43,14 +44,6 @@ class ApiClient
       puts "Unable to connect to a rails server running on #{HOST}.".white.on_red
       puts "Are you sure you're running a rails server on #{HOST}?"
     end
-  end
-
-  def shell_escape(str) # for debugging and outputting website
-    return "''" if str.empty?
-    str = str.dup
-    str.gsub!(/([^A-Za-z0-9_\-.,:\/@\n])/n, "\\\\\\1")
-    str.gsub!(/\n/, "'\n'")
-    return str
   end
 
 end

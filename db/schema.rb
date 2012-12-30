@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(:version => 20121208175804) do
 
   create_table "user_pipes", :force => true do |t|
     t.string   "action"
-    t.text     "platform_properties_keys"
+    t.text     "platform_properties_list"
     t.text     "product_properties_type_hash"
     t.string   "type"
     t.string   "key"

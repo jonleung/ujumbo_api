@@ -36,6 +36,7 @@ group :development do
   gem 'annotate', '~> 2.4.1.beta'
   gem 'guard'
   gem 'rspec-rails'
+  gem 'show_in_browser'
 end
 
 group :test do

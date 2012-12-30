@@ -46,7 +46,7 @@ And so this lets us do
   ...
   pipeline.save
 
-  pipeline.set_trigger("database:user:create", {type: "student"})
+  pipeline.set_trigger("database:user:create", {role: "student"})
 ```
 
 and then to actually call this

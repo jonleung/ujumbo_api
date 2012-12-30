@@ -1,40 +1,40 @@
-module Pipe
-  class TemplatePipe < ActiveRecord::Base
-    serialize :variable_regex
-    serialize :variables_hash
+class TemplatePipe < Pipe
 
-    attr_accessible :text, :variable_regex, :variables_hash, :key
+  ACTIONS = {
+    :fill => :fill
+  }
 
-    def flow(pipelined_hash)
-      template = Template.new(self.text, self.variable_regex)
-      filled_variables_hash = translate_hash(self.variables_hash, pipelined_hash)
-      text = template.fill(filled_variables_hash)
+  field :template_text, type: String
+  field :variable_regex, type: Regexp
+  field :variables_hash_schema, type: Hash
 
-      key = self.key.to_sym 
+  attr_accessible :template_text, :variable_regex, :variables_hash_schema
 
-      pipelined_hash[:Templates] ||= {}
-      if pipelined_hash[:Templates][key].nil?
-        pipelined_hash[:Templates][key] = text
-      else
-        raise "There is another Template keyed into #{key}"
-      end
+  def flow(pipelined_hash)
+    debugger
+    template = Template.new(self.template_text, self.variable_regex)
+    filled_variables_hash = TemplatePipe.translate_hash(pipelined_hash, self.variables_hash_schema)
+    text = template.fill(filled_variables_hash)
 
-      return pipelined_hash
+    pipelined_hash[:Templates] ||= {}
+    if pipelined_hash[:Templates][self.id].nil?
+      pipelined_hash[:Templates][self.id] = text
     end
 
-    def translate_hash(variables_hash, pipelined_hash)
-      variables_hash = variables_hash.deep_copy
-      variables_hash.each do |variables_hash_key, variables_hash_value|
-        variables_hash[:key] = translate_value!(variables_hash_value, pipelined_hash)
-      end
-    end
+    return pipelined_hash
+  end
 
-    def translate_value!(variables_hash_value, pipelined_hash)
-      cur_hash_value = hash
-      key.split(/:/).each do |segment|
-        cur_hash_value = cur_hash_value[segment]
+  class << self
+  
+    def translate_hash(pipelined_hash, variables_hash_schema)
+      debugger
+      variables_hash = variables_hash_schema.deep_copy
+      variables_hash_schema.each do |variable, path|
+        variables_hash[:key] = translate_value(pipelined_hash, path)
       end
+      return variables_hash
     end
 
   end
+
 end

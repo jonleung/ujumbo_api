@@ -16,7 +16,7 @@ class Trigger
 
     def create_trigger_via_mysql(product_id, channel, properties)
       #   TODO: Allow you to set triggers before the id is set
-      throw "#{self}'s id is not set. Please make sure it is set before setting the trigger" if self.id.nil?
+      raise "#{self}'s id is not set. Please make sure it is set before setting the trigger" if self.id.nil?
 
       trigger = Trigger.new
       trigger.product_id = product_id

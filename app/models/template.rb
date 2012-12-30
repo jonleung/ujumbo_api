@@ -5,13 +5,15 @@ class Template
 
   attr_accessor :text, :variable_regex
 
-  def initialize(text, variable_regex=DEFAULT_VARIABLE_REGEX)
+  def initialize(text, variable_regex=DEFAULT_VARIABLE_REGEX) 
+    debugger
     @text = text
-    @variable_regex = variable_regex
+    @variable_regex = variable_regex.nil? ? DEFAULT_VARIABLE_REGEX : variable_regex
   end
 
   def fill(hash)
-    self.text.gsub!(variable_regex) { hash[$1.to_sym] }
+    debugger
+    self.text.gsub!(self.variable_regex) { hash[$1.to_sym] }
   end
 
   def variables
