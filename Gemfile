@@ -6,8 +6,8 @@ gem 'rails-api'
 # Server
 gem 'thin'
 
-# Databse
-gem 'pg'
+# Databses
+# gem 'pg'
 gem "mongoid"
 # gem 'sqlite3'
 # gem 'mysql2'
@@ -22,6 +22,7 @@ gem 'resque'
 
 # Input / Output
 gem 'google_drive'
+gem 'twilio-ruby'
 
 # Separate
 gem 'httparty'
@@ -36,7 +37,6 @@ group :development do
   gem 'annotate', '~> 2.4.1.beta'
   gem 'guard'
   gem 'rspec-rails'
-  gem 'show_in_browser'
 end
 
 group :test do

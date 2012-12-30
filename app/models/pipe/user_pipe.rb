@@ -19,15 +19,12 @@ class UserPipe < Pipe
   end
 
   def flow(pipelined_hash)
-
+    super(pipelined_hash)
+    
     case self.action
     when ACTIONS[:create]
       user = create_user(pipelined_hash)
-
-      pipelined_hash[:Users] ||= {}
-      if pipelined_hash[:Users][self.id].nil?
-         pipelined_hash[:Users][self.id] = user.attributes
-      end
+      writeback_to_pipelined_hash("Users", user.all_attributes)
     else
       raise "#{self.action} is invalid for a UserPipe"
     end
