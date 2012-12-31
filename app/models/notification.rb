@@ -13,6 +13,6 @@ class Notification
   belongs_to :user
   field :body, type: String
 
-  attr_accessible :from_user, :to_user, :body
+  attr_accessible :body
 
 end

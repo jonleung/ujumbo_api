@@ -14,7 +14,6 @@ class TemplatePipe < Pipe
 
     template = Template.new(self.template_text, self.variable_regex)
 
-    debugger
     text = template.fill(translated_pipelined_references)
     h = {text: text}
 

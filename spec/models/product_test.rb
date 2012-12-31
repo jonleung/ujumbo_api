@@ -43,18 +43,18 @@ describe "product" do
     template_pipe.save.should == true    
     pipe_order << template_pipe.id
 
-    # # # Sms Pipe
-    # notification_pipe = NotificationPipe.new({
-    #             :action => SmsPipe::ACTIONS[:create],
-    #             :types => [Notifcation::TYPES[:sms]],
-    #             :pipelined_references => {
-    #               :user_id => "Users:#{user_pipe.id}" #TODO: This is all you should have to specify, this is a bit smarter or more standardize
-    #               :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
-    #             }    
-    #            })
-    # notification_pipe.pipeline = pipeline
-    # notification_pipe.save.should == true
-    # pipe_order << notification_pipe.id
+    # Sms Pipe
+    notification_pipe = NotificationPipe.new({
+                :action => NotificationPipe::ACTIONS[:create],
+                :type => Notification::TYPES[:sms],
+                :pipelined_references => {
+                  :user_id => "Users:#{user_pipe.id}", #TODO: This is all you should have to specify, this is a bit smarter or more standardize
+                  :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
+                }    
+               })
+    notification_pipe.pipeline = pipeline
+    notification_pipe.save.should == true
+    pipe_order << notification_pipe.id
 
 
     pipeline.pipe_order = pipe_order
