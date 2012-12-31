@@ -36,14 +36,28 @@ class ApiClient
         :timeout => 999999
       )
       response = ApiClient.normalize_parameters(result.parsed_response)
-        ShowInBrowser.show(response) if options[:debug] == true
-        pp response
+      show_in_browser(response) if options[:debug] == true
+      pp response
       return response
 
     rescue Errno::ECONNREFUSED
       puts "Unable to connect to a rails server running on #{HOST}.".white.on_red
       puts "Are you sure you're running a rails server on #{HOST}?"
     end
+  end
+
+  def show_in_browser(response)
+    format = nil
+    body = nil
+
+    if response[0] == "<"
+      format = ".html"
+      body = response
+    else
+      format = ".json"
+      body = response.to_json
+    end
+    ShowInBrowser.show(body, format)
   end
 
 end

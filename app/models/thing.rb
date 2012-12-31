@@ -9,6 +9,14 @@ class Thing
   field :name, type: String
   field :product_properties, type: Hash
 
+  def all_attributes
+    h = HashWithIndifferentAccess.new(self.attributes)
+    h.merge!(h[:product_properties])
+    h.delete(:product_properties)
+
+    return h
+  end
+
   attr_accessible :name, :product_properties
 
 end

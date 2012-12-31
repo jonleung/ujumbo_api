@@ -32,24 +32,30 @@ describe "product" do
     # Template Pipe
     text = "Hi :::name:::, your PennKey is :::pennkey:::. Just reply to this message when you have successfully connected to the internet."
     template_pipe = TemplatePipe.new({
-                        :action => TemplatePipe::ACTIONS[:fill],
-                        :template_text => text,
-                        :variables_hash_schema => {
-                          :name => "Users:#{user_pipe.id}:name",
-                          :pennkey => "Users:#{user_pipe.id}:pennkey"
-                        },
+                      :action => TemplatePipe::ACTIONS[:fill],
+                      :template_text => text,
+                      :pipelined_references => {
+                        :name => "Users:#{user_pipe.id}:first_name", #TODO, thses should be made a type so that you can say, for this type, decode it, otherwise if it is just a tring then no need to decode
+                        :pennkey => "Users:#{user_pipe.id}:pennkey"
+                      }
                     }) 
     template_pipe.pipeline = pipeline
     template_pipe.save.should == true    
     pipe_order << template_pipe.id
 
-    # # Sms Pipe
-    # sms_pipe = SmsPipe.new({
-    #             :action => SmsPipe::ACTIONS[:send],
-    #             :sender => "Users:#{user_pipe.id}:"
-    #             :template => Template
-    #            })
-    # pipe_order << sms_pipe.id
+    # Sms Pipe
+    notification_pipe = NotificationPipe.new({
+                :action => NotificationPipe::ACTIONS[:create],
+                :type => Notification::TYPES[:sms],
+                :pipelined_references => {
+                  :user_id => "Users:#{user_pipe.id}", #TODO: This is all you should have to specify, this is a bit smarter or more standardize
+                  :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
+                }    
+               })
+    notification_pipe.pipeline = pipeline
+    notification_pipe.save.should == true
+    pipe_order << notification_pipe.id
+
 
     pipeline.pipe_order = pipe_order
     pipeline.save
