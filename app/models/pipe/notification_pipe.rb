@@ -32,6 +32,8 @@ class NotificationPipe < Pipe
       notification.user_id = translated_pipelined_references[:user_id][:_id] #TODO, make it so that it is not :_id
       notification.body = translated_pipelined_references[:body]
       notification.save
+
+      debugger
                                                                           #TODO, standardize other notifications with attributes as the param as well or make it specific code
       writeback_to_pipelined_hash(PIPELINED_KEY, notification.attributes) #TODO, make write_back
     end
