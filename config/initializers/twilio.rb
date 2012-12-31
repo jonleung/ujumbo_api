@@ -30,8 +30,17 @@ module Twilio
 
         attrs = %w[sid date_created date_updated date_sent account_sid to from body status direction api_version price]
         attrs.each do |attribute|
-          attribute = attribute.to_sym if attribute == "status"
-          h[attribute] = self.send(attribute)
+          value = self.send(attribute)
+
+          if value.present?
+            if attribute.in? %w{date_created date_updated date_sent}
+              value = DateTime.parse(value)
+            elsif attribute == "status"
+              value = value.to_sym
+            end
+          end
+          
+          h[attribute] = value
         end
         return h
       end
