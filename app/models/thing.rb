@@ -13,6 +13,7 @@ class Thing
     h = HashWithIndifferentAccess.new(self.attributes)
     h.merge!(h[:product_properties])
     h.delete(:product_properties)
+    h[:id] = h.delete(:_id)
 
     return h
   end
