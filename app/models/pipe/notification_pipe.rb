@@ -29,7 +29,7 @@ class NotificationPipe < Pipe
       when Notification::TYPES[:email]
         notification = EmailNotification.new
       end
-      notification.user_id = translated_pipelined_references[:user_id][:_id] #TODO, make it so that it is not :_id
+      notification.user_id = translated_pipelined_references[:user_id] #TODO, make it so that it is not :_id
       notification.body = translated_pipelined_references[:body]
       notification.save
 
