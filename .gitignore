@@ -36,9 +36,7 @@ Gemfile.lock
 /log/*
 /tmp/*
 
-config/*.yml
 config/*.conf
-/config/*.yml
 /config/*.conf
 
 *.rbc
