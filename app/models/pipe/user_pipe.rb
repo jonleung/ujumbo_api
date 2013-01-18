@@ -25,6 +25,8 @@ class UserPipe < Pipe
     when ACTIONS[:create]
       user = create_user(pipelined_hash)
       writeback_to_pipelined_hash("Users", user.all_attributes)
+    when ACTIONS[:update]
+      
     else
       raise "#{self.action} is invalid for a UserPipe"
     end

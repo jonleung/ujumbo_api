@@ -16,7 +16,15 @@ class Trigger
         destroy: "database:user:destroy"
       }
     },
-    api_call: "api_call"
+    api_call: "api_call",
+    dropbox: {
+      file: {
+        added: {
+          type: "csv"
+        }
+      }
+    }
+
   }
 
   field :channel, type: String

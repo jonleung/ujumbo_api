@@ -11,10 +11,10 @@ class Trigger
     # end
 
     def create_trigger(product_id, channel, properties)
-      create_trigger_via_mysql(product_id, channel, properties)
+      create_trigger_via_mongo(product_id, channel, properties)
     end
 
-    def create_trigger_via_mysql(product_id, channel, properties)
+    def create_trigger_via_mongo(product_id, channel, properties)
       #   TODO: Allow you to set triggers before the id is set
       raise "#{self}'s id is not set. Please make sure it is set before setting the trigger" if self.id.nil?
 
