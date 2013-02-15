@@ -1,3 +1,4 @@
+require 'google/api_client'
 module Io
 	class GoogleDoc
 		attr_accessor :session
@@ -6,7 +7,6 @@ module Io
 		attr_accessor :file_obj
 		attr_accessor :worksheet_obj
 		attr_accessor :auth_tokens
-
 
 		def initialize(username, password, filename, worksheet_name)
 			@session = GoogleDrive.login(username, password)
@@ -17,6 +17,83 @@ module Io
 			@worksheet_obj = @file_obj.worksheet_by_title(@worksheet_name)
 		end
 
+		def authenticate
+			cid = "140001700804.apps.googleusercontent.com"
+			csecret = "kmVxHyY_fvexlqaEovRfIyb7"
+			ruri = "https://localhost/oauth2callback"
+			client = Google::APIClient.new
+			drive = client.discovered_api('drive', 'v2')
+
+			client.authorization.client_id = cid
+			client.authorization.client_secret = csecret
+			client.authorization.scope = "https://www.googleapis.com/drive/"
+			client.authorization.redirect_uri = ruri
+			
+			uri = client.authorization.authorization_uri
+			client.authorization.code = '....'
+			client.authorization.fetch_access_token!
+
+			arr = Array.new
+			result = client.execute(
+				:api_method => drive.changes.list,
+				:parameters => { }
+				)
+			arr.concat(result.items)
+			return arr
+		end
+
+		def delete_history
+			GDoc.delete_all(name: @worksheet_name)
+		end
+
+		def store_state
+			data = self.all_hashed
+			serial_data = Marshal.dump(data)
+			GDoc.create(
+				name: @worksheet_name,
+				data: serial_data
+			)
+		end
+
+		def get_state
+			gdoc = GDoc.where(name: @worksheet_name).last
+			data = Marshal.load(gdoc.data)
+			return data
+		end
+
+		def get_changes
+			old_rows = self.get_state
+			curr_rows = self.all_hashed
+			changes = []
+			
+			curr_rows.keys.each do |curr_key|
+				old_rows.keys.each do |old_key|
+					# check existing rows for changes
+					if curr_key == old_key
+						dif = curr_rows[curr_key].diff(old_rows[old_key])
+						if dif != {}
+							# adds the entire row to the changes list
+							changes << curr_rows[curr_key]
+							# to add the specific change, use: changes << dif
+						end
+					end
+				end
+			end
+
+			# if there's a new row
+			curr_rows.keys.each do |curr_key|
+				if !old_rows.keys.include?(curr_key)
+					changes << curr_rows[curr_key]
+				end
+			end
+			store_state
+			return changes
+		end
+
+		def get_updates
+			#response = HTTParty.get('https://docs.google.com/feeds/hello%40ujumbo.com/private/changes')
+			#puts response.body, response.code, response.message, response.headers.inspect
+		end
 		# adds a key (first row of spreadsheet)
 		def add_key(key)
 			numkeys = @worksheet_obj.list.keys.length
@@ -30,6 +107,7 @@ module Io
 
 		# creates a row with hash of key-value params
 		def create_row(params)
+			GoogleDrive.restore_session(@auth_tokens)
 			# add the keys if they don't exist
 			params.each do | key, value |
 				if(!@worksheet_obj.list.keys.include?(key))
@@ -104,6 +182,16 @@ module Io
 				return []
 			else
 				@worksheet_obj.list.to_hash_array
+			end
+		end
+
+		def all_hashed
+			if(@worksheet_obj.nil?)
+				return {}
+			else
+				arr = @worksheet_obj.list.to_hash_array
+				hsh = Hash[arr.each_with_index.map { |row, id| [id, row] }]
+				return hsh
 			end
 		end
 

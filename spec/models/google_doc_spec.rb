@@ -6,9 +6,13 @@ describe Io::GoogleDoc do
 	password = "movefastandbreakthings"
 	filename = "gdocs_test"
 	worksheet_name = "Sheet 1"
+
+	filename2 = "changes_test"
+	worksheet_name2 = "Sheet1"
 	
 	before(:all) do
 		@test_doc = Io::GoogleDoc.new(username, password, filename, worksheet_name)
+		@change_test_doc = Io::GoogleDoc.new(username, password, filename2, worksheet_name2)
 		initial_row = { "Animals" => "Fox", "Games" => "Halo"}
 		@test_doc.create_row(initial_row)
 	end
@@ -28,7 +32,6 @@ describe Io::GoogleDoc do
 		@test_doc.create_row(row)
 		a = 1
 		a.should == 1
-
 	end
 
 	it "should remove a row" do
@@ -69,17 +72,58 @@ describe Io::GoogleDoc do
 	end
 
 	it "should read a row" do
-		row =  { "Jazz" => "Miles Davis"}
-		row2 = { "Jazz" => "John Coltrane"}
+		row =  { "Jazz" => "Miles Davis" }
+		row2 = { "Jazz" => "John Coltrane" }
 		@test_doc.create_row(row)
 		@test_doc.create_row(row2)
 		@test_doc.where({ "Jazz" => "Miles Davis" }).length.should == 1
 
 	end
 
+	it "should store state without crashing" do
+		@test_doc.store_state
+	end
+
+	it "should print out the state" do
+		state = @test_doc.get_state
+		state.length.should > 0
+	end
+
+	it "adding a new row: it should print out the change" do
+		@change_test_doc.store_state
+		row = { "Animals" => "Change", "Games" => "Walking Dead" }
+		@change_test_doc.create_row(row)
+		change = @change_test_doc.get_changes
+		change.should == [{ "Animals" => "Change", "Games" => "Walking Dead" }]
+		@change_test_doc.clear_sheet
+	end
+
+	it "modifying a cell: it should print out the changed row" do
+		row = { "Animals" => "Panda", "Games" => "Walking Dead" }
+		@change_test_doc.create_row(row)
+		@change_test_doc.store_state
+
+		update = { "Games" => "Tetris" }
+		@change_test_doc.update(row, update)
+
+		change = @change_test_doc.get_changes
+		change.should == [{ "Animals" => "Panda", "Games" => "Tetris" }]
+
+		@change_test_doc.clear_sheet
+	end
+
+	#it "should authenticate to google docs" do
+	#	arr = @test_doc.authenticate
+	#	puts arr
+	#end
+
+	#it "should print the changes list" do
+	#	@test_doc.get_updates
+	#end
 
 	after(:all) do
 		@test_doc.clear_sheet
+		@change_test_doc.clear_sheet
 	end
 
 end

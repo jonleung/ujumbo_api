@@ -22,6 +22,7 @@ gem 'resque'
 
 # Input / Output
 gem 'google_drive'
+gem 'google-api-client'
 gem 'twilio-ruby'
 
 # Separate
