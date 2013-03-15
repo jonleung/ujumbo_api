@@ -123,6 +123,10 @@ describe GoogleDoc do
 		@copied_doc.session.root_collection.remove(@copied_doc.file_obj)
 	end
 
+	it "should create a new spreadsheet that has the script", :type=>'special' do
+		GoogleDoc.create_new_doc(username, password, "testing_it_out")
+	end
+
 	#it "should authenticate to google docs" do
 	#	arr = @test_doc.authenticate
 	#	puts arr

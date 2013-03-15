@@ -1,16 +1,13 @@
 require 'google/api_client'
 
-
 =begin
 	
 creating a new spreadsheet: duplicate one with the google script in it
-	- https://docs.google.com/spreadsheet/ccc?key=0Aofk8L6brI_edENNSllYLXVqRERVOHBKblRvQ29sRWc&newcopy=true
 	- code some way to store the schema ('types') of the column-names
-	- google script should do something different with submit vs. edits
-
 =end
 
 class GoogleDoc
+
 	attr_accessor :session
 	attr_accessor :filename
 	attr_accessor :worksheet_name
@@ -27,41 +24,19 @@ class GoogleDoc
 		@worksheet_obj = @file_obj.worksheet_by_title(@worksheet_name)
 	end
 
-	def create_new_doc(username, password, filename)
-		@session = GoogleDrive.login(username, password)
-		@auth_tokens = @session.auth_tokens
-		@filename = filename
-		@worksheet_name = "Sheet1"
+	def self.create_new_doc(username, password, filename)
+		doc_with_script = "BLANK_WITH_SCRIPT"
+		sesh = GoogleDrive.login(username, password)
+		file_to_copy = sesh.spreadsheet_by_title(doc_with_script)
+		self.copy_file(file_to_copy, filename)
+	end
 
+	def self.copy_file(f_obj, new_title)
+		f_obj.duplicate(new_title)
 	end
 
 	def copy_doc(new_title)
 		@file_obj.duplicate(new_title)
-	end
-
-	def authenticate
-		cid = "140001700804.apps.googleusercontent.com"
-		csecret = "kmVxHyY_fvexlqaEovRfIyb7"
-		ruri = "https://localhost/oauth2callback"
-		client = Google::APIClient.new
-		drive = client.discovered_api('drive', 'v2')
-
-		client.authorization.client_id = cid
-		client.authorization.client_secret = csecret
-		client.authorization.scope = "https://www.googleapis.com/drive/"
-		client.authorization.redirect_uri = ruri
-		
-		uri = client.authorization.authorization_uri
-		client.authorization.code = '....'
-		client.authorization.fetch_access_token!
-
-		arr = Array.new
-		result = client.execute(
-			:api_method => drive.changes.list,
-			:parameters => { }
-			)
-		arr.concat(result.items)
-		return arr
 	end
 
 	def delete_history
@@ -70,7 +45,6 @@ class GoogleDoc
 
 	def store_state
 		data = self.all_hashed
-		#puts data.to_s
 		serial_data = Marshal.dump(data)
 		GDoc.create(
 			name: @worksheet_name,
@@ -276,5 +250,31 @@ class GoogleDoc
 			end
 		end
 		return replaced_rows
+	end
+
+
+	def authenticate
+		cid = "140001700804.apps.googleusercontent.com"
+		csecret = "kmVxHyY_fvexlqaEovRfIyb7"
+		ruri = "https://localhost/oauth2callback"
+		client = Google::APIClient.new
+		drive = client.discovered_api('drive', 'v2')
+
+		client.authorization.client_id = cid
+		client.authorization.client_secret = csecret
+		client.authorization.scope = "https://www.googleapis.com/drive/"
+		client.authorization.redirect_uri = ruri
+		
+		uri = client.authorization.authorization_uri
+		client.authorization.code = '....'
+		client.authorization.fetch_access_token!
+
+		arr = Array.new
+		result = client.execute(
+			:api_method => drive.changes.list,
+			:parameters => { }
+			)
+		arr.concat(result.items)
+		return arr
 	end
 end
