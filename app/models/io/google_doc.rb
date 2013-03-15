@@ -1,5 +1,15 @@
 require 'google/api_client'
 
+
+=begin
+	
+creating a new spreadsheet: duplicate one with the google script in it
+	- https://docs.google.com/spreadsheet/ccc?key=0Aofk8L6brI_edENNSllYLXVqRERVOHBKblRvQ29sRWc&newcopy=true
+	- code some way to store the schema ('types') of the column-names
+	- google script should do something different with submit vs. edits
+
+=end
+
 class GoogleDoc
 	attr_accessor :session
 	attr_accessor :filename
@@ -15,6 +25,18 @@ class GoogleDoc
 		@worksheet_name = worksheet_name
 		@file_obj = @session.spreadsheet_by_title(filename)
 		@worksheet_obj = @file_obj.worksheet_by_title(@worksheet_name)
+	end
+
+	def create_new_doc(username, password, filename)
+		@session = GoogleDrive.login(username, password)
+		@auth_tokens = @session.auth_tokens
+		@filename = filename
+		@worksheet_name = "Sheet1"
+
+	end
+
+	def copy_doc(new_title)
+		@file_obj.duplicate(new_title)
 	end
 
 	def authenticate
@@ -48,6 +70,7 @@ class GoogleDoc
 
 	def store_state
 		data = self.all_hashed
+		#puts data.to_s
 		serial_data = Marshal.dump(data)
 		GDoc.create(
 			name: @worksheet_name,

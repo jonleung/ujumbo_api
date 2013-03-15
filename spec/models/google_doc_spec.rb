@@ -112,6 +112,17 @@ describe GoogleDoc do
 		@change_test_doc.clear_sheet
 	end
 
+	# run only this test by using "rspec /path/to/file.rb --tag type:special"
+	it "should copy a spreadsheet", :type => 'special' do
+		@doc_to_copy = GoogleDoc.new(username, password, "BLANK_WITH_SCRIPT", "Sheet1")
+		@doc_to_copy.copy_doc("THIS_IS_A_COPY")
+		@copied_doc = GoogleDoc.new(username, password, "THIS_IS_A_COPY", "Sheet1")
+		@copied_doc.filename.should == "THIS_IS_A_COPY"
+
+		# cleanup step: delete the copied file
+		@copied_doc.session.root_collection.remove(@copied_doc.file_obj)
+	end
+
 	#it "should authenticate to google docs" do
 	#	arr = @test_doc.authenticate
 	#	puts arr
