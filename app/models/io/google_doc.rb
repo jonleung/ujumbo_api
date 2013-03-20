@@ -1,9 +1,23 @@
 require 'google/api_client'
+require 'securerandom'
 
 =begin
 	
 creating a new spreadsheet: duplicate one with the google script in it
 	- code some way to store the schema ('types') of the column-names
+		- add/remove columns: done using the interface
+			- will receive a new schema hash on add/remove
+	
+	- abstract out authentication (use oauth token to login)
+		- get a token to test with
+
+	- create 3 arrays for get_changes: added, deleted, updated
+		- track history of changes using DocumentState
+		- deleting a row versus deleting just one cell within a row
+
+	- change initialize() for create_new
+
+	- write watir script to add the google script to the spreadsheet
 =end
 
 class GoogleDoc
@@ -15,28 +29,31 @@ class GoogleDoc
 	attr_accessor :worksheet_obj
 	attr_accessor :auth_tokens
 
-	def initialize(username, password, filename, worksheet_name)
+	def initialize(params)
+		auth_token = params[:auth_token]
+		username = params[:username]
+		password = params[:password]
+		create_new = params[:create_new]
+		@filename = params[:filename]
+		@worksheet_name = params[:worksheet_name]
+
+		#@session = GoogleDrive.login_with_oauth(auth_token)
 		@session = GoogleDrive.login(username, password)
+		self.create_new_doc(@session, @filename) if create_new
 		@auth_tokens = @session.auth_tokens
-		@filename = filename
-		@worksheet_name = worksheet_name
-		@file_obj = @session.spreadsheet_by_title(filename)
+		@file_obj = @session.spreadsheet_by_title(@filename)
 		@worksheet_obj = @file_obj.worksheet_by_title(@worksheet_name)
 	end
 
-	def self.create_new_doc(username, password, filename)
+	def self.create_new_doc(session, filename)
 		doc_with_script = "BLANK_WITH_SCRIPT"
-		sesh = GoogleDrive.login(username, password)
-		file_to_copy = sesh.spreadsheet_by_title(doc_with_script)
+		file_to_copy = session.spreadsheet_by_title(doc_with_script)
 		self.copy_file(file_to_copy, filename)
+		return session
 	end
 
 	def self.copy_file(f_obj, new_title)
 		f_obj.duplicate(new_title)
-	end
-
-	def copy_doc(new_title)
-		@file_obj.duplicate(new_title)
 	end
 
 	def delete_history
@@ -61,7 +78,7 @@ class GoogleDoc
 	def get_changes
 		old_rows = self.get_state
 		curr_rows = self.all_hashed
-		changes = []
+		changes = { all: [], additions: [], deletions: [], updates: [] }
 		
 		curr_rows.keys.each do |curr_key|
 			old_rows.keys.each do |old_key|
@@ -70,7 +87,8 @@ class GoogleDoc
 					dif = curr_rows[curr_key].diff(old_rows[old_key])
 					if dif != {}
 						# adds the entire row to the changes list
-						changes << curr_rows[curr_key]
+						changes[:all] 		<< curr_rows[curr_key]
+						changes[:updates]	<< curr_rows[curr_key] if curr_rows[curr_key] != {}
 						# to add the specific change, use: changes << dif
 					end
 				end
@@ -80,9 +98,19 @@ class GoogleDoc
 		# if there's a new row
 		curr_rows.keys.each do |curr_key|
 			if !old_rows.keys.include?(curr_key)
-				changes << curr_rows[curr_key]
+				changes[:all] 		<< curr_rows[curr_key]
+				changes[:additions] << curr_rows[curr_key]
 			end
 		end
+
+		# if a row was deleted
+		old_rows.keys.each do |old_key|
+			if !curr_rows.keys.include?(old_key)
+				changes[:all]		<< {deleted: old_rows[old_key]}
+				changes[:deletions] << {deleted: old_rows[old_key]}
+			end
+		end
+
 		store_state
 		return changes
 	end

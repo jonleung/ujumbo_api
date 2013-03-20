@@ -11,8 +11,8 @@ describe GoogleDoc do
 	worksheet_name2 = "Sheet1"
 	
 	before(:all) do
-		@test_doc = GoogleDoc.new(username, password, filename, worksheet_name)
-		@change_test_doc = GoogleDoc.new(username, password, filename2, worksheet_name2)
+		@test_doc = GoogleDoc.new({username: username, password: password, 
+									filename: filename, worksheet_name: worksheet_name})
 		initial_row = { "Animals" => "Fox", "Games" => "Halo"}
 		@test_doc.create_row(initial_row)
 	end
@@ -89,41 +89,68 @@ describe GoogleDoc do
 		state.length.should > 0
 	end
 
-	it "adding a new row: it should print out the change" do
-		@change_test_doc.store_state
+	it "CHANGES: adding a new row: it should print out the change", type:'changes' do
+		change_test_doc = GoogleDoc.new({username: username, password: password, 
+									filename: filename2, worksheet_name: worksheet_name2})
+		change_test_doc.store_state
 		row = { "Animals" => "Change", "Games" => "Walking Dead" }
-		@change_test_doc.create_row(row)
-		change = @change_test_doc.get_changes
-		change.should == [{ "Animals" => "Change", "Games" => "Walking Dead" }]
-		@change_test_doc.clear_sheet
+		change_test_doc.create_row(row)
+		change = change_test_doc.get_changes
+
+		change[:all].should == [{ "Animals" => "Change", "Games" => "Walking Dead" }]
+		change[:additions].should == [{ "Animals" => "Change", "Games" => "Walking Dead" }]
+		change[:deletions].should == []
+		change[:updates].should == []
+
+		change_test_doc.clear_sheet
 	end
 
-	it "modifying a cell: it should print out the changed row" do
+	it "CHANGES: updating a cell: it should print out the changed row", type:'changes' do
+		change_test_doc = GoogleDoc.new({username: username, password: password, 
+									filename: filename2, worksheet_name: worksheet_name2})
 		row = { "Animals" => "Panda", "Games" => "Walking Dead" }
-		@change_test_doc.create_row(row)
-		@change_test_doc.store_state
+		row2 = { "Animals" => "Bear", "Games" => "Walking Dead" }
+		change_test_doc.store_state
+		change_test_doc.create_row(row)
+		change_test_doc.create_row(row2)
+		change_test_doc.store_state
 
 		update = { "Games" => "Tetris" }
-		@change_test_doc.update(row, update)
+		change_test_doc.update(row, update)
 
-		change = @change_test_doc.get_changes
-		change.should == [{ "Animals" => "Panda", "Games" => "Tetris" }]
+		change = change_test_doc.get_changes
+		change[:all].should == [{ "Animals" => "Panda", "Games" => "Tetris" }]
+		change[:additions].should == []
+		change[:deletions].should == []
+		change[:updates].should == [{ "Animals" => "Panda", "Games" => "Tetris" }]
 
-		@change_test_doc.clear_sheet
+		change_test_doc.clear_sheet
+	end
+
+	it "CHANGES: deleting a row: it should print out the deleted row", type:'changes' do
+		change_test_doc = GoogleDoc.new({username: username, password: password, 
+									filename: filename2, worksheet_name: worksheet_name2})
+		row = { "Animals" => "Panda", "Games" => "Walking Dead" }
+		row2 = { "Animals" => "Bear", "Games" => "Walking Dead" }
+		change_test_doc.store_state
+		change_test_doc.create_row(row)
+		change_test_doc.create_row(row2)
+		change_test_doc.store_state
+
+		params = { "Animals" => "Bear" }
+		change_test_doc.delete(params)
+
+		change = change_test_doc.get_changes
+		change[:all].should == [ { deleted: row2 } ]
+		change[:additions].should == []
+		change[:deletions].should == [ { deleted: row2 } ]
+		change[:updates].should == []
+
+		change_test_doc.clear_sheet
 	end
 
 	# run only this test by using "rspec /path/to/file.rb --tag type:special"
-	it "should copy a spreadsheet", :type => 'special' do
-		@doc_to_copy = GoogleDoc.new(username, password, "BLANK_WITH_SCRIPT", "Sheet1")
-		@doc_to_copy.copy_doc("THIS_IS_A_COPY")
-		@copied_doc = GoogleDoc.new(username, password, "THIS_IS_A_COPY", "Sheet1")
-		@copied_doc.filename.should == "THIS_IS_A_COPY"
-
-		# cleanup step: delete the copied file
-		@copied_doc.session.root_collection.remove(@copied_doc.file_obj)
-	end
-
-	it "should create a new spreadsheet that has the script", :type=>'special' do
+	it "should create a new spreadsheet that has the script", type:'special' do
 		GoogleDoc.create_new_doc(username, password, "testing_it_out")
 	end
 
@@ -138,7 +165,6 @@ describe GoogleDoc do
 
 	after(:all) do
 		@test_doc.clear_sheet
-		@change_test_doc.clear_sheet
 	end
 
 end
