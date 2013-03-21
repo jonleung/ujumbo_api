@@ -3,25 +3,36 @@ require 'securerandom'
 
 =begin
 	
-creating a new spreadsheet: duplicate one with the google script in it
-	- code some way to store the schema ('types') of the column-names
-		- add/remove columns: done using the interface
-			- will receive a new schema hash on add/remove
-	
 	- abstract out authentication (use oauth token to login)
 		- get a token to test with
-
-	- create 3 arrays for get_changes: added, deleted, updated
-		- track history of changes using DocumentState
-		- deleting a row versus deleting just one cell within a row
 
 	- change initialize() for create_new
 
 	- write watir script to add the google script to the spreadsheet
+
+	- throw error on dumb schemas
+
+	- duplicate filenames
+
+	= combine google_doc and g_doc
+			- changes trigger_changes
+
+	- remove all
+
 =end
 
 class GoogleDoc
-
+=begin
+	include Mongoid::Document
+	self.mass_assignment_sanitizer = :strict
+	include Mongoid::Timestamps
+	include Mongoid::Paranoia
+	
+	field :filename, type: String
+	field :data, type: String
+	field :schema, type: Hash
+	belongs_to :product
+=end
 	attr_accessor :session
 	attr_accessor :filename
 	attr_accessor :worksheet_name
@@ -33,26 +44,31 @@ class GoogleDoc
 		auth_token = params[:auth_token]
 		username = params[:username]
 		password = params[:password]
-		create_new = params[:create_new]
+		create_new = params[:create_new].to_bool
 		@filename = params[:filename]
 		@worksheet_name = params[:worksheet_name]
 
 		#@session = GoogleDrive.login_with_oauth(auth_token)
 		@session = GoogleDrive.login(username, password)
-		self.create_new_doc(@session, @filename) if create_new
+		create_new_doc(params) if create_new
+
 		@auth_tokens = @session.auth_tokens
 		@file_obj = @session.spreadsheet_by_title(@filename)
 		@worksheet_obj = @file_obj.worksheet_by_title(@worksheet_name)
 	end
 
-	def self.create_new_doc(session, filename)
+	def create_new_doc(schema)
 		doc_with_script = "BLANK_WITH_SCRIPT"
-		file_to_copy = session.spreadsheet_by_title(doc_with_script)
-		self.copy_file(file_to_copy, filename)
-		return session
+		template = @session.spreadsheet_by_title(doc_with_script)
+		template.duplicate(@filename)
+
+		GDoc.create(
+			name: @filename,
+			schema: schema
+		)
 	end
 
-	def self.copy_file(f_obj, new_title)
+	def copy_file(f_obj, new_title)
 		f_obj.duplicate(new_title)
 	end
 
@@ -73,6 +89,24 @@ class GoogleDoc
 		gdoc = GDoc.where(name: @worksheet_name).last
 		data = Marshal.load(gdoc.data)
 		return data
+	end
+
+	def trigger_changes
+		base_channel = "google_docs:spreadsheet:row"
+		changes = get_changes
+		changes.each do |status, rows|
+			rows.each do |row|
+				case status
+				when :additions
+					channel = "#{base_channel}:create"
+				when :deletions
+					channel = "#{base_channel}:destroy"
+				when :updates
+					channel = "#{base_channel}:update"
+				end
+				Trigger.trigger(self.product.id, channel, row)		# relies on Gdoc id
+			end
+		end
 	end
 
 	def get_changes
@@ -132,7 +166,6 @@ class GoogleDoc
 
 	# creates a row with hash of key-value params
 	def create_row(params)
-		GoogleDrive.restore_session(@auth_tokens)
 		# add the keys if they don't exist
 		params.each do | key, value |
 			if(!@worksheet_obj.list.keys.include?(key))
@@ -278,31 +311,5 @@ class GoogleDoc
 			end
 		end
 		return replaced_rows
-	end
-
-
-	def authenticate
-		cid = "140001700804.apps.googleusercontent.com"
-		csecret = "kmVxHyY_fvexlqaEovRfIyb7"
-		ruri = "https://localhost/oauth2callback"
-		client = Google::APIClient.new
-		drive = client.discovered_api('drive', 'v2')
-
-		client.authorization.client_id = cid
-		client.authorization.client_secret = csecret
-		client.authorization.scope = "https://www.googleapis.com/drive/"
-		client.authorization.redirect_uri = ruri
-		
-		uri = client.authorization.authorization_uri
-		client.authorization.code = '....'
-		client.authorization.fetch_access_token!
-
-		arr = Array.new
-		result = client.execute(
-			:api_method => drive.changes.list,
-			:parameters => { }
-			)
-		arr.concat(result.items)
-		return arr
 	end
 end

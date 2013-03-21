@@ -5,7 +5,7 @@ UjumboApi::Application.routes.draw do
   match 'triggers/:id' => 'trigger#activate'
   # match '/api' => 'api_controller#' 
 
-  match '/google_docs/create' => 'google_docs#create'
+  match '/google_docs/spreadsheet/create' => 'google_docs#create'
   
   # Google Docs Callbacks
   match "/google_docs/callback" => 'google_docs#callback'

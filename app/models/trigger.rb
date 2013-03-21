@@ -23,6 +23,13 @@ class Trigger
           type: "csv"
         }
       }
+    },
+    google_docs: {
+      row: {
+        create: "google_docs:spreadsheet:row:create",
+        update: "google_docs:spreadsheet:row:update",
+        destroy: "google_docs:spreadsheet:row:destroy",
+      }
     }
 
   }

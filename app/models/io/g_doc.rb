@@ -8,6 +8,7 @@ class GDoc
 	field :data, type: String
 	field :schema, type: Hash  # stores the schema, which comes as a hash 
 	embeds_many :document_states
+	belongs_to :product
 
 	def self.store_schema(schema, doc_name)
 		gdoc = GDoc.where(name: doc_name).last

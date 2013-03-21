@@ -6,18 +6,23 @@ class GoogleDocsController < ApplicationController
     filename = "changes_test"
     worksheet_name = "Sheet1"
   	@test_doc = GoogleDoc.new(username, password, filename, worksheet_name)
-  	change = @test_doc.get_changes
+  	changes = @test_doc.trigger_changes
   end
 
   def create
 
-=begin
+=begin pass
   	get params {schema: {
 		column_name_1: String # other options include "String", "Number"
   	}
     filename: "big_ass_spreadhsset" }
   		
 =end
-    GDoc.store_schema(params[:schema], params[:filename]) if params.has_key?(:schema)
+    # if params[:create_new].present?
+    #   params[:create_new] = params[:create_new].to_bool 
+    # end
+
+    @doc = GoogleDoc.new(params)
+    render text: true
   end
 end
