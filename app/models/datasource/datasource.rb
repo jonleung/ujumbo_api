@@ -3,13 +3,13 @@ def get(params) #params = Hash
   params[:column_name]
   params[:value]
 
-  => []
+  #=> []
 
 
 end
 
 def get_first
-  => Obj
+  #=> Obj
 end
 
 def update

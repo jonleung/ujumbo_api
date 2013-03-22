@@ -6,8 +6,6 @@ require 'securerandom'
 	- abstract out authentication (use oauth token to login)
 		- get a token to test with
 
-	- change initialize() for create_new
-
 	- write watir script to add the google script to the spreadsheet
 
 	- throw error on dumb schemas
@@ -22,73 +20,62 @@ require 'securerandom'
 =end
 
 class GoogleDoc
-=begin
 	include Mongoid::Document
 	self.mass_assignment_sanitizer = :strict
 	include Mongoid::Timestamps
 	include Mongoid::Paranoia
 	
 	field :filename, type: String
-	field :data, type: String
+	field :data, type: Hash
 	field :schema, type: Hash
+	field :auth_tokens, type: Hash
+	field :worksheet_name, type: String
+	field :username, type: String
+	field :password, type: String
+
 	belongs_to :product
-=end
+
 	attr_accessor :session
-	attr_accessor :filename
-	attr_accessor :worksheet_name
 	attr_accessor :file_obj
 	attr_accessor :worksheet_obj
-	attr_accessor :auth_tokens
 
 	def initialize(params)
-		auth_token = params[:auth_token]
-		username = params[:username]
-		password = params[:password]
-		create_new = params[:create_new].to_bool
-		@filename = params[:filename]
-		@worksheet_name = params[:worksheet_name]
+		@session = GoogleDrive.login(params[:username], params[:password])
+		create_new_doc(params[:filename]) if params[:create_new].to_bool
+		worksheet_name = params[:worksheet_name] != nil ? params[:worksheet_name] : "Sheet1"
+		super({
+			data: {}, 
+			filename: params[:filename], 
+			schema: params[:schema], 
+			auth_tokens: @session.auth_tokens,
+			worksheet_name: worksheet_name,
+			username: params[:username],
+			password: params[:password]
+			})
 
-		#@session = GoogleDrive.login_with_oauth(auth_token)
-		@session = GoogleDrive.login(username, password)
-		create_new_doc(params) if create_new
-
-		@auth_tokens = @session.auth_tokens
-		@file_obj = @session.spreadsheet_by_title(@filename)
-		@worksheet_obj = @file_obj.worksheet_by_title(@worksheet_name)
+		@file_obj = @session.spreadsheet_by_title(self.filename)
+		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
+		self.save!
 	end
 
-	def create_new_doc(schema)
+	def create_new_doc(filename)
 		doc_with_script = "BLANK_WITH_SCRIPT"
 		template = @session.spreadsheet_by_title(doc_with_script)
-		template.duplicate(@filename)
-
-		GDoc.create(
-			name: @filename,
-			schema: schema
-		)
+		template.duplicate(filename)
 	end
 
-	def copy_file(f_obj, new_title)
-		f_obj.duplicate(new_title)
-	end
-
-	def delete_history
-		GDoc.delete_all(name: @worksheet_name)
+	def restart_session
+		@session = GoogleDrive.login(self.username, self.password)
+		@file_obj = @session.spreadsheet_by_title(self.filename)
+		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
 	end
 
 	def store_state
-		data = self.all_hashed
-		serial_data = Marshal.dump(data)
-		GDoc.create(
-			name: @worksheet_name,
-			data: serial_data
-		)
+		self.update_attribute(:data, self.all_hashed)
 	end
 
 	def get_state
-		gdoc = GDoc.where(name: @worksheet_name).last
-		data = Marshal.load(gdoc.data)
-		return data
+		self.data
 	end
 
 	def trigger_changes
@@ -149,23 +136,22 @@ class GoogleDoc
 		return changes
 	end
 
-	def get_updates
-		#response = HTTParty.get('https://docs.google.com/feeds/hello%40ujumbo.com/private/changes')
-		#puts response.body, response.code, response.message, response.headers.inspect
-	end
 	# adds a key (first row of spreadsheet)
 	def add_key(key)
+		restart_session
 		numkeys = @worksheet_obj.list.keys.length
 		@worksheet_obj[1, numkeys+1] = key
 		@worksheet_obj.save
 	end
 
 	def num_keys
+		restart_session
 		@worksheet_obj.list.keys.length
 	end
 
 	# creates a row with hash of key-value params
 	def create_row(params)
+		restart_session
 		# add the keys if they don't exist
 		params.each do | key, value |
 			if(!@worksheet_obj.list.keys.include?(key))
@@ -182,6 +168,7 @@ class GoogleDoc
 	end
 
 	def where(params)
+		restart_session
 		matches = []
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
@@ -199,6 +186,7 @@ class GoogleDoc
 	end
 
 	def delete(params)
+		restart_session
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
 			rows.each do | row |
@@ -213,6 +201,7 @@ class GoogleDoc
 	end
 
 	def delete_all(params)
+		restart_session
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
 			rows.each do | row |
@@ -225,6 +214,7 @@ class GoogleDoc
 	end
 
 	def clear_sheet
+		restart_session
 		rows = @worksheet_obj.list
 		rows.each do | row |
 			row.clear
@@ -236,6 +226,7 @@ class GoogleDoc
 
 	# returns all the rows as an array of hashes
 	def all
+		restart_session
 		if(@worksheet_obj.nil?)
 			return []
 		else
@@ -244,6 +235,7 @@ class GoogleDoc
 	end
 
 	def all_hashed
+		restart_session
 		if(@worksheet_obj.nil?)
 			return {}
 		else
@@ -253,7 +245,8 @@ class GoogleDoc
 		end
 	end
 
-	def update(search_hash, update_hash)
+	def update_row(search_hash, update_hash)
+		restart_session
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each do | row |
@@ -267,6 +260,7 @@ class GoogleDoc
 	end
 
 	def update_all(search_hash, update_hash)
+		restart_session
 		updated_rows = []
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
@@ -282,6 +276,7 @@ class GoogleDoc
 	end
 
 	def replace(search_hash, replace_hash)
+		restart_session
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each do | row |
@@ -297,6 +292,7 @@ class GoogleDoc
 	end
 
 	def replace_all(search_hash, replace_hash)
+		restart_session
 		replaced_rows = []
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |

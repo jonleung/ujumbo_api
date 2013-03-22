@@ -55,7 +55,7 @@ describe GoogleDoc do
 		row = { "Updater" => -1 , "Shoes" => "Feet" }
 		@test_doc.create_row(row)
 		update = { "Updater" => 100 }
-		@test_doc.update(row, update)["Updater"].should == "100"
+		@test_doc.update_row(row, update)["Updater"].should == "100"
 	end
 
 	it "should replace a row" do
@@ -116,7 +116,7 @@ describe GoogleDoc do
 		change_test_doc.store_state
 
 		update = { "Games" => "Tetris" }
-		change_test_doc.update(row, update)
+		change_test_doc.update_row(row, update)
 
 		change = change_test_doc.get_changes
 		change[:all].should == [{ "Animals" => "Panda", "Games" => "Tetris" }]

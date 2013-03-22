@@ -7,22 +7,17 @@ class GoogleDocsController < ApplicationController
     worksheet_name = "Sheet1"
   	@test_doc = GoogleDoc.new(username, password, filename, worksheet_name)
   	changes = @test_doc.trigger_changes
+
   end
 
   def create
+    GoogleDoc.new(params)
+    render text: true
+  end
 
-=begin pass
-  	get params {schema: {
-		column_name_1: String # other options include "String", "Number"
-  	}
-    filename: "big_ass_spreadhsset" }
-  		
-=end
-    # if params[:create_new].present?
-    #   params[:create_new] = params[:create_new].to_bool 
-    # end
-
-    @doc = GoogleDoc.new(params)
+  def create_row
+    doc = GoogleDoc.find(params[:file_id])             # want to get by id, not filename
+    doc.create_row(params[:row])
     render text: true
   end
 end

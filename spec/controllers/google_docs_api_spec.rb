@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe "GET 'notify'" do
-	it "An API Call can create a document" do
+describe "Google Docs create" do
+	it "should create a new document" do
 
 		#product = Product.find("514a64ae1f127d9abc000001")
 		client = ApiClient.new
@@ -152,9 +152,37 @@ schema: {	"First Name" => :first_name,
 	end
 end
 
-describe "Create row" do
-	it "should update google_docs" do
-
+describe "Google Docs create_row" do
+	it "should create a new row in the document" do
+		client = ApiClient.new
+	    google_doc_params = {
+	      username: "hello@ujumbo.com",
+	      password: "movefastandbreakthings",
+	      file_id: "514ba494617b0023ec00000d",
+	      create_new: "false",
+	      #product_id: product.id,
+	      schema: {
+	      	"First Name" => :first_name,
+	      	"Last Name" => :last_name,
+	      	"Phone Number" => :phone,
+	      	"Email" => :email,
+	      	"Date" => :date,
+	      	"Address" => :address,
+	      	"Message" => :text
+	      },
+	      row: {
+	      	"First Name" => "Kentaro",
+	      	"Last Name" => "Jones",
+	      	"Phone Number" => "512-587-4261",
+	      	"Email" => "hacker@moore100.net",
+	      	"Date" => "3/21/2013",
+	      	"Address" => "Moore 100, Philadelphia PA",
+	      	"Message" => "Hello world!"
+	      }
+	    }
+	    response = client.post("/google_docs/row/create/", google_doc_params)
+	    pp response
+	    response.should_not == nil
 	end
 end
 
