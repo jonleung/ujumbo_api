@@ -33,6 +33,14 @@ require 'spec_helper'
 #   api_call_trigger_id = pipeline.create_trigger(product.id, "api_call", {role: "student"})
 # end
 
+describe "load file from dropbox" do
+
+  it "should find csv file and import it" do
+    
+  end
+
+end
+
 describe "product" do
 
   it "user pipe and template pipe is working" do
@@ -47,8 +55,7 @@ describe "product" do
     pipe_order = []
     # User Pipe
     user_pipe = UserPipe.new({ #TODO, get this from the Trigger part of the hash
-                  :action => UserPipe::ACTIONS[:create],
-                  :platform_properties_list => [:first_name, :last_name, :email, :phone, :role], 
+                  :action => UserPipe::ACTIONS[:create], #MAT_TODO: just type symbol, and just check against ACTIONS
                   :product_properties_schema => {
                     pennkey: String.to_s,
                     password: String.to_s 
@@ -59,7 +66,8 @@ describe "product" do
                 }
     )
     user_pipe.pipeline = pipeline
-    user_pipe.save.should == true
+    user_pipe.should be_valid 
+    user_pipe.save
     pipe_order << user_pipe.id
     
     # Template Pipe

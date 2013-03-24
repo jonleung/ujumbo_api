@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Io::GoogleDoc do 
+describe GoogleDoc do 
 	
 	username = "hello@ujumbo.com"
 	password = "movefastandbreakthings"
@@ -8,7 +8,7 @@ describe Io::GoogleDoc do
 	worksheet_name = "Sheet 1"
 	
 	before(:all) do
-		@test_doc = Io::GoogleDoc.new(username, password, filename, worksheet_name)
+		@test_doc = GoogleDoc.new(username, password, filename, worksheet_name)
 		initial_row = { "Animals" => "Fox", "Games" => "Halo"}
 		@test_doc.create_row(initial_row)
 	end

@@ -6,4 +6,8 @@ UjumboApi::Application.routes.draw do
   match "/android/sms/outbound/all" => "android_sms#all"
   match "/android/sms/outbound/update" => "android_sms#update"
   match "/android/sms/inbound/create" => "android_sms#create"
+
+  match "/dropbox/choose" => "dropbox#index"
+  match "/dropbox/trigger" => "dropbox#trigger"
+
 end

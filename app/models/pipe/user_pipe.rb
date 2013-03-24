@@ -2,13 +2,17 @@ class UserPipe < Pipe
   include Mongoid::Document
   self.mass_assignment_sanitizer = :strict
 
-  ACTIONS = {:create => :create}
-  PLATFORM_PROPERTIES = [:first_name, :last_name, :email, :phone, :role]
+  def self.platform_properties_list
+    [:first_name, :last_name, :email, :phone, :role]
+  end
 
-  field :platform_properties_list, type: Array
+  ACTIONS = {:create => :create}
+
+  field :platform_properties_list, type: Array, default: platform_properties_list
   field :product_properties_schema, type: Hash
   field :default_properties, type: Hash
 
+  
   attr_accessible :platform_properties_list, :product_properties_schema, :default_properties
 
   after_initialize :before_save_hook
