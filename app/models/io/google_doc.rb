@@ -32,6 +32,7 @@ class GoogleDoc
 	field :worksheet_name, type: String
 	field :username, type: String
 	field :password, type: String
+	field :key, type: String
 
 	belongs_to :product
 
@@ -41,8 +42,9 @@ class GoogleDoc
 
 	def initialize(params)
 		@session = GoogleDrive.login(params[:username], params[:password])
-		create_new_doc(params[:filename]) if params[:create_new].to_bool
+		@file_obj = create_new_doc(params[:filename]) if params[:create_new].to_bool
 		worksheet_name = params[:worksheet_name] != nil ? params[:worksheet_name] : "Sheet1"
+		key = convert_key(@file_obj.key)
 		super({
 			data: {}, 
 			filename: params[:filename], 
@@ -50,12 +52,16 @@ class GoogleDoc
 			auth_tokens: @session.auth_tokens,
 			worksheet_name: worksheet_name,
 			username: params[:username],
-			password: params[:password]
+			password: params[:password],
+			key: key    #converts 44 character key, 23 character is sent by google doc script
 			})
 
-		@file_obj = @session.spreadsheet_by_title(self.filename)
 		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
 		self.save!
+	end
+
+	def convert_key(key)
+		key[13..key.length]
 	end
 
 	def create_new_doc(filename)
@@ -91,7 +97,7 @@ class GoogleDoc
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				Trigger.trigger(self.product.id, channel, row)		# relies on Gdoc id
+				#Trigger.trigger(self.product.id, channel, row.merge(:id => self.id))		# relies on Gdoc id
 			end
 		end
 	end

@@ -1,13 +1,8 @@
 class GoogleDocsController < ApplicationController
   def callback
-  	username = "hello@ujumbo.com"
-    password = "movefastandbreakthings"
-    
-    filename = "changes_test"
-    worksheet_name = "Sheet1"
-  	@test_doc = GoogleDoc.new(username, password, filename, worksheet_name)
-  	changes = @test_doc.trigger_changes
 
+    doc = GoogleDoc.where(key: params['key']).first
+  	changes = doc.trigger_changes
   end
 
   def create

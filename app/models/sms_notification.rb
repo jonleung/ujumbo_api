@@ -8,18 +8,13 @@ class SmsNotification < Notification
     :failed => :failed,
   }
 
-  include Mongoid::Document
-  self.mass_assignment_sanitizer = :strict
-  include Mongoid::Timestamps
-  include Mongoid::Paranoia
-
   field :user_phone , type: String
   attr_accessor :attributes
 
   attr_accessible :user_phone
 
-  after_create :before_save_hook
-  def before_save_hook
+  after_create :after_create_hook
+  def after_create_hook
     user = User.find(self.user_id)
     raise "cannot find user with id #{self.user_id}" if user.nil?
     self.user_phone = user.all_attributes[:phone]
