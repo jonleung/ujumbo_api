@@ -10,7 +10,6 @@ class Notification
     :push => :push
   }
 
-  belongs_to :user
   field :body, type: String
 
   attr_accessible :body

@@ -16,9 +16,6 @@ require 'securerandom'
 			- changes trigger_changes
 
 	- remove all
-
-	- additions: leaving a line empty in google doc returns it as an addition
-
 =end
 
 class GoogleDoc
@@ -37,26 +34,26 @@ class GoogleDoc
 	field :key, type: String
 
 	belongs_to :product
+	after_create :after_create_hook
 
 	attr_accessor :session
 	attr_accessor :file_obj
 	attr_accessor :worksheet_obj
+
+	def after_create_hook
+		self.schema.keys.each do |attribute|
+			self.add_key(attribute)
+		end
+		store_state
+	end
 
 	def initialize(params)
 		@session = GoogleDrive.login(params[:username], params[:password])
 		@file_obj = create_new_doc(params[:filename]) if params[:create_new].to_bool
 		worksheet_name = params[:worksheet_name] != nil ? params[:worksheet_name] : "Sheet1"
 		key = convert_key(@file_obj.key)
-		super({
-			data: {}, 
-			filename: params[:filename], 
-			schema: params[:schema], 
-			auth_tokens: @session.auth_tokens,
-			worksheet_name: worksheet_name,
-			username: params[:username],
-			password: params[:password],
-			key: key    #converts 44 character key, 23 character is sent by google doc script
-			})
+		
+		super(params.merge(data: {}, key: key, worksheet_name: "Sheet1"))
 
 		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
 		self.save!
@@ -99,7 +96,7 @@ class GoogleDoc
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				Trigger.trigger(self.product.id, channel, row)		# relies on Gdoc id
+				Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id))		# relies on Gdoc id
 			end
 		end
 	end
@@ -108,7 +105,6 @@ class GoogleDoc
 		old_rows = self.get_state
 		curr_rows = self.all_hashed
 		changes = { all: [], additions: [], deletions: [], updates: [] }
-		debugger
 		curr_rows.keys.each do |curr_key|
 			old_rows.keys.each do |old_key|
 				# check existing rows for changes
@@ -127,8 +123,10 @@ class GoogleDoc
 		# if there's a new row
 		curr_rows.keys.each do |curr_key|
 			if !old_rows.keys.include?(curr_key)
-				changes[:all] 		<< curr_rows[curr_key]
-				changes[:additions] << curr_rows[curr_key]
+				if !curr_rows[curr_key].values.all?(&:empty?)  # check if it's an empty row
+					changes[:all] 		<< curr_rows[curr_key]
+					changes[:additions] << curr_rows[curr_key]
+				end
 			end
 		end
 

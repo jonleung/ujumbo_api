@@ -6,13 +6,19 @@ class Pipe
 
   belongs_to :pipeline
 
+  field :previous_pipe_id, type: Integer #-1 represents that it is the one that belongs to a Trigger
   field :action, type: Symbol
   field :pipelined_references, type: Hash
 
-  attr_accessible :action, :pipelined_references
-  validates_presence_of :action
+  attr_accessible :previous_pipe_id, :action, :pipelined_references, :pipe_specific
+  validates_presence_of :action, :previous_pipe_id
 
-  attr_accessor :pipelined_hash, :_translated_pipelined_references
+  attr_accessor :pipelined_hash, :_translated_pipelined_references, :pipe_specific
+
+  after_initialize :after_initialize_callback
+  def after_initialize_callback
+    self.write_attributes(self.pipe_specific)
+  end
 
   def flow(pipelined_hash)
     @pipelined_hash = pipelined_hash

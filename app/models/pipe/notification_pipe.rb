@@ -1,6 +1,4 @@
 class NotificationPipe < Pipe
-  PIPELINED_KEY = "SmsNotifications"
-
   include Mongoid::Document
   self.mass_assignment_sanitizer = :strict
   include Mongoid::Timestamps
@@ -35,7 +33,7 @@ class NotificationPipe < Pipe
 
       debugger
                                                                           #TODO, standardize other notifications with attributes as the param as well or make it specific code
-      writeback_to_pipelined_hash(PIPELINED_KEY, notification.attributes) #TODO, make write_back
+      writeback_to_pipelined_hash(notification.class.to_s, notification.attributes) #TODO, make write_back
     end
       
     return pipelined_hash

@@ -6,8 +6,8 @@ class GoogleDocsController < ApplicationController
   end
 
   def create
-    GoogleDoc.new(params)
-    render text: true
+    google_doc = GoogleDoc.new(params)
+    render json: google_doc.to_json
   end
 
   def create_row
