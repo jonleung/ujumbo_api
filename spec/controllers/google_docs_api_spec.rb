@@ -3,14 +3,14 @@ require 'spec_helper'
 describe "Google Docs create" do
 	it "should create a new document" do
 
-		#product = Product.find("514a64ae1f127d9abc000001")
+		product = Product.find("514a64ae1f127d9abc000001")
 		client = ApiClient.new
 	    google_doc_params = {
 	      username: "hello@ujumbo.com",
 	      password: "movefastandbreakthings",
 	      filename: "test_sheet",
 	      create_new: "true",
-	      #product_id: product.id,
+	      product_id: product.id,
 	      schema: {
 	      	"First Name" => :first_name,
 	      	"Last Name" => :last_name,
@@ -22,7 +22,6 @@ describe "Google Docs create" do
 	      }
 	    }
 	    response = client.post("/google_docs/spreadsheet/create/", google_doc_params)
-	    debugger
 	    
 	    pipeline = product.pipelines.new
 	    pipeline.name = "name#{Pipeline.count}"

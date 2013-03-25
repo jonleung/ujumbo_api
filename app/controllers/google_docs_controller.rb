@@ -1,8 +1,8 @@
 class GoogleDocsController < ApplicationController
   def callback
-
     doc = GoogleDoc.where(key: params['key']).first
   	changes = doc.trigger_changes
+    puts changes
   end
 
   def create

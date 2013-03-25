@@ -17,6 +17,8 @@ require 'securerandom'
 
 	- remove all
 
+	- additions: leaving a line empty in google doc returns it as an addition
+
 =end
 
 class GoogleDoc
@@ -97,7 +99,7 @@ class GoogleDoc
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				#Trigger.trigger(self.product.id, channel, row.merge(:id => self.id))		# relies on Gdoc id
+				Trigger.trigger(self.product.id, channel, row)		# relies on Gdoc id
 			end
 		end
 	end
@@ -106,7 +108,7 @@ class GoogleDoc
 		old_rows = self.get_state
 		curr_rows = self.all_hashed
 		changes = { all: [], additions: [], deletions: [], updates: [] }
-		
+		debugger
 		curr_rows.keys.each do |curr_key|
 			old_rows.keys.each do |old_key|
 				# check existing rows for changes
@@ -129,6 +131,7 @@ class GoogleDoc
 				changes[:additions] << curr_rows[curr_key]
 			end
 		end
+
 
 		# if a row was deleted
 		old_rows.keys.each do |old_key|
@@ -246,7 +249,7 @@ class GoogleDoc
 			return {}
 		else
 			arr = @worksheet_obj.list.to_hash_array
-			hsh = Hash[arr.each_with_index.map { |row, id| [id, row] }]
+			hsh = Hash[arr.each_with_index.map { |row, id| [id.to_s, row] }]
 			return hsh
 		end
 	end
