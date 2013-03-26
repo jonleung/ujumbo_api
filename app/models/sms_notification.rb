@@ -9,23 +9,24 @@ class SmsNotification < Notification
   }
 
   field :phone , type: String
-  field :attributes, type: Hash
+  field :properties, type: Hash
 
   attr_accessible :phone
 
   after_create :after_create_hook
   def after_create_hook
-    self.attributes = self.send_sms
+    self.properties = self.send_sms
   end
 
   def send_sms
+    debugger
     #TODO: Check all test cases http://www.twilio.com/docs/api/rest/test-credentials
     sms_params = {
       from: Twilio::DEFAULT_PHONE,
       to: self.phone,
       body: self.body
     }
-    debugger
+
     sms_response = $twilio.account.sms.messages.create(sms_params)
     i = 0
     while sms_response.status != "sent" && sms_response.status != "failed"

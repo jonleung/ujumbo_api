@@ -22,12 +22,16 @@ class NotificationPipe < Pipe
     # CREATE
     when NotificationPipe::ACTIONS[:create]
       case self.type
+      
       when Notification::TYPES[:sms]
         notification = SmsNotification.new
+        notification.phone = translated_pipelined_references[:phone]
+      
       when Notification::TYPES[:email]
         notification = EmailNotification.new
+      
       end
-      notification.user_id = translated_pipelined_references[:user_id] #TODO, make it so that it is not :_id
+
       notification.body = translated_pipelined_references[:body]
       notification.save
 

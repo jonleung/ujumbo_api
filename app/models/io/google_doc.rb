@@ -96,7 +96,7 @@ class GoogleDoc
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id))		# relies on Gdoc id
+				Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
 			end
 		end
 	end

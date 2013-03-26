@@ -25,18 +25,19 @@ class Pipeline
       prev_pipes_mapping[pipe.previous_pipe_id] = pipe
     end
 
-    curr_pipe = pipes_mapping[-1]
+    curr_pipe = prev_pipes_mapping["first_pipe"]
     ordered_pipes = []
     ordered_pipes << curr_pipe
     
     while true
-      next_pipe = prev_pipes_mapping[curr_pipe.id]
+      next_pipe = prev_pipes_mapping[curr_pipe.id.to_s]
       break if next_pipe == nil
       ordered_pipes << next_pipe
       curr_pipe = next_pipe
     end
 
     ordered_pipes.each do |pipe|
+      debugger
       pipelined_hash = pipe.flow(pipelined_hash)
     end
 

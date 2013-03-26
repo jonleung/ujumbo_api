@@ -5,7 +5,7 @@ describe "Google Docs Pipeline" do
 			client = ApiClient.new
 
 			product = Product.find_or_create_by(name: "PennKey")
-			filename = "Pipelining Extravaganza 11!"
+			filename = "Pipelining Extravaganza 12!"
 			google_doc = GoogleDoc.where(filename: filename).first
 			if google_doc.nil?
 				google_doc_params = {
@@ -29,15 +29,17 @@ describe "Google Docs Pipeline" do
 				google_doc = GoogleDoc.find(response["_id"])
 			end
 
+			debugger
+
 		    pipeline = product.pipelines.new
 		    pipeline.name = "name#{Pipeline.count}"
 		    pipeline.save.should == true
 
-		    pipeline.create_trigger(product.id, "google_spreadsheet:row:create", {google_doc_id: google_doc.id} )
+		    pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:create" , {google_doc_id: google_doc.id} )
 
 		    # TEMPLATE
 		    template_pipe = TemplatePipe.new({
-		    				  :previous_pipe_id => -1,
+		    				  :previous_pipe_id => "first_pipe",
 		                      :action => :fill,
 		                      :pipe_specific => {
 		                      	:template_text => "Hi :::First Name::: :::Last Name:::, your email is :::Email:::" #filled 
@@ -51,21 +53,24 @@ describe "Google Docs Pipeline" do
 		    template_pipe.pipeline = pipeline
 		    template_pipe.save.should == true 
 
+		    debugger
+
 		    # NOTIFICATION
 		    notification_pipe = NotificationPipe.new({
-		    			:previous_pipe_id => template_pipe.id,
+		    			:previous_pipe_id => template_pipe.id.to_s,
 		                :action => :create,
 		                :pipe_specific => {
 		                	:type => :sms,	
 		                },
 		                :pipelined_references => {
 		                  :phone => "Trigger:Phone Number",
-		                  :body => "Templates:#{template_pipe.id}:body" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
+		                  :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
 		                }    
 		               })
 		    notification_pipe.pipeline = pipeline
 		    notification_pipe.save.should == true
 
+		    debugger
 
 		    pipeline.save.should == true
 	end

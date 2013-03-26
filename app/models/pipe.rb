@@ -6,7 +6,7 @@ class Pipe
 
   belongs_to :pipeline
 
-  field :previous_pipe_id, type: Integer #-1 represents that it is the one that belongs to a Trigger
+  field :previous_pipe_id, type: String #(nil for the first one)
   field :action, type: Symbol
   field :pipelined_references, type: Hash
 
