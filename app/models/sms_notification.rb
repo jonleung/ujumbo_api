@@ -1,4 +1,9 @@
-class SmsNotification < Notification
+class SmsNotification
+  include Mongoid::Document
+  self.mass_assignment_sanitizer = :strict
+  include Mongoid::Timestamps
+  include Mongoid::Paranoia
+
   MAX_WAIT = 4
 
   STATUSES = {
@@ -11,7 +16,7 @@ class SmsNotification < Notification
   field :phone , type: String
   field :properties, type: Hash
 
-  attr_accessible :phone
+  attr_accessible :phone, :body
 
   after_create :after_create_hook
   def after_create_hook
@@ -19,7 +24,6 @@ class SmsNotification < Notification
   end
 
   def send_sms
-    debugger
     #TODO: Check all test cases http://www.twilio.com/docs/api/rest/test-credentials
     sms_params = {
       from: Twilio::DEFAULT_PHONE,

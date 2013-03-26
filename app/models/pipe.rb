@@ -11,13 +11,21 @@ class Pipe
   field :pipelined_references, type: Hash
 
   attr_accessible :previous_pipe_id, :action, :pipelined_references, :pipe_specific
-  validates_presence_of :action, :previous_pipe_id
+  validates_presence_of :previous_pipe_id
 
   attr_accessor :pipelined_hash, :_translated_pipelined_references, :pipe_specific
 
   after_initialize :after_initialize_callback
   def after_initialize_callback
     self.write_attributes(self.pipe_specific)
+  end
+
+  def receive_pipelined_hash(pipelined_hash)
+    @pipelined_hash = pipelined_hash
+  end
+
+  def get_pipelined_hash
+    @pipelined_hash
   end
 
   def flow(pipelined_hash)
@@ -36,7 +44,6 @@ class Pipe
   end
 
   def translate_value(path)
-
     cur_hash_value = @pipelined_hash
     path.split(/:/).each do |segment|
       next_hash_value = cur_hash_value[segment]

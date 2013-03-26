@@ -37,8 +37,10 @@ class Pipeline
     end
 
     ordered_pipes.each do |pipe|
-      debugger
-      pipelined_hash = pipe.flow(pipelined_hash)
+      pipe.receive_pipelined_hash(pipelined_hash)
+      pipe.flow
+      pipelined_hash = pipe.get_pipelined_hash
+
     end
 
     return pipelined_hash
