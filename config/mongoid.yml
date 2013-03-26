@@ -1,11 +1,12 @@
 development:
+  logger: false
   # Configure available database sessions. (required)
   sessions:
     # Defines the default session. (required)
     default:
       # Defines the name of the default database that Mongoid can connect to.
       # (required).
-      database: ujumbo_api_development
+      database: ujumbo_api_5
       # Provides the hosts the default session can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:
@@ -66,10 +67,12 @@ development:
 
     # Ensure all times are UTC in the app side. (default: false)
     # use_utc: false
+    #logger: false
 test:
+  logger: false
   sessions:
     default:
-      database: ujumbo_api_test
+      database: ujumbo_api_5
       hosts:
         - localhost:27017
       options:
@@ -78,3 +81,4 @@ test:
         # low amounts for fast failures.
         max_retries: 1
         retry_interval: 0
+        #logger: false

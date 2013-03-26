@@ -23,8 +23,14 @@ class Trigger
           type: "csv"
         }
       }
+    },
+    google_docs: {
+      row: {
+        create: "google_docs:spreadsheet:row:create",
+        update: "google_docs:spreadsheet:row:update",
+        destroy: "google_docs:spreadsheet:row:destroy",
+      }
     }
-
   }
 
   field :channel, type: String
@@ -38,6 +44,7 @@ class Trigger
   class << self
 
     def trigger(product_id, channel, triggering_properties)
+      triggering_properties = HashWithIndifferentAccess.new(triggering_properties)
       return trigger_via_mongo(product_id, channel, triggering_properties)
     end
 
@@ -45,7 +52,6 @@ class Trigger
       response_array = []
 
       triggers = Trigger.where(product_id: product_id, channel: channel)
-      
       triggers.each do |trigger|
         match = true
 
@@ -55,11 +61,13 @@ class Trigger
             break
           end
         end
-
+        
         if match
           klass = trigger.triggered_class.constantize
           id = trigger.triggered_id
           object = klass.find(id)
+
+          triggering_properties = HashWithIndifferentAccess.new({:Trigger => triggering_properties})
           response_array << object.trigger(triggering_properties)
         end
       end

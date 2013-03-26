@@ -9,7 +9,7 @@ class ShowInBrowser
       file = File.open(full_path, 'w:UTF-8')
       file.write(body)
       file.close
-      `/usr/bin/open -a "/Applications/Google Chrome.app" "http://localhost:8000/#{FILE_NAME}#{extension}"`
+      `/tmp -a "/Applications/Google Chrome.app" "http://localhost:8000/#{FILE_NAME}#{extension}"`
       puts body
     end
 

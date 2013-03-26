@@ -15,7 +15,7 @@
 /tmp
 
 *.DS_Store
-Gemfile.lock
+# Gemfile.lock
 
 *~
 *.swp
@@ -59,4 +59,4 @@ pickle-email-*.html
 seeds.out
 /public/out.html
 /script/init.sh
-Gemfile.lock
+# Gemfile.lock

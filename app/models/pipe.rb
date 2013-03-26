@@ -6,13 +6,27 @@ class Pipe
 
   belongs_to :pipeline
 
+  field :previous_pipe_id, type: String #(nil for the first one)
   field :action, type: Symbol
   field :pipelined_references, type: Hash
 
-  attr_accessible :action, :pipelined_references
-  validates_presence_of :action
+  attr_accessible :previous_pipe_id, :action, :pipelined_references, :pipe_specific
+  validates_presence_of :previous_pipe_id
 
-  attr_accessor :pipelined_hash, :_translated_pipelined_references
+  attr_accessor :pipelined_hash, :_translated_pipelined_references, :pipe_specific
+
+  after_initialize :after_initialize_callback
+  def after_initialize_callback
+    self.write_attributes(self.pipe_specific)
+  end
+
+  def receive_pipelined_hash(pipelined_hash)
+    @pipelined_hash = pipelined_hash
+  end
+
+  def get_pipelined_hash
+    @pipelined_hash
+  end
 
   def flow(pipelined_hash)
     @pipelined_hash = pipelined_hash
@@ -30,7 +44,6 @@ class Pipe
   end
 
   def translate_value(path)
-
     cur_hash_value = @pipelined_hash
     path.split(/:/).each do |segment|
       next_hash_value = cur_hash_value[segment]
