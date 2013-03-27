@@ -20,7 +20,7 @@ gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'resque'
 gem 'omniauth'
 gem 'oauth2', '~> 0.5.0'
-gem 'omniauth-google_oauth2'
+gem 'omniauth-google-oauth2'
 
 # Input / Output
 gem 'google_drive'
