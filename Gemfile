@@ -18,6 +18,9 @@ gem 'redis-objects'
 # Core
 gem 'bcrypt-ruby', '~> 3.0.0'
 gem 'resque'
+gem 'omniauth'
+gem 'oauth2', '~> 0.5.0'
+gem 'omniauth-google_oauth2'
 
 # Input / Output
 gem 'google_drive'
