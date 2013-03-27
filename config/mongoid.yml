@@ -6,7 +6,7 @@ development:
     default:
       # Defines the name of the default database that Mongoid can connect to.
       # (required).
-      database: ujumbo_api_5
+      database: ujumbo_api_6
       # Provides the hosts the default session can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:
@@ -72,7 +72,7 @@ test:
   logger: false
   sessions:
     default:
-      database: ujumbo_api_5
+      database: ujumbo_api_6
       hosts:
         - localhost:27017
       options:

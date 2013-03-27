@@ -10,8 +10,6 @@ if Resolv::IPv4::Regex.match(ip).present?
     port = "3000"
   end
 
-  ENV["ip"] = ip
-  ENV["port"] = port
   ENV["base_url"] = "http://#{ip}:#{port}"
 else
   raise "Unable to determine ip address by doing GET icanhazip.com"
