@@ -1,8 +1,13 @@
 Ujumbo::Application.routes.draw do
+  root :to => redirect('/login')
   
+  # Authentication
+  match '/login' => redirect('/auth/google_oauth2')
+  match '/auth/google_oauth2/callback' => 'google_docs#omniauth_callback'
 
-  root :to => redirect('https://github.com/jonleung/ujumbo_api')
+
   match 'triggers/:id' => 'trigger#activate'
+
   # match '/api' => 'api_controller#' 
 
   match '/google_docs/spreadsheet/create' => 'google_docs#create'
