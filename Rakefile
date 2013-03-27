@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-UjumboApi::Application.load_tasks
+Ujumbo::Application.load_tasks

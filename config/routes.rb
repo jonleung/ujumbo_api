@@ -1,4 +1,4 @@
-UjumboApi::Application.routes.draw do
+Ujumbo::Application.routes.draw do
   
 
   root :to => redirect('https://github.com/jonleung/ujumbo_api')

@@ -1,4 +1,4 @@
-UjumboApi::Application.configure do
+Ujumbo::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
   # In the development environment your application's code is reloaded on
@@ -47,7 +47,7 @@ UjumboApi::Application.configure do
 end
 
 
-# UjumboApi::Application.configure do
+# Ujumbo::Application.configure do
 #   # Settings specified here will take precedence over those in config/application.rb
 
 #   # The test environment is used exclusively to run your application's

@@ -4,4 +4,4 @@
 # If you change this key, all old signed cookies will become invalid!
 # Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-UjumboApi::Application.config.secret_token = '991be5107bef2d2e17ae0dab97c73340f415eb8906259ccc80ca1762a0e2f1822686be516f8d494d9ac7c107e2fb677835cdc662fa519c883d443dd97ac44331'
+Ujumbo::Application.config.secret_token = 'b12eee646017eae415a4e01829e960923dd3d67d5047d5dbfb92bbb308afab18f235375dc3038bf1844abc6b17a6bfd8d0a6ffb035fa79f642b6b38f1b4cccda'

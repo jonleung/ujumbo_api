@@ -43,7 +43,6 @@ describe "Google Docs Pipeline" do
 		    # TEMPLATE
 		    template_pipe = TemplatePipe.new({
 		    				  :previous_pipe_id => "first_pipe",
-		                      :action => :fill,
 		                      :pipe_specific => {
 		                      	:template_text => "Hi :::First Name::: :::Last Name:::, your email is :::Email:::" #filled 
 		                      },

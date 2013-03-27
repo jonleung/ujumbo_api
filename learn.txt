@@ -1,3 +1,0 @@
-Database Learning
-
-Pipes, you dont know whether they will be queried against
