@@ -1,7 +1,6 @@
 class ApiController < ActionController::Base
 
   def ensure_user
-    debugger
     user_id = params[:user_id]
     if user_id.nil?
       render_error "No user_id is present" 

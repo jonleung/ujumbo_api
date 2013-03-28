@@ -19,6 +19,18 @@ require 'securerandom'
 =end
 
 class GoogleDoc
+	def self.valid_types
+		[
+			:first_name,
+			:last_name,
+			:phone,
+			:email,
+			:date,
+			:address,
+			:text
+		]
+	end
+
 	include Mongoid::Document
 	self.mass_assignment_sanitizer = :strict
 	include Mongoid::Timestamps
@@ -48,6 +60,7 @@ class GoogleDoc
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
+		self.worksheet_name ||= "Sheet1"
 		if (GoogleDoc.where(:id => self.id).exists?)
 			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
 			restart_session
@@ -58,10 +71,16 @@ class GoogleDoc
 			#then make the GDrive Hookups
 			hookup_to_gdrive
 		end
+
 	end
+
+
+
 
 	after_create :after_create_hook
 	def after_create_hook
+		validate_schema
+
 		restart_session
 		create_new_doc
 		hookup_to_gdrive
@@ -71,6 +90,15 @@ class GoogleDoc
 		end
 		store_state
 	end
+
+	def validate_schema
+		self.schema.each do |key, value|
+			unless value.in?(GoogleDoc.valid_types)
+				raise "Invalid schema: key #{key} is mapped to invalid type #{value}."
+			end
+		end
+	end
+
 
 =begin
 	g = GoogleDoc.new(filename: "hello world",  )
@@ -124,12 +152,14 @@ self.save!
 	end
 
 	def restart_session
+		user.google_credential.refresh
 		token = self.user.google_credential.token
-		@session = GoogleDrive.login_with_oauth(token)		
+		@session = GoogleDrive.login_with_oauth(token)
+
 	end
 
 	def hookup_to_gdrive
-		@file_obj = @session.spreadsheet_by_title(self.filename)
+		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
 	end
 

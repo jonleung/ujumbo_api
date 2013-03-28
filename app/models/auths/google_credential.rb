@@ -14,7 +14,6 @@ class GoogleCredential
   # http://stackoverflow.com/questions/12572723/rails-google-client-api-unable-to-exchange-a-refresh-token-for-access-token
   
   def refresh
-    debugger
     data = {
       :client_id => ENV['GOOGLE_KEY'],
       :client_secret => ENV['GOOGLE_SECRET'] ,
@@ -24,10 +23,9 @@ class GoogleCredential
     
     options = { :body => data, :query => {} }
     response = HTTParty.post("https://accounts.google.com/o/oauth2/token", options).to_hash
-    debugger
     if (new_token = response["access_token"]).present?
       self.token = new_token
-      self.expires_at = response["expires_at"]
+      self.expires_at = Time.now + response["expires_in"].seconds
       self.save
     else
       # No Token

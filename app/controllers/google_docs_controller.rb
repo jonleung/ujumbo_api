@@ -22,7 +22,6 @@ class GoogleDocsController < ApiController
     credential_params[:refresh_token] = data[:credentials][:refresh_token]
     credential_params[:expires_at] = data[:credentials][:expires_at]
     credential_params[:expires] = data[:credentials][:expires]
-    debugger
 
     omniauth_params = {
       :user_params => user_params,
