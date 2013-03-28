@@ -33,10 +33,10 @@ describe "Google Docs create" do
 	    template_pipe = TemplatePipe.new({
 	    				  :previous_action_id => -1,
 	                      :action => :fill,
-	                      :pipe_specific => {
+	                      :static_properties => {
 	                      	:template_text => "Hi :::First Name::: :::Last Name:::, your email is :::Email:::", #filled 
 	                      }
-	                      :pipelined_references => {
+	                      :pipelined_properties => {
 	                      	"First Name" => "Trigger:First Name", #TODO, thses should be made a type so that you can say, for this type, decode it, otherwise if it is just a tring then no need to decode
 	                      	"Last Name" => "Trigger:Last Name"
 	                      	"Email" => "Trigger:Email"
@@ -65,10 +65,10 @@ describe "Google Docs create" do
 	    # Sms Pipe
 	    notification_pipe = NotificationPipe.new({
 	                :action => :create,
-	                :pipe_specific => {
+	                :static_properties => {
 	                	:type => :sms,	
 	                }
-	                :pipelined_references => {
+	                :pipelined_properties => {
 	                  :phone => "Trigger:Phone Number"
 	                  :body => "Templates:#{template_pipe.id}:body" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
 	                }    
