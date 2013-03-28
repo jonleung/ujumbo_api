@@ -75,7 +75,7 @@ describe "product" do
     template_pipe = TemplatePipe.new({
                       :action => TemplatePipe::ACTIONS[:fill],
                       :template_text => text,
-                      :pipelined_references => {
+                      :pipelined_properties => {
                         :name => "Users:#{user_pipe.id}:first_name", #TODO, thses should be made a type so that you can say, for this type, decode it, otherwise if it is just a tring then no need to decode
                         :pennkey => "Users:#{user_pipe.id}:pennkey"
                       }
@@ -88,7 +88,7 @@ describe "product" do
     notification_pipe = NotificationPipe.new({
                 :action => NotificationPipe::ACTIONS[:create],
                 :type => Notification::TYPES[:sms],
-                :pipelined_references => {
+                :pipelined_properties => {
                   :user_id => "Users:#{user_pipe.id}:id", #TODO: This is all you should have to specify, this is a bit smarter or more standardize
                   :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
                 }    

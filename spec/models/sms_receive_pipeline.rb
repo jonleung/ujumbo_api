@@ -20,10 +20,10 @@ describe "Receiving an SMS" do
     # TEMPLATE
     template_pipe = TemplatePipe.new({
                       :previous_pipe_id => "first_pipe",
-                      :pipe_specific => {
+                      :static_properties => {
                         :template_text => "Hello! :::phone::: just ordered :::body::: from their :::city:::, :::state::: phone." #filled 
                       },
-                      :pipelined_references => {
+                      :pipelined_properties => {
                         "phone" => "Trigger:from", #TODO, thses should be made a type so that you can say, for this type, decode it, otherwise if it is just a tring then no need to decode
                         "body" => "Trigger:body",
                         "city" => "Trigger:from_city",
@@ -35,11 +35,11 @@ describe "Receiving an SMS" do
 
     # NOTIFICATION
     sms_pipe = SmsPipe.new({
-          :previous_pipe_id => template_pipe.id,
-                :pipe_specific => {
+                :previous_pipe_id => template_pipe.id,
+                :static_properties => {
                   :phone => "6107610083"
                 },
-                :pipelined_references => {
+                :pipelined_properties => {
                   :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
                 }    
                })
@@ -48,11 +48,11 @@ describe "Receiving an SMS" do
 
     email_pipe = EmailPipe.new({
           :previous_pipe_id => sms_pipe.id,
-          :pipe_specific => {
+          :static_properties => {
             :from => "hello@ujumbo.com",
             :to => "naruto137@gmail.com",
           },
-          :pipelined_references => {
+          :pipelined_properties => {
             :body => "Templates:#{template_pipe.id}:text",
             :subject => "Trigger:body"
           }
