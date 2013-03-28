@@ -2,12 +2,9 @@ require 'spec_helper'
 
 describe "Google Docs Pipeline" do
 	it "should work" do
-
-			
-
 			user = User.where(email: "hello@ujumbo.com").first
 			raise "Cannot find hello@ujumbo.com" if user.nil?
-
+			debugger
 			product = Product.find_or_create_by(name: "PennKey")
 			user.products << product
 			user.save
@@ -104,6 +101,54 @@ describe "Google Docs Pipeline" do
 	    email_pipe.pipeline = pipeline
 	    email_pipe.save.should == true
 
+	    # creating a row
+    	gdoc_create_row_pipe = GoogleDocPipe.new({
+    			:previous_pipe_id => "first_pipe",
+    			:action => :create_row,
+    			:pipe_specific => {
+    				:google_doc_id => "9qiowekjsdf0qiowljss",
+    				:create_by_params => {
+    					:first_name => "U",
+    					:last_name => "Jumbo"
+    				}
+    			},
+    			:pipelined_references => {
+    			}
+    		})
+
+		# updating a row(s)
+    	gdoc_update_row_pipe = GoogleDocPipe.new({
+    			:previous_pipe_id => "first_pipe",
+    			:action => :update_row,
+    			:pipe_specific => {
+    				:google_doc_id => "9qiowekjsdf0qiowljss",
+    				:find_by_params => {
+    					:first_name => "U",
+    					:last_name => "Jumbo"
+    				},
+    				:update_to_params => {
+    					:first_name => "You",
+    					:last_name => "Jumbo"
+    				}
+    			},
+    			:pipelined_references => {
+    			}
+    		})
+
+    	# deleting a row(s)
+    	gdoc_delete_row_pipe = GoogleDocPipe.new({
+    			:previous_pipe_id => "first_pipe",
+    			:action => :update_row,
+    			:pipe_specific => {
+    				:google_doc_id => "9qiowekjsdf0qiowljss",
+    				:delete_by_params => {
+    					:first_name => "You",
+    					:last_name => "Jumbo"
+    				}
+    			},
+    			:pipelined_references => {
+    			}
+    		})
 
 	    pipeline.save.should == true
 

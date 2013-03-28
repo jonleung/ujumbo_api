@@ -40,13 +40,13 @@ class GoogleDocsController < ApiController
   def callback
     # TODO, each script needs to have unique security tokens inside of it or else anyone can fake these
     # therefore need to programatically edit script
-    doc = GoogleDoc.where(key: params['key']).first
+    doc = GoogleDoc.where(key: params['trailing_key']).first
   	changes = doc.trigger_changes
     puts changes
   end
 
   def create
-    google_doc = GoogleDoc.new(params)
+    google_doc = GoogleDoc.create(params)
     render json: google_doc.to_json
   end
 

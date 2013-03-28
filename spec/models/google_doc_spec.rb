@@ -46,7 +46,7 @@ describe GoogleDoc do
 
 	it "should add a key" do
 		num_keys_before_add = @test_doc.num_keys
-		@test_doc.add_key("People")
+		@test_doc.add_column_key("People")
 		num_keys_after_add = @test_doc.num_keys
 		num_keys_after_add.should == (num_keys_before_add + 1)
 	end

@@ -2,7 +2,7 @@ require 'resolv'
 
 response = HTTParty.get('http://icanhazip.com')
 ip = response.body.gsub(/\s*/, "")
-if Resolv::IPv4::Regex.match(ip).present?
+if Resolv::IPv4::Regex.match(ip).present? || Resolv::IPv6::Regex.match(ip).present?
   ENV["ip"] = ip
   begin
     port = Rails::Server.new.options[:Port]
