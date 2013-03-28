@@ -42,6 +42,7 @@ class GoogleDoc
 	field :auth_tokens, type: Hash
 	field :worksheet_name, type: String
 	field :key, type: String
+	field :trailing_key, type: String
 
 	validates_presence_of :filename, :schema
 
@@ -51,8 +52,6 @@ class GoogleDoc
 
 	validates :user, associated: true
 
-
-
 	attr_accessor :session
 	attr_accessor :file_obj
 	attr_accessor :worksheet_obj
@@ -60,33 +59,36 @@ class GoogleDoc
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
+		debugger
 		self.worksheet_name ||= "Sheet1"
 		if (GoogleDoc.where(:id => self.id).exists?)
 			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
-			restart_session
+			restart_session_if_necessary
 			hookup_to_gdrive
 		end
 
-		if self.use_existing_doc
+		#if self.use_existing_doc
 			#then make the GDrive Hookups
-			hookup_to_gdrive
-		end
+			#hookup_to_gdrive
+		#end
 
 	end
 
-
-
+	before_save :before_save_hook
+	def before_save_hook
+		debugger
+		validate_schema
+	end
 
 	after_create :after_create_hook
 	def after_create_hook
-		validate_schema
-
+		debugger
 		restart_session
 		create_new_doc
 		hookup_to_gdrive
 
 		self.schema.keys.each do |attribute|
-			self.add_key(attribute)
+			self.add_column_key(attribute)
 		end
 		store_state
 	end
@@ -94,9 +96,10 @@ class GoogleDoc
 	def validate_schema
 		self.schema.each do |key, value|
 			unless value.in?(GoogleDoc.valid_types)
-				raise "Invalid schema: key #{key} is mapped to invalid type #{value}."
+				return false
 			end
 		end
+		return true
 	end
 
 
@@ -159,8 +162,11 @@ self.save!
 	end
 
 	def hookup_to_gdrive
+		debugger
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
+		self.key = @file_obj.key
+		self.trailing_key = convert_key(self.key)
 	end
 
 	def store_state
@@ -232,10 +238,20 @@ self.save!
 	end
 
 	# adds a key (first row of spreadsheet)
-	def add_key(key)
+	def add_column_key(key)
 		restart_session_if_necessary #TODO do we actually need to do these?
 		numkeys = @worksheet_obj.list.keys.length
 		@worksheet_obj[1, numkeys+1] = key
+		@worksheet_obj.save
+	end
+
+	def delete_column_key(key)
+		restart_session_if_necessary
+		if @worksheet_obj.list.keys.include?(key)
+			index = (1..@worksheet_obj.num_cols).detect {|i| @worksheet_obj[1,i] == key } # finds index of key
+			@worksheet_obj.list.each { |row| row[key] = "" }  # deletes value in key's column from every row
+			@worksheet_obj[1,index] = ""					  # deletes the top row value
+		end
 		@worksheet_obj.save
 	end
 
@@ -250,7 +266,7 @@ self.save!
 		# add the keys if they don't exist
 		params.each do | key, value |
 			if(!@worksheet_obj.list.keys.include?(key))
-				add_key(key)
+				add_column_key(key)
 			end
 		end
 		# save key changes
