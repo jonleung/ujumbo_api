@@ -93,6 +93,9 @@ describe "Google Docs Pipeline" do
 
 	    email_pipe = EmailPipe.new({
 	    			:previous_pipe_id => sms_pipe.id,
+	    			:pipe_specific => {
+	    				subject: "Hai"
+	    			}
 	    			:pipelined_references => {
 	    				:to => "Trigger:To",
 	    				:from => "Trigger:From",

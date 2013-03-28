@@ -13,20 +13,21 @@ class SmsNotification
     :failed => :failed,
   }
 
-  field :phone , type: String
-  field :properties, type: Hash
+  field :phone, type: String
+  field :body, type: String
+  field :api_response, type: Hash
 
   attr_accessible :phone, :body
 
   after_create :after_create_hook
   def after_create_hook
-    self.properties = self.send_sms
+    self.api_response = self.send_sms
   end
 
   def send_sms
     #TODO: Check all test cases http://www.twilio.com/docs/api/rest/test-credentials
     sms_params = {
-      from: Twilio::DEFAULT_PHONE,
+      from: Twilio.default_phone,
       to: self.phone,
       body: self.body
     }

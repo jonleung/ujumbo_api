@@ -19,6 +19,9 @@ class Trigger
       google_docs:spreadsheet:row:create
       google_docs:spreadsheet:row:update
       google_docs:spreadsheet:row:destroy
+
+      sms:receive
+      voice:receive
     }
   end
 
@@ -40,8 +43,13 @@ class Trigger
 
     def trigger_via_mongo(product_id, channel, triggering_properties)
       response_array = []
+      
+      if product_id.nil?
+        triggers = Trigger.where(channel: channel).entries
+      else
+        triggers = Trigger.where(product_id: product_id, channel: channel).entries
+      end
 
-      triggers = Trigger.where(product_id: product_id, channel: channel)
       triggers.each do |trigger|
         match = true
 

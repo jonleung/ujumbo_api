@@ -8,16 +8,23 @@ class Pipe
 
   field :previous_pipe_id, type: String #(nil for the first one)
   field :action, type: Symbol
+  field :pipe_specific, type: Hash
   field :pipelined_references, type: Hash
 
   attr_accessible :previous_pipe_id, :action, :pipelined_references, :pipe_specific
   validates_presence_of :previous_pipe_id
 
-  attr_accessor :pipelined_hash, :_translated_pipelined_references, :pipe_specific
+  attr_accessor :pipelined_hash, :_translated_pipelined_references
 
   after_initialize :after_initialize_callback
   def after_initialize_callback
-    self.write_attributes(self.pipe_specific)
+    self.pipe_specific.each do |key, value|
+      self.write_attribute(key, value) #TODO, should I really be doing this?
+    end
+  end
+
+  def pipe_specific
+    HashWithIndifferentAccess.new(self[:pipe_specific])
   end
 
   def receive_pipelined_hash(pipelined_hash)
@@ -30,6 +37,18 @@ class Pipe
 
   def flow(pipelined_hash)
     @pipelined_hash = pipelined_hash
+  end
+
+  def get_attr(key)
+    if (value = pipe_specific[key])
+      return value
+    else
+      return translated_pipelined_references[key]
+    end
+  end
+
+  def combined_properties
+    translated_pipelined_references.merge(pipe_specific)
   end
 
   def translated_pipelined_references
