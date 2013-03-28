@@ -8,7 +8,7 @@ class TemplatePipe < Pipe
   def flow
     template = Template.new(self.template_text, self.variable_regex)
 
-    text = template.fill(translated_pipelined_references)
+    text = template.fill(combined_properties)
     h = {text: text}
 
     writeback_to_pipelined_hash("Templates", h)

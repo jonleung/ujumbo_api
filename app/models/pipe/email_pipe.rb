@@ -5,19 +5,20 @@ class EmailPipe < Pipe
   include Mongoid::Paranoia
 
   def flow
+    debugger
   	attrs = HashWithIndifferentAccess.new()
 
-  	attrs[:from] = translated_pipelined_references[:from]
-  	attrs[:subject] = translated_pipelined_references[:subject]
+  	attrs[:from] = get_attr(:from)
+  	attrs[:subject] = get_attr(:subject)
   	
   	[:to, :cc, :bcc].each do |field|
-  		if (value = translated_pipelined_references[field]).present?
+  		if ( value = get_attr(field) ).present?
 	  		emails = value.split(',')
 	  		attrs[field] = emails
 	  	end
   	end
 
-  	attrs[:text_body] = attrs[:html_body] = translated_pipelined_references[:body]
+  	attrs[:text_body] = attrs[:html_body] = get_attr(:body)
 
   	email = EmailNotification.create(attrs)
 

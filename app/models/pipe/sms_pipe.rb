@@ -4,8 +4,12 @@ class SmsPipe < Pipe
   include Mongoid::Timestamps
   include Mongoid::Paranoia
 
+  def self.properties_list
+    [:phone, :body]
+  end
+
   def flow
-    notification = SmsNotification.create(translated_pipelined_references)
-    writeback_to_pipelined_hash(SmsNotification.to_s, notification.attributes) #TODO, make write_back
+    notification = SmsNotification.create(combined_properties.slice(*SmsPipe.properties_list))
+    writeback_to_pipelined_hash(SmsNotification.to_s, notification.api_response) #TODO, make write_back
   end
 end

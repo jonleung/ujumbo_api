@@ -8,14 +8,14 @@ Ujumbo::Application.routes.draw do
   match '/auth/google_oauth2/callback' => 'google_docs#omniauth_success_callback'
 
 
+  # DATASOURCES
+  match '/google_docs/spreadsheet/create' => 'google_docs#create'
+  
+  # TRIGGERS
+
+  # API Trigger
   match 'triggers/:id' => 'trigger#activate'
 
-  # match '/api' => 'api_controller#' 
-
-  match '/google_docs/spreadsheet/create' => 'google_docs#create'
-
-  match '/google_docs/row/create' => 'google_docs#create_row'
-  
   # Google Docs Callbacks
   match "/google_docs/callback" => 'google_docs#callback'
 
@@ -24,8 +24,9 @@ Ujumbo::Application.routes.draw do
   match "/android/sms/outbound/update" => "android_sms#update"
   match "/android/sms/inbound/create" => "android_sms#create"
 
-  match "/dropbox/choose" => "dropbox#index"
-  match "/dropbox/trigger" => "dropbox#trigger"
+  # Twilio
+  match "/twilio/sms" => 'twilio#sms_receive'
+  match "/twilio/voice" => 'twilio#voice_receive'
 
   # CLIENT ROUTES
   
