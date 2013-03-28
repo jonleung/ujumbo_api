@@ -1,9 +1,11 @@
 Ujumbo::Application.routes.draw do
+
+  # API ROUTES
   root :to => redirect('/login')
   
   # Authentication
   match '/login' => redirect('/auth/google_oauth2')
-  match '/auth/google_oauth2/callback' => 'google_docs#omniauth_callback'
+  match '/auth/google_oauth2/callback' => 'google_docs#omniauth_success_callback'
 
 
   match 'triggers/:id' => 'trigger#activate'
@@ -24,5 +26,8 @@ Ujumbo::Application.routes.draw do
 
   match "/dropbox/choose" => "dropbox#index"
   match "/dropbox/trigger" => "dropbox#trigger"
+
+  # CLIENT ROUTES
+  
 
 end

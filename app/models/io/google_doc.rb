@@ -29,48 +29,106 @@ class GoogleDoc
 	field :schema, type: Hash
 	field :auth_tokens, type: Hash
 	field :worksheet_name, type: String
-	field :username, type: String
-	field :password, type: String
 	field :key, type: String
 
+	validates_presence_of :filename, :schema
+
+
 	belongs_to :product
-	after_create :after_create_hook
+	belongs_to :user
+
+	validates :user, associated: true
+
+
 
 	attr_accessor :session
 	attr_accessor :file_obj
 	attr_accessor :worksheet_obj
+	attr_accessor :use_existing_doc
 
+	after_initialize :after_initialize_hook
+	def after_initialize_hook
+		if (GoogleDoc.where(:id => self.id).exists?)
+			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
+			restart_session
+			hookup_to_gdrive
+		end
+
+		if self.use_existing_doc
+			#then make the GDrive Hookups
+			hookup_to_gdrive
+		end
+	end
+
+	after_create :after_create_hook
 	def after_create_hook
+		restart_session
+		create_new_doc
+		hookup_to_gdrive
+
 		self.schema.keys.each do |attribute|
 			self.add_key(attribute)
 		end
 		store_state
 	end
 
-	def initialize(params)
-		@session = GoogleDrive.login(params[:username], params[:password])
-		@file_obj = create_new_doc(params[:filename]) if params[:create_new].to_bool
-		worksheet_name = params[:worksheet_name] != nil ? params[:worksheet_name] : "Sheet1"
-		key = convert_key(@file_obj.key)
-		
-		super(params.merge(data: {}, key: key, worksheet_name: "Sheet1"))
+=begin
+	g = GoogleDoc.new(filename: "hello world",  )
+	# new should only be for creating new docs
+	# and where should be used for retrieving them
 
-		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
-		self.save!
-	end
+	.new, it should stay in instance variable that DOES NOT create a drive instance
+	but if you do .save
+		then it creates the Real Drive INstance
+
+		so the object stores the conditions of a doc to be created
+
+		so the only docs that have live connections are ones where you do
+
+			GoogleDoc.where
+			GoogleDoc.new.save(params: already_exists=>true)
+			GoogleDoc.create
+=end
+
+
+
+=begin
+
+@file_obj = create_new_doc(params[:filename]) if params[:create_new].to_bool
+worksheet_name = params[:worksheet_name] != nil ? params[:worksheet_name] : "Sheet1"
+key = convert_key(@file_obj.key)
+
+super(params.merge(data: {}, key: key, worksheet_name: "Sheet1"))
+
+@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
+self.save!
+
+=end
+
+
 
 	def convert_key(key)
 		key[13..key.length]
 	end
 
-	def create_new_doc(filename)
+	def create_new_doc
 		doc_with_script = "BLANK_WITH_SCRIPT"
 		template = @session.spreadsheet_by_title(doc_with_script)
-		template.duplicate(filename)
+		template.duplicate(self.filename)
+	end
+
+	def restart_session_if_necessary
+		if Time.now > Time.at(user.google_credential.expires_at)
+			restart_session
+		end
 	end
 
 	def restart_session
-		@session = GoogleDrive.login(self.username, self.password)
+		token = self.user.google_credential.token
+		@session = GoogleDrive.login_with_oauth(token)		
+	end
+
+	def hookup_to_gdrive
 		@file_obj = @session.spreadsheet_by_title(self.filename)
 		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
 	end
@@ -145,20 +203,20 @@ class GoogleDoc
 
 	# adds a key (first row of spreadsheet)
 	def add_key(key)
-		restart_session
+		restart_session_if_necessary #TODO do we actually need to do these?
 		numkeys = @worksheet_obj.list.keys.length
 		@worksheet_obj[1, numkeys+1] = key
 		@worksheet_obj.save
 	end
 
 	def num_keys
-		restart_session
+		restart_session_if_necessary
 		@worksheet_obj.list.keys.length
 	end
 
 	# creates a row with hash of key-value params
 	def create_row(params)
-		restart_session
+		restart_session_if_necessary
 		# add the keys if they don't exist
 		params.each do | key, value |
 			if(!@worksheet_obj.list.keys.include?(key))
@@ -175,7 +233,7 @@ class GoogleDoc
 	end
 
 	def where(params)
-		restart_session
+		restart_session_if_necessary
 		matches = []
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
@@ -193,7 +251,7 @@ class GoogleDoc
 	end
 
 	def delete(params)
-		restart_session
+		restart_session_if_necessary
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
 			rows.each do | row |
@@ -208,7 +266,7 @@ class GoogleDoc
 	end
 
 	def delete_all(params)
-		restart_session
+		restart_session_if_necessary
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
 			rows.each do | row |
@@ -221,7 +279,7 @@ class GoogleDoc
 	end
 
 	def clear_sheet
-		restart_session
+		restart_session_if_necessary
 		rows = @worksheet_obj.list
 		rows.each do | row |
 			row.clear
@@ -233,7 +291,7 @@ class GoogleDoc
 
 	# returns all the rows as an array of hashes
 	def all
-		restart_session
+		restart_session_if_necessary
 		if(@worksheet_obj.nil?)
 			return []
 		else
@@ -242,7 +300,7 @@ class GoogleDoc
 	end
 
 	def all_hashed
-		restart_session
+		restart_session_if_necessary
 		if(@worksheet_obj.nil?)
 			return {}
 		else
@@ -253,7 +311,7 @@ class GoogleDoc
 	end
 
 	def update_row(search_hash, update_hash)
-		restart_session
+		restart_session_if_necessary
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each do | row |
@@ -267,7 +325,7 @@ class GoogleDoc
 	end
 
 	def update_all(search_hash, update_hash)
-		restart_session
+		restart_session_if_necessary
 		updated_rows = []
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
@@ -283,7 +341,7 @@ class GoogleDoc
 	end
 
 	def replace(search_hash, replace_hash)
-		restart_session
+		restart_session_if_necessary
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each do | row |
@@ -299,7 +357,7 @@ class GoogleDoc
 	end
 
 	def replace_all(search_hash, replace_hash)
-		restart_session
+		restart_session_if_necessary
 		replaced_rows = []
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |

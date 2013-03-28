@@ -1,5 +1,9 @@
 OmniAuth.config.logger = Rails.logger
 
+OmniAuth.config.on_failure = Proc.new do |env|
+  "GoogleDocsController".constantize.action(:omniauth_failure_callback).call(env)
+end
+
 ENV['GOOGLE_KEY'] = "437562178340.apps.googleusercontent.com"
 ENV['GOOGLE_SECRET'] = "KCYeiLoRVTQe5pYLO_HR4j_F"
 

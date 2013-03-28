@@ -1,6 +1,8 @@
-class GoogleDocsController < ApplicationController
+class GoogleDocsController < ApiController
   
-  def omniauth_callback
+  before_filter :ensure_user, only: [:create, :create_row]
+
+  def omniauth_success_callback
     data = HashWithIndifferentAccess.new(request.env["omniauth.auth"])
     
     user_params = HashWithIndifferentAccess.new
@@ -15,19 +17,30 @@ class GoogleDocsController < ApplicationController
     user_params[:gender] = data[:extra][:raw_info][:gender]
     user_params[:locale] = data[:extra][:raw_info][:locale]
 
-    credentials_params = HashWithIndifferentAccess.new
-    credentials_params[:token] = data[:credentials][:token]
-    credentials_params[:refresh_token] = data[:credentials][:refresh_token]
-    credentials_params[:expires_at] = data[:credentials][:expires_at]
-    credentials_params[:expires] = data[:credentials][:expires]
+    credential_params = HashWithIndifferentAccess.new
+    credential_params[:token] = data[:credentials][:token]
+    credential_params[:refresh_token] = data[:credentials][:refresh_token]
+    credential_params[:expires_at] = data[:credentials][:expires_at]
+    credential_params[:expires] = data[:credentials][:expires]
+    debugger
 
-    user = User.create(user_params)
-    user.google_credential = GoogleCredential.new(credentials_params)
+    omniauth_params = {
+      :user_params => user_params,
+      :credential_params => credential_params,
+    }
+    user = User.from_omniauth(omniauth_params)
 
-    render :json => user.google_credential.to_json
+    render :json => user.to_json
+  end
+
+  #TODO
+  def omniauth_failure_callback 
+    redirect_to "https://github.com/images/error/octocat_sad.gif"
   end
 
   def callback
+    # TODO, each script needs to have unique security tokens inside of it or else anyone can fake these
+    # therefore need to programatically edit script
     doc = GoogleDoc.where(key: params['key']).first
   	changes = doc.trigger_changes
     puts changes

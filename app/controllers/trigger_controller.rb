@@ -1,4 +1,4 @@
-class TriggerController < ApplicationController
+class TriggerController < ApiController
 
   def activate
     product_id = params[:product_id]

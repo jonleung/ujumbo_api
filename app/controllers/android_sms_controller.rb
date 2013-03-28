@@ -1,4 +1,4 @@
-class AndroidSmsController < ApplicationController
+class AndroidSmsController < ApiController
 
   # Outbound Sms
   def all

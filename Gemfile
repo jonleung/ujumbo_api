@@ -21,6 +21,7 @@ gem 'resque'
 gem 'omniauth'
 gem 'oauth2', '~> 0.5.0'
 gem 'omniauth-google-oauth2'
+gem 'ember-rails'
 
 # Input / Output
 gem 'google_drive'
