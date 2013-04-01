@@ -1,11 +1,7 @@
 Ujumbo::Application.routes.draw do
 
-  root :to => 'client/client#index'
+  root :to => 'application#index'
 
-  namespace :client do
-    
-
-  end
 
   namespace :api do 
 
