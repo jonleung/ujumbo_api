@@ -91,6 +91,7 @@ class GoogleDoc
 		self.schema.keys.each do |attribute|
 			self.add_column_key(attribute)
 		end
+		self.add_column_key("Trigger")
 		store_state
 	end
 
@@ -203,7 +204,9 @@ self.save!
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
+				if row["Trigger"] == "send"
+					Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
+				end
 			end
 		end
 	end

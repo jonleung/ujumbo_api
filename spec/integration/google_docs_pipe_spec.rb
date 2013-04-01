@@ -11,7 +11,7 @@ describe "Google Docs Pipeline" do
 
 		client = ApiClient.new
 
-		filename = "Gdocs_pipe_24"
+		filename = "Gdocs_pipe_27"
 		google_doc_params = {
 			user_id: user.id,
 			filename: filename,
@@ -25,7 +25,7 @@ describe "Google Docs Pipeline" do
 
 		google_doc = GoogleDoc.find_or_create_by(google_doc_params)
 
-		filename = "Gdocs_pipe_25"
+		filename = "Gdocs_pipe_28"
 
 		google_doc_params = {
 			user_id: user.id,
@@ -53,14 +53,14 @@ describe "Google Docs Pipeline" do
 	    gdoc_create_row_pipe = GoogleDocPipe.new({
 	    	:previous_pipe_id => "first_pipe",
 	    	:action => :create_row,
-	    	:pipe_specific => {
+	    	:static_properties => {
 	    		:google_doc_id => google_doc2.id,
 	    		:create_by_params => {
 	    			"First Name" => "U",
 	    			"Last Name" => "Jumbo"
 	    		}
 	    		},
-	    		:pipelined_references => {
+	    		:pipelined_properties => {
 	    		}
 	    		})
 	    gdoc_create_row_pipe.pipeline = pipeline
@@ -70,7 +70,7 @@ describe "Google Docs Pipeline" do
 		gdoc_update_row_pipe = GoogleDocPipe.new({
 			:previous_pipe_id => gdoc_create_row_pipe.id,
 			:action => :update_row,
-			:pipe_specific => {
+			:static_properties => {
 				:google_doc_id => google_doc2.id,
 				:find_by_params => {
 					:first_name => "U",
@@ -81,7 +81,7 @@ describe "Google Docs Pipeline" do
 						:last_name => "Jumbo"
 					}
 					},
-					:pipelined_references => {
+					:pipelined_properties => {
 					}
 					})
 		gdoc_update_row_pipe.pipeline = pipeline
@@ -91,13 +91,13 @@ describe "Google Docs Pipeline" do
     	gdoc_destroy_row_pipe = GoogleDocPipe.new({
     		:previous_pipe_id => gdoc_update_row_pipe.id,
     		:action => :destroy_row,
-    		:pipe_specific => {
+    		:static_properties => {
     			:google_doc_id => google_doc2.id,
     			:destroy_by_params => {
     				:first_name => "You"
     			}
     			},
-    			:pipelined_references => {
+    			:pipelined_properties => {
     			}
     			})
     	gdoc_destroy_row_pipe.pipeline = pipeline
