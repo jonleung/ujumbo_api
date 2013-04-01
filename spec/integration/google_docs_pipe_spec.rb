@@ -11,100 +11,99 @@ describe "Google Docs Pipeline" do
 
 		client = ApiClient.new
 
-		filename = "Gdocs_pipe_5"
-		google_doc = GoogleDoc.find_or_create_by(filename: filename)
-		if google_doc.nil?
-			google_doc_params = {
-				user_id: user.id,
-			  filename: filename,
-			  create_new: "true",
-			  product_id: product.id,
-			  schema: {
-			  	"First Name" => :first_name,
-			  	"Last Name" => :last_name
-			  }
+		filename = "Gdocs_pipe_27"
+		google_doc_params = {
+			user_id: user.id,
+			filename: filename,
+			create_new: "true",
+			product_id: product.id,
+			schema: {
+				"First Name" => :first_name,
+				"Last Name" => :last_name
 			}
-			response = client.post("/google_docs/spreadsheet/create/", google_doc_params)
-			debugger
-			google_doc = GoogleDoc.find(response["_id"])
-		end
+		}
 
-		filename = "Gdocs_pipe_2"
-		google_doc2 = GoogleDoc.where(filename: filename).first
-		if google_doc2.nil?
-			google_doc_params = {
-				user_id: user.id,
-			  filename: filename,
-			  create_new: "true",
-			  product_id: product.id,
-			  schema: {
-			  	"First Name" => :first_name,
-			  	"Last Name" => :last_name
-			  }
+		google_doc = GoogleDoc.find_or_create_by(google_doc_params)
+
+		filename = "Gdocs_pipe_28"
+
+		google_doc_params = {
+			user_id: user.id,
+			filename: filename,
+			create_new: "true",
+			product_id: product.id,
+			schema: {
+				"First Name" => :first_name,
+				"Last Name" => :last_name
 			}
-			response = client.post("/google_docs/spreadsheet/create/", google_doc_params)
-			debugger
-			google_doc2 = GoogleDoc.find(response["_id"])
-		end
+		}
 
-	    pipeline = product.pipelines.new
-	    pipeline.name = "name#{Pipeline.count}"
-	    pipeline.save.should == true
+		google_doc2 = GoogleDoc.find_or_create_by(google_doc_params)
 
-	    Trigger.delete_all
-	    pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:create" , {google_doc_id: google_doc.id} )
-	    pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:delete" , {google_doc_id: google_doc.id} )
-	    pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:update" , {google_doc_id: google_doc.id} )
+		pipeline = product.pipelines.new
+		pipeline.name = "name#{Pipeline.count}"
+		pipeline.save.should == true
+
+		Trigger.delete_all
+		pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:create" , {google_doc_id: google_doc.id} )
+		pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:destroy" , {google_doc_id: google_doc.id} )
+		pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:update" , {google_doc_id: google_doc.id} )
 
 	    # creating a row
-    	gdoc_create_row_pipe = GoogleDocPipe.new({
-    			:previous_pipe_id => "first_pipe",
-    			:action => :create_row,
-    			:pipe_specific => {
-    				:google_doc_id => google_doc2.id,
-    				:create_by_params => {
-    					:first_name => "U",
-    					:last_name => "Jumbo"
-    				}
-    			},
-    			:pipelined_references => {
-    			}
-    		})
+	    gdoc_create_row_pipe = GoogleDocPipe.new({
+	    	:previous_pipe_id => "first_pipe",
+	    	:action => :create_row,
+	    	:static_properties => {
+	    		:google_doc_id => google_doc2.id,
+	    		:create_by_params => {
+	    			"First Name" => "U",
+	    			"Last Name" => "Jumbo"
+	    		}
+	    		},
+	    		:pipelined_properties => {
+	    		}
+	    		})
+	    gdoc_create_row_pipe.pipeline = pipeline
+	    gdoc_create_row_pipe.save.should == true 
 
 		# updating a row(s)
-    	gdoc_update_row_pipe = GoogleDocPipe.new({
-    			:previous_pipe_id => "first_pipe",
-    			:action => :update_row,
-    			:pipe_specific => {
-    				:google_doc_id => google_doc2.id,
-    				:find_by_params => {
-    					:first_name => "U",
-    					:last_name => "Jumbo"
-    				},
-    				:update_to_params => {
-    					:first_name => "You",
-    					:last_name => "Jumbo"
-    				}
-    			},
-    			:pipelined_references => {
+		gdoc_update_row_pipe = GoogleDocPipe.new({
+			:previous_pipe_id => gdoc_create_row_pipe.id,
+			:action => :update_row,
+			:static_properties => {
+				:google_doc_id => google_doc2.id,
+				:find_by_params => {
+					:first_name => "U",
+					:last_name => "Jumbo"
+					},
+					:update_to_params => {
+						:first_name => "You",
+						:last_name => "Jumbo"
+					}
+					},
+					:pipelined_properties => {
+					}
+					})
+		gdoc_update_row_pipe.pipeline = pipeline
+	    gdoc_update_row_pipe.save.should == true 
+
+  #   	# deleting a row(s)
+    	gdoc_destroy_row_pipe = GoogleDocPipe.new({
+    		:previous_pipe_id => gdoc_update_row_pipe.id,
+    		:action => :destroy_row,
+    		:static_properties => {
+    			:google_doc_id => google_doc2.id,
+    			:destroy_by_params => {
+    				:first_name => "You"
     			}
-    		})
-
-    	# deleting a row(s)
-    	gdoc_delete_row_pipe = GoogleDocPipe.new({
-    			:previous_pipe_id => "first_pipe",
-    			:action => :delete_row,
-    			:pipe_specific => {
-    				:google_doc_id => google_doc2.id,
-    				:delete_by_params => {
-    					:first_name => "You"
-    				}
     			},
-    			:pipelined_references => {
+    			:pipelined_properties => {
     			}
-    		})
+    			})
+    	gdoc_destroy_row_pipe.pipeline = pipeline
+	    gdoc_destroy_row_pipe.save.should == true 
+	    
+pipeline.save.should == true
 
-	    pipeline.save.should == true
-
-	end
+end
 end

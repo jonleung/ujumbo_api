@@ -1,5 +1,6 @@
 require 'google/api_client'
 require 'securerandom'
+require 'base64'
 
 =begin
 	
@@ -59,7 +60,9 @@ class GoogleDoc
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
-		debugger
+		raise "Google Doc must have a user" if self.user.nil?
+
+		restart_session
 		self.worksheet_name ||= "Sheet1"
 		if (GoogleDoc.where(:id => self.id).exists?)
 			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
@@ -76,20 +79,19 @@ class GoogleDoc
 
 	before_save :before_save_hook
 	def before_save_hook
-		debugger
 		validate_schema
 	end
 
 	after_create :after_create_hook
 	def after_create_hook
-		debugger
-		restart_session
+		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
 
 		self.schema.keys.each do |attribute|
 			self.add_column_key(attribute)
 		end
+		self.add_column_key("Trigger")
 		store_state
 	end
 
@@ -162,10 +164,14 @@ self.save!
 	end
 
 	def hookup_to_gdrive
-		debugger
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
-		self.key = @file_obj.key
+		key = @file_obj.key
+		if key.length == 23
+			self.key = Base64.encode64(key)[0...-2]
+		else
+			self.key = key
+		end
 		self.trailing_key = convert_key(self.key)
 	end
 
@@ -175,6 +181,14 @@ self.save!
 
 	def get_state
 		self.data
+	end
+
+	def column_key_exists(key)
+		@worksheet_obj.list.keys.include?(key)
+	end
+
+	def key_index(key)
+		(1..@worksheet_obj.num_cols).detect {|i| @worksheet_obj[1,i] == key }
 	end
 
 	def trigger_changes
@@ -190,7 +204,9 @@ self.save!
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
+				if row["Trigger"] == "send"
+					Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
+				end
 			end
 		end
 	end
@@ -247,8 +263,8 @@ self.save!
 
 	def delete_column_key(key)
 		restart_session_if_necessary
-		if @worksheet_obj.list.keys.include?(key)
-			index = (1..@worksheet_obj.num_cols).detect {|i| @worksheet_obj[1,i] == key } # finds index of key
+		if column_key_exists(key)
+			index = key_index(key) # finds index of key
 			@worksheet_obj.list.each { |row| row[key] = "" }  # deletes value in key's column from every row
 			@worksheet_obj[1,index] = ""					  # deletes the top row value
 		end
@@ -274,8 +290,9 @@ self.save!
 			@worksheet_obj.synchronize
 		end
 		#push the new row
-		@worksheet_obj.list.push(params)
+		new_row = @worksheet_obj.list.push(params)
 		@worksheet_obj.save
+		return new_row
 	end
 
 	def where(params)
@@ -314,14 +331,17 @@ self.save!
 	def delete_all(params)
 		restart_session_if_necessary
 		rows = @worksheet_obj.list
+		deleted_rows = {}
 		params.each do | param_key, param_val |
-			rows.each do | row |
+			rows.each_with_index do | row, index |
 				if( row[param_key].to_s == param_val.to_s)
+					deleted_rows[index.to_s] = row
 					row.clear
 				end
 			end
 		end
 		@worksheet_obj.save
+		return deleted_rows
 	end
 
 	def clear_sheet
@@ -372,14 +392,14 @@ self.save!
 
 	def update_all(search_hash, update_hash)
 		restart_session_if_necessary
-		updated_rows = []
+		updated_rows = {}
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
-			rows.each do | row |
+			rows.each_with_index do | row, index |
 				if( row[param_key].to_s == param_val.to_s)
 					row.update(update_hash)
 					@worksheet_obj.save
-					updated_rows << row.to_hash
+					updated_rows[index.to_s] = row.to_hash
 				end
 			end
 		end

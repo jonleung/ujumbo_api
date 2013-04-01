@@ -40,7 +40,7 @@ class Api::GoogleDocsController < ApiController
   def callback
     # TODO, each script needs to have unique security tokens inside of it or else anyone can fake these
     # therefore need to programatically edit script
-    doc = GoogleDoc.where(key: params['trailing_key']).first
+    doc = GoogleDoc.where(key: params['key']).first
   	changes = doc.trigger_changes
     puts changes
   end
