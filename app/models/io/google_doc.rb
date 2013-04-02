@@ -45,7 +45,6 @@ class GoogleDoc
 	field :worksheet_name, type: String
 	field :key, type: String
 	field :trailing_key, type: String
-	#field :triggering_column, type: String 	# by default, the triggering column is the rightmost column on the doc
 
 	validates_presence_of :filename, :schema
 
@@ -253,7 +252,7 @@ self.save!
 					channel = "#{base_channel}:update"
 				end
 				triggering_column_names.each do |col_name|
-					if row[col_name] == "Send"
+					if row[col_name].downcase == "send"
 						update_row(row, { col_name => "SENT"} )
 						Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
 					end

@@ -5,7 +5,7 @@ class SmsPipe < Pipe
   include Mongoid::Paranoia
 
   def self.properties_list
-    [:phone, :body]
+    [:from_phone, :phone, :body]
   end
 
   def flow

@@ -113,7 +113,7 @@ describe "product" do
       pennkey: "jonleung",
       password: "wpn2"
     }
-    response = client.post("/triggers/#{api_call_trigger_id}", {product_id: product.id, role: "student"}.merge(student_hash), debug: true)
+    response = client.post("api/triggers/#{api_call_trigger_id}", {product_id: product.id, role: "student"}.merge(student_hash), debug: true)
 
     pp response
     response.should_not == nil

@@ -3,11 +3,11 @@ ENV["sms_for_real"] ||= "true"
 module Twilio
 
   def self.default_sms_url
-    "#{ENV["base_url"]}/twilio/sms"
+    "#{ENV["base_url"]}/api/twilio/sms"
   end
 
   def self.default_voice_url
-    "#{ENV["base_url"]}/twilio/voice"
+    "#{ENV["base_url"]}/api/twilio/voice"
   end
 
   module REST
@@ -53,6 +53,10 @@ if is_production
     def self.default_phone
       "4433933207"
     end
+
+    def self.phone_numbers
+      ["4433933207", "2073586260", "4158586914", "4158586924"]
+    end
   end
 
 else
@@ -75,20 +79,22 @@ end
 $twilio = Twilio::REST::Client.new Twilio.account_sid, Twilio.auth_token
 
 if is_production
-  # Set Appropriate Callback
-  params = {
-    phone_number: Twilio.default_phone,
-  }
-  pp "Updating Twilio Callback with params"
-  pp params
+  Twilio.phone_numbers.each do |phone|
+    # Set Appropriate Callback
+    params = {
+      phone_number: phone,
+    }
+    pp "Updating Twilio Callback with params"
+    pp params
 
-  incomming_phone_number = $twilio.account.incoming_phone_numbers.create(params)
-  params = {
-    sms_method: "POST",
-    sms_url: Twilio.default_sms_url,
-    voice_url: Twilio.default_voice_url
-  }
-  pp incomming_phone_number.update(params)
+    incomming_phone_number = $twilio.account.incoming_phone_numbers.create(params)
+    params = {
+      sms_method: "POST",
+      sms_url: Twilio.default_sms_url,
+      voice_url: Twilio.default_voice_url
+    }
+    pp incomming_phone_number.update(params)
+  end
 end
 
 
