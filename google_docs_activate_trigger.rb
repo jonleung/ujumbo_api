@@ -1,22 +1,38 @@
 require 'watir-webdriver'
-require 'ruby-debug'
-browser = Watir::Browser.new
 
-browser.goto 'https://script.google.com/a/macros/ujumbo.com/d/M7tvy78dGUyowbbMHw17-Y9LyW7547XVE/edit?uiv=2&tz=America/New_York&docTitle=Gdocs_pipe_25&csid=td1TBZQOkpw0SXbPIBuRzhQ.06483039675329959494.1567001993424957037&mid=ACjPJvG-eHYMQwNo-1XDYUyghbZqxTLya7w0BRkPiRKq7rsWJU13DNa__CrFdjuQuQB2r1Px3bxwo4WSKZbClYL1PTn6tpzE593OUIc1C9X1oNClCpg&hl=en_US'
+def set_trigger_with_watir(params)
+	browser = Watir::Browser.new 
 
-browser.text_field(:id => 'Email').when_present.set("hello")
-browser.text_field(:id => 'Passwd').when_present.set("movefastandbreakthings")
-browser.button(:id => 'signIn').click
+	# navigate to the google doc page
+	browser.goto params[:google_doc_url]
 
-browser.div(:id, "triggersButton").when_present.click
-puts browser.div(:class, "gwt-Anchor add-trigger")
-browser.link(:class, "gwt-Anchor add-trigger").when_present.click
-trigger_selects = browser.div(:class, "trigger-row").selects(:class, "gwt-ListBox listbox")
-on_edit = trigger_selects.find { |select| select.include?("On edit") }
-on_edit.select("On edit")
+	# login on the way
+	browser.text_field(:id => 'Email').when_present.set(params[:username])
+	browser.text_field(:id => 'Passwd').when_present.set(params[:password])
+	browser.button(:id => 'signIn').click
 
-browser.div(:class, "controls").button(:text => "Save").click
+	editor_url = /"maestro_script_editor_uri":"(.*)","maestro_new_project/.match(browser.html)[1].gsub("\\/", "/")
+	browser.goto editor_url
 
+	# find the link to the script editor
+	# sleep 10
+	# puts browser.html
+	# look for 'maestro'
 
-#puts browser.div(:id => "macros-resources-menu").attribute_list
-#browser.div("aria-activedescendant", ":1d").when_present.click
+	browser.div(:id, "triggersButton").when_present.click
+	
+	# click the add trigger link
+	browser.link(:class, "gwt-Anchor add-trigger").when_present.click
+	
+	# get the dropdown-menu objects
+	trigger_dropdowns = browser.div(:class, "trigger-row").selects(:class, "gwt-ListBox listbox")
+	
+	# find the dropdown containing on edit, click, and save
+	on_edit_dropdown = trigger_dropdowns.find { |dropdown| dropdown.include?("On edit") }
+	on_edit_dropdown.select("On edit")
+	browser.div(:class, "controls").button(:text => "Save").click
+	browser.close
+end
+
+url = 'https://docs.google.com/a/ujumbo.com/spreadsheet/ccc?key=0AnM0GJSzYzdKdDhadUZ3X0tOQmJOTkJwSkZKUG5rSXc#gid=0'
+set_trigger_with_watir google_doc_url: url, username: "hello", password: "movefastandbreakthings"

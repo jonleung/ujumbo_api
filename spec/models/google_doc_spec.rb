@@ -52,6 +52,7 @@ describe "Google Docs Stuff" do
         g.save.should == true
         g.session.should_not == nil
     end
+
   end
 
   describe "retrieving a GoogleDoc" do

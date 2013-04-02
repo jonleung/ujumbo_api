@@ -11,7 +11,7 @@ describe "Google Docs Pipeline" do
 
 		client = ApiClient.new
 
-		filename = "Gdocs_pipe_27"
+		filename = "Gdocs_pipe_31"
 		google_doc_params = {
 			user_id: user.id,
 			filename: filename,
@@ -19,13 +19,14 @@ describe "Google Docs Pipeline" do
 			product_id: product.id,
 			schema: {
 				"First Name" => :first_name,
-				"Last Name" => :last_name
+				"Last Name" => :last_name,
+				"IM A TRIGGERING COLUMN" => :triggering_column
 			}
 		}
 
 		google_doc = GoogleDoc.find_or_create_by(google_doc_params)
 
-		filename = "Gdocs_pipe_28"
+		filename = "Gdocs_pipe_32"
 
 		google_doc_params = {
 			user_id: user.id,
@@ -56,8 +57,8 @@ describe "Google Docs Pipeline" do
 	    	:static_properties => {
 	    		:google_doc_id => google_doc2.id,
 	    		:create_by_params => {
-	    			"First Name" => "U",
-	    			"Last Name" => "Jumbo"
+	    			"First Name" => "This is a",
+	    			"Last Name" => "Test"
 	    		}
 	    		},
 	    		:pipelined_properties => {
@@ -67,43 +68,42 @@ describe "Google Docs Pipeline" do
 	    gdoc_create_row_pipe.save.should == true 
 
 		# updating a row(s)
-		gdoc_update_row_pipe = GoogleDocPipe.new({
-			:previous_pipe_id => gdoc_create_row_pipe.id,
-			:action => :update_row,
-			:static_properties => {
-				:google_doc_id => google_doc2.id,
-				:find_by_params => {
-					:first_name => "U",
-					:last_name => "Jumbo"
-					},
-					:update_to_params => {
-						:first_name => "You",
-						:last_name => "Jumbo"
-					}
-					},
-					:pipelined_properties => {
-					}
-					})
-		gdoc_update_row_pipe.pipeline = pipeline
-	    gdoc_update_row_pipe.save.should == true 
+		# gdoc_update_row_pipe = GoogleDocPipe.new({
+		# 	:previous_pipe_id => gdoc_create_row_pipe.id,
+		# 	:action => :update_row,
+		# 	:static_properties => {
+		# 		:google_doc_id => google_doc2.id,
+		# 		:find_by_params => {
+		# 			"First Name" => "U",
+		# 			"Last Name" => "Jumbo"
+		# 			},
+		# 			:update_to_params => {
+		# 				"First Name" => "You",
+		# 				"Last Name" => "Jumbo"
+		# 			}
+		# 			},
+		# 			:pipelined_properties => {
+		# 			}
+		# 			})
+		# gdoc_update_row_pipe.pipeline = pipeline
+	 #    gdoc_update_row_pipe.save.should == true 
 
-  #   	# deleting a row(s)
-    	gdoc_destroy_row_pipe = GoogleDocPipe.new({
-    		:previous_pipe_id => gdoc_update_row_pipe.id,
-    		:action => :destroy_row,
-    		:static_properties => {
-    			:google_doc_id => google_doc2.id,
-    			:destroy_by_params => {
-    				:first_name => "You"
-    			}
-    			},
-    			:pipelined_properties => {
-    			}
-    			})
-    	gdoc_destroy_row_pipe.pipeline = pipeline
-	    gdoc_destroy_row_pipe.save.should == true 
+  # #   	# deleting a row(s)
+  #   	gdoc_destroy_row_pipe = GoogleDocPipe.new({
+  #   		:previous_pipe_id => gdoc_update_row_pipe.id,
+  #   		:action => :destroy_row,
+  #   		:static_properties => {
+  #   			:google_doc_id => google_doc2.id,
+  #   			:destroy_by_params => {
+  #   				"First Name" => "You"
+  #   			}
+  #   			},
+  #   			:pipelined_properties => {
+  #   			}
+  #   			})
+  #   	gdoc_destroy_row_pipe.pipeline = pipeline
+	 #    gdoc_destroy_row_pipe.save.should == true 
 	    
-pipeline.save.should == true
-
-end
+		pipeline.save.should == true
+	end
 end
