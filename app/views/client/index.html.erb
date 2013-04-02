@@ -1,1 +1,39 @@
-<h1>Pipelines</h1>
+<div class="fill">
+<div class="container-fluid fill">
+  
+  <div class="row-fluid main">
+
+<!--     <div class="span5 master fill">
+      <div class="type">
+        <h4>Google Docs</h4>
+
+        <div class="item">
+          <h5 class="name">
+            AirPennNet Keys
+          </h5>
+        </div>
+
+      </div>
+    </div> -->
+    <form action="api/pipelines/create">
+
+
+    <div class="detail fill">
+      <div class="container well round-box send-sms">
+        <h3>Send SMS</h3>
+        <input type="text" class="input-large" placeholder="Static Phone Number" name="1[send_sms][phone][]">
+          <input type="text" class="hidden" name="1[send_sms][reference_type][]" value="pipelined">
+          <input type="text" class="hidden" placeholder="Referenced Phone Number" value="static">
+      </div>
+    </div>
+
+    <button type="submit" class="btn">Submit</button>
+
+    </form>
+
+  </div>
+
+</div>
+</div>
+
+

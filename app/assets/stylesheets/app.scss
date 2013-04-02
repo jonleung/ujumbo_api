@@ -1,0 +1,102 @@
+// Debug
+$debug: false;
+
+// Colors
+$gray: rgb(221, 221, 221);
+$grey: $gray;
+
+// Spacing
+$horizontal-padding: 10px;
+$vertical-padding: 1px;
+
+
+
+@mixin plain {
+  font-weight: normal;
+}
+
+@mixin outer-border {
+  border-left: 1px solid $gray;
+  border-right: 1px solid $gray;
+  border-top: 1px solid $gray;
+}
+
+@mixin inner-border {
+  border-bottom: 1px solid $gray;
+}
+
+
+@mixin box-padding {
+  padding-left: $horizontal-padding;
+  padding-right: $horizontal-padding;
+  
+  padding-top: $vertical-padding;
+  padding-bottom: $vertical-padding;
+}
+
+@mixin background-debugging($color) {
+  @if $debug {
+    background-color: $color;
+  }
+    
+}
+
+@mixin fill {
+  height: 100%;
+  min-height: 100%;
+}
+
+.purple-background {
+  background-color: purple;
+}
+
+// Resets
+html, body, .ember-view {
+  @include fill;
+}
+
+.fill{
+  @include fill;
+}
+
+.no-margin {
+  margin-bottom: 0px;
+}
+
+.container-fluid {
+  @include background-debugging(purple);
+}
+
+
+.header {
+  height: 5%;
+  @include background-debugging(pink);
+}
+
+.main {
+  height: 95%;
+
+  .master {
+
+    @include outer-border;
+    @include background-debugging(lightyellow);
+    // height: 100%;
+
+    .item {
+      @include inner-border;
+      @include box-padding;
+      @include background-debugging(lightblue);
+
+
+      .name {
+        @include plain;
+      }
+    }
+  }
+
+  .detail {
+    @include background-debugging(orange);
+    @include outer-border;
+    // height: 100%;
+  }
+}

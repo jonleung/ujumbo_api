@@ -1,6 +1,6 @@
 Ujumbo::Application.routes.draw do
 
-  root :to => 'application#index'
+  root :to => 'client#index'
 
 
   namespace :api do 
@@ -8,6 +8,8 @@ Ujumbo::Application.routes.draw do
     # AUTHENTICATION
     match '/login' => redirect('/auth/google_oauth2')
     match '/auth/google_oauth2/callback' => 'api/google_docs#omniauth_success_callback'
+
+    get '/pipelines/create' => 'pipelines#create'
 
     # DATASOURCES
     match '/google_docs/spreadsheet/create' => 'google_docs#create'

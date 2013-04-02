@@ -22,6 +22,8 @@ gem 'omniauth'
 gem 'oauth2', '~> 0.5.0'
 gem 'omniauth-google-oauth2'
 gem 'ember-rails'
+gem 'handlebars-rails'
+gem 'jquery-rails'
 
 # Input / Output
 gem 'google_drive'
@@ -49,6 +51,13 @@ group :test do
   gem 'factory_girl_rails'
   gem 'syntax'
   gem 'simplecov', :require => false, :group => :test
+end
+
+group :assets do
+  gem 'sass-rails',   '~> 3.2.5'
+  gem 'coffee-rails', '~> 3.2.2'
+  gem 'uglifier', '>= 1.2.4'
+  gem 'bootstrap-sass', '~> 2.0.3.1'
 end
 
 # To use ActiveModel has_secure_password
