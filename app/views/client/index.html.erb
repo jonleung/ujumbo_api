@@ -1,39 +1,137 @@
-<div class="fill">
-<div class="container-fluid fill">
-  
-  <div class="row-fluid main">
-
-<!--     <div class="span5 master fill">
-      <div class="type">
-        <h4>Google Docs</h4>
-
-        <div class="item">
-          <h5 class="name">
-            AirPennNet Keys
-          </h5>
+<script id="_generic_template" type="text/x-handlebars-template">
+  <div>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#{{pipe_type}}_static{{property_name}}{{pipe_id}}" data-toggle="tab">Static</a></li>
+      <li class=""><a href="#{{pipe_type}}_pipelined{{property_name}}{{pipe_id}}" data-toggle="tab">Referenced</a></li>
+      <div class="tab-content">
+        <div class="tab-pane active in" id="{{pipe_type}}_static{{property_name}}{{pipe_id}}">
+          <{{static_tag_type}} type="text" class="input-large" placeholder="{{human_readable}}">
         </div>
-
+        <div class="tab-pane" id="{{pipe_type}}_pipelined{{property_name}}{{pipe_id}}">
+          <{{pipelined_tag_type}} type="text" class="input-large" placeholder="{{human_readable}}">
+        </div>
       </div>
-    </div> -->
-    <form action="api/pipelines/create">
+    </ul>
+  </div>
+</script>
 
+<script id="sms_pipe_template" type="text/x-handlebars-template">
+  <!--########################### -->
+  <!-- SMS Pipe {{pipe_id}} -->
+  <!--########################### -->
+  <div class="well round-box send-sms">
+    <h3>Send SMS</h3>
 
-    <div class="detail fill">
-      <div class="container well round-box send-sms">
-        <h3>Send SMS</h3>
-        <input type="text" class="input-large" placeholder="Static Phone Number" name="1[send_sms][phone][]">
-          <input type="text" class="hidden" name="1[send_sms][reference_type][]" value="pipelined">
-          <input type="text" class="hidden" placeholder="Referenced Phone Number" value="static">
-      </div>
+    <select class="span3">
+      <option value="-1">Select Phone Number</option>
+      <option value="14158586924">415-858-6924</option>
+      <option value="14158586914">415-858-6914</option>
+      <option value="12073586260">207-358-6260</option>
+      <option value="14433933207">443-393-3207</option>
+    </select>
+
+    <div>
+      {{{to_param}}}
+    </div>
+    <div>
+      {{{body_param}}}
     </div>
 
-    <button type="submit" class="btn">Submit</button>
-
-    </form>
+    
 
   </div>
+</script>
 
+
+<script>
+  $(document).ready(function() {
+
+    var generic_source   = $("#_generic_template").html();
+    var generic_template = Handlebars.compile(generic_source);
+
+    var create_property = function(params) {
+
+    }
+
+    var create_sms_pipe = function(pipe_id) {
+      
+      var to_param = generic_template({
+        pipe_type: "sms_pipe",
+        pipe_id: pipe_id,
+        property_name: "to",
+        human_readable: "To",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var body_param = generic_template({
+        pipe_type: "sms_pipe",
+        pipe_id: pipe_id,
+        property_name: "body",
+        human_readable: "Sms Message",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var sms_source = $("#sms_pipe_template").html();
+      var sms_template = Handlebars.compile(sms_source)
+
+      var sms_html = sms_template({
+        pipe_id: pipe_id,
+        to_param: to_param,
+        body_param: body_param
+      })
+
+      return sms_html
+    }
+
+    var num_pipes = 0
+    num_pipes++;
+    var sms_pipe_1 = create_sms_pipe(num_pipes)
+
+    $("#pipes").append(sms_pipe_1)
+
+  });
+</script>
+
+
+<script id="email_pipe_template" type="text/x-handlebars-template">
+  
+</script>
+
+
+<div class="fill">
+  <div class="container-fluid fill">
+    <div class="row-fluid main">
+
+      <div class="span5 master fill">
+        <div class="type">
+          <h4>Google Docs</h4>
+          <div class="item">
+            <h5 class="name">
+              AirPennNet Keys
+            </h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="span7">
+        <form action="api/pipelines/create">
+          <div class="detail fill">
+
+            <div class="well round-box">
+              <h3>Pipeline Name</h3>
+              <input type="text" class="input-large" placeholder="Pipe Name">
+            </div>
+
+            <div id="pipes"></div>
+
+            <button type="submit" class="btn">Submit</button>
+
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
 </div>
-</div>
-
-

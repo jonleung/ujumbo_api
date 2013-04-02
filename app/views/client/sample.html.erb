@@ -1,0 +1,159 @@
+<div class="fill">
+  <div class="container-fluid fill">
+    <div class="row-fluid main">
+
+      <div class="span5 master fill">
+        <div class="type">
+          <h4>Google Docs</h4>
+          <div class="item">
+            <h5 class="name">
+              AirPennNet Keys
+            </h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="span7">
+        <form action="api/pipelines/create">
+          <div class="detail fill">
+
+            <div class="well round-box">
+              <h3>Pipeline Name</h3>
+              <input type="text" class="input-large" placeholder="Pipe Name">
+            </div>
+
+            <!--########################### -->
+            <!-- SMS -->
+            <!--########################### -->
+            <div class="well round-box send-sms">
+              <h3>Send SMS</h3>
+
+              <select class="span3" placeholder="0w9808">
+                <option value="-1">Select Phone Number</option>
+                <option value="14158586924">415-858-6924</option>
+                <option value="14158586914">415-858-6914</option>
+                <option value="12073586260">207-358-6260</option>
+                <option value="14433933207">443-393-3207</option>
+              </select>
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#sms_pipe_static_to_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#sms_pipe_pipelined_to_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="sms_pipe_static_to_1">
+                      <input type="text" class="input-large" placeholder="Phone Number">
+                    </div>
+                    <div class="tab-pane fade" id="sms_pipe_pipelined_to_1">
+                      <input type="text" class="input-large" placeholder="Phone Number">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#sms_pipe_static_body_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#sms_pipe_pipelined_body_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="sms_pipe_static_body_1">
+                      <textarea rows="3" placeholder="Sms Message"></textarea>
+                    </div>
+                    <div class="tab-pane fade" id="sms_pipe_pipelined_body_1">
+                      <input type="text" class="input-large" placeholder="Sms Message">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+            </div>
+
+            <!--########################### -->
+            <!-- EMAIL -->
+            <!--########################### -->
+            <div class="well round-box send-sms">
+              <h3>Send Email</h3>
+
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#email_pipe_static_to_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#email_pipe_pipelined_to_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="email_pipe_static_to_1">
+                      <input type="text" class="input-large" placeholder="To">
+                    </div>
+                    <div class="tab-pane fade" id="email_pipe_pipelined_to_1">
+                      <input type="text" class="input-large" placeholder="To">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#email_pipe_static_bcc_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#email_pipe_pipelined_bcc_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="email_pipe_static_bcc_1">
+                      <input type="text" class="input-large" placeholder="Bcc">
+                    </div>
+                    <div class="tab-pane fade" id="email_pipe_pipelined_bcc_1">
+                      <input type="text" class="input-large" placeholder="Bcc">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#email_pipe_static_cc_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#email_pipe_pipelined_cc_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="email_pipe_static_cc_1">
+                      <input type="text" class="input-large" placeholder="Cc">
+                    </div>
+                    <div class="tab-pane fade" id="email_pipe_pipelined_cc_1">
+                      <input type="text" class="input-large" placeholder="Cc">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#email_pipe_static_subject_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#email_pipe_pipelined_subject_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="email_pipe_static_subject_1">
+                      <input type="text" class="input-large" placeholder="Subject">
+                    </div>
+                    <div class="tab-pane fade" id="email_pipe_pipelined_subject_1">
+                      <input type="text" class="input-large" placeholder="Subject">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+              <div>
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#email_pipe_static_body_1" data-toggle="tab">Static</a></li>
+                  <li class=""><a href="#email_pipe_pipelined_body_1" data-toggle="tab">Referenced</a></li>
+                  <div class="tab-content">
+                    <div class="tab-pane fade active in" id="email_pipe_static_body_1">
+                      <textarea rows="3" placeholder="Email Message"></textarea>
+                    </div>
+                    <div class="tab-pane fade" id="email_pipe_pipelined_body_1">
+                      <input type="text" class="input-large" placeholder="Email Message">
+                    </div>
+                  </div>
+                </ul>
+              </div>
+
+            <button type="submit" class="btn">Submit</button>
+
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

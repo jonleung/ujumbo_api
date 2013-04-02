@@ -1,6 +1,7 @@
 Ujumbo::Application.routes.draw do
 
   root :to => 'client#index'
+  match '/sample' => 'client#sample'
 
 
   namespace :api do 
