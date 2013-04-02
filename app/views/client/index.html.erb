@@ -9,7 +9,7 @@
   <!--########################### -->
   <!-- SMS Pipe {{pipe_id}} -->
   <!--########################### -->
-  <div class="well round-box send-sms">
+  <div class="well round-box pipe">
     <h3>Send SMS</h3>
 
     <select class="span3">
@@ -60,7 +60,7 @@
   <!--########################### -->
   <!-- GoogleDoc -->
   <!--########################### -->
-  <div class="well round-box google_docs">
+  <div class="well round-box google_docs pipe">
     <h3>Create Google Spreadsheet</h3>
     {{{ filename_param }}}
     <div>
@@ -74,7 +74,7 @@
 
 </script>
 
-<script id="email_pipe_template" type="text/x-handlebars-template">
+<script id="email_pipe_template" class="pipe" type="text/x-handlebars-template">
   <!--########################### -->
   <!-- Email Pipe {{pipe_id}} -->
   <!--########################### -->
@@ -101,20 +101,77 @@
 </script>
 
 <script id="template_pipe_template" type="text/x-handlebars-template">
-  <div id="template" class="well round-box">
+  <div id="template" class="well round-box pipe">
     <h3>Template</h3>
     <textarea id="type_text" rows="5" placeholder="Text"> </textarea>
   </div>
 </script>
 
 
+
+
 <script>
   $(document).ready(function() {
+
+    Handlebars.registerHelper('types_template', function(block){
+      return $("#types_template").html()
+    })
+
+    Handlebars.registerHelper('static_or_pipelined', function(block){
+      return $("#static_or_pipelined").html()
+    })
+
+    var get_google_doc_column = function() {
+      var google_doc_column = $("#google_doc_column").html();
+      var google_doc_template = Handlebars.compile(google_doc_column)
+      return google_doc_template()
+    }
+
+    Handlebars.registerHelper('google_doc_column', function(block){
+      return get_google_doc_column()
+    })
+
 
     var generic_source   = $("#_generic_template").html();
     var generic_template = Handlebars.compile(generic_source);
 
-    var create_email_pipe = function(pipe_id) {
+    create_sms_pipe = function(pipe_id) {
+      
+      var to_param = generic_template({
+        pipe_type: "sms_pipe",
+        pipe_id: pipe_id,
+        property_name: "to",
+        human_readable: "To",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var body_param = generic_template({
+        pipe_type: "sms_pipe",
+        pipe_id: pipe_id,
+        property_name: "body",
+        human_readable: "Sms Message",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var sms_source = $("#sms_pipe_template").html();
+      var sms_template = Handlebars.compile(sms_source)
+
+      var sms_html = sms_template({
+        pipe_id: pipe_id,
+        to_param: to_param,
+        body_param: body_param
+      })
+
+      return $("#pipes").append(sms_html)
+
+    }
+
+    var generic_source   = $("#_generic_template").html();
+    var generic_template = Handlebars.compile(generic_source);
+
+    create_email_pipe = function(pipe_id) {
       
       var to_param = generic_template({
         pipe_type: "email_pipe",
@@ -173,73 +230,11 @@
         body_param: body_param
       })
 
-      return email_html
+       return $("#pipes").append(email_html)
     }
 
-  });
-</script>
 
-
-
-<script>
-  $(document).ready(function() {
-
-    Handlebars.registerHelper('types_template', function(block){
-      return $("#types_template").html()
-    })
-
-    Handlebars.registerHelper('static_or_pipelined', function(block){
-      return $("#static_or_pipelined").html()
-    })
-
-    var get_google_doc_column = function() {
-      var google_doc_column = $("#google_doc_column").html();
-      var google_doc_template = Handlebars.compile(google_doc_column)
-      return google_doc_template()
-    }
-
-    Handlebars.registerHelper('google_doc_column', function(block){
-      return get_google_doc_column()
-    })
-
-
-    var generic_source   = $("#_generic_template").html();
-    var generic_template = Handlebars.compile(generic_source);
-
-    var create_sms_pipe = function(pipe_id) {
-      
-      var to_param = generic_template({
-        pipe_type: "sms_pipe",
-        pipe_id: pipe_id,
-        property_name: "to",
-        human_readable: "To",
-        static_tag_type: "input",
-        pipelined_tag_type: "input"
-      })
-
-      var body_param = generic_template({
-        pipe_type: "sms_pipe",
-        pipe_id: pipe_id,
-        property_name: "body",
-        human_readable: "Sms Message",
-        static_tag_type: "input",
-        pipelined_tag_type: "input"
-      })
-
-      var sms_source = $("#sms_pipe_template").html();
-      var sms_template = Handlebars.compile(sms_source)
-
-      var sms_html = sms_template({
-        pipe_id: pipe_id,
-        to_param: to_param,
-        body_param: body_param
-      })
-
-      return $("#pipes").append(sms_html)
-
-    }
-
-    var create_google_doc_pipe = function(pipe_id) {
+    create_google_doc_pipe = function(pipe_id) {
       
       var filename_param = generic_template({
         "pipe_type": "google_doc",
@@ -271,8 +266,52 @@
     }
 
     
-    // create_google_doc_pipe(1)
+    $(document).ready(function() {
+      
+      $(function () {
+        $('a[data-toggle="tab"]').on('shown', function (e) {
+          console.log("activated")
+          console.log(e.target)
+          console.log("previous")
+          console.log(e.relatedTarget)
+        })
+      })
 
+
+      var create_template_pipe = function() {
+        template_pipe = $("#pipes").append($("#template_pipe_template").html())
+        $(template_pipe).find("#type_text").keyup(function() {
+            var str = $(this).val();
+            if(str.charAt( str.length-1 ) == ":" && str.match(/:::(.*?):::/)) {
+                  var temp = str.match(/:::(.*?):::/)[1];
+                  var field = temp.charAt(0).toUpperCase() + temp.slice(1);
+                  $("#template").append('<div><p id="submit_field">' + field + ': </p>' + '<input id="submit_text" type="text"></input></div>');    
+                }
+            $("#submit_field").hide();
+            $("#submit_text").hide();
+      })
+
+      }
+
+      $("#create_new").change(function(e){
+        var type = $("#create_new option:selected").attr("value")
+        if (type == "sms")
+          create_sms_pipe(1)
+        if (type == "email")
+          create_email_pipe(1)
+        if (type == "google_doc")
+          create_google_doc_pipe(1)
+        if (type == "template")
+          create_template_pipe()
+
+        $(".pipe").last().hide()
+      })
+
+      // create_tempalte_pipe()
+
+
+
+    });
 
 
   });
@@ -303,6 +342,16 @@
               <input type="text" class="input-large" placeholder="Pipe Name">
             </div>
 
+            <div>
+              <select id="create_new" class="span3">
+                <option value="-1">Select Action</option>
+                <option value="sms" >Send SMS</option>
+                <option value="email">Send email</option>
+                <option value="google_doc">Create Google Spreadsheet</option>
+                <option value="template">Create Template</option>
+              </select>
+            </div>
+
             <div id="pipes">
             </div>
 
@@ -316,3 +365,4 @@
     </div>
   </div>
 </div>
+

@@ -10,7 +10,7 @@ $(document).ready(function() {
   })
 
 
-  var create_tempalte_pipe = function() {
+  var create_template_pipe = function() {
     template_pipe = $("#pipes").append($("#template_pipe_template").html())
     $(template_pipe).find("#type_text").keyup(function() {
         var str = $(this).val();
@@ -25,7 +25,19 @@ $(document).ready(function() {
 
   }
 
-  create_tempalte_pipe(1)
+  $("#create_new").change(function(e){
+    var type = $("#create_new option:selected").attr("value")
+    if (type == "sms")
+      create_sms_pipe(1)
+    if (type == "email")
+      create_email_pipe(1)
+    if (type == "google_doc")
+      create_google_doc_pipe(1)
+    if (type == "template")
+      create_template_pipe()
+  })
+
+  // create_tempalte_pipe()
 
 
 
