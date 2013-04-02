@@ -1,17 +1,7 @@
 <script id="_generic_template" type="text/x-handlebars-template">
   <div>
-    <ul class="nav nav-tabs">
-      <li class="active"><a href="#{{pipe_type}}_static{{property_name}}{{pipe_id}}" data-toggle="tab">Static</a></li>
-      <li class=""><a href="#{{pipe_type}}_pipelined{{property_name}}{{pipe_id}}" data-toggle="tab">Referenced</a></li>
-      <div class="tab-content">
-        <div class="tab-pane active in" id="{{pipe_type}}_static{{property_name}}{{pipe_id}}">
-          <{{static_tag_type}} type="text" class="input-large" placeholder="{{human_readable}}">
-        </div>
-        <div class="tab-pane" id="{{pipe_type}}_pipelined{{property_name}}{{pipe_id}}">
-          <{{pipelined_tag_type}} type="text" class="input-large" placeholder="{{human_readable}}">
-        </div>
-      </div>
-    </ul>
+    {{{static_or_pipelined}}}
+    <{{static_tag_type}} type="text" class="input-large" placeholder="{{human_readable}}">
   </div>
 </script>
 
@@ -37,21 +27,80 @@
       {{{body_param}}}
     </div>
 
-    
-
   </div>
 </script>
+
+<script id="types_template" type="text/x-handlebars-template">
+  <select class="input-medium">
+    <option value="">Type</option>
+    <option value="first_name">First Name</option>
+    <option value="last_name">Last Name</option>
+    <option value="phone">Phone Number</option>
+    <option value="email">Email</option>
+    <option value="date">Date</option>
+  </select>
+</script>
+
+<script id="static_or_pipelined" type="text/x-handlebars-template">
+  <select class="input-small">
+    <option value="pipelined">Static</option>
+    <option value="pipelined">Pipelined</option>
+  </select>
+</script>
+
+<script id="google_doc_column" type="text/x-handlebars-template">
+  <div class="google_doc_column">
+    {{{static_or_pipelined}}}
+    <input type="text" class="input-large" placeholder="Column Name">
+    {{{types_template}}}
+  </div>
+</script>
+
+<script id="google_doc_pipe_template" type="text/x-handlebars-template">
+  <!--########################### -->
+  <!-- GoogleDoc -->
+  <!--########################### -->
+  <div class="well round-box google_docs">
+    <h3>Create Google Spreadsheet</h3>
+    {{{ filename_param }}}
+    <div>
+      <h4>Columns</h4>
+      {{{google_doc_column}}}
+      <div class="btn btn-small add-column">Add Column</div>
+    </div>
+  </div>
+
+
+
+</script>
+
+
 
 
 <script>
   $(document).ready(function() {
 
+    Handlebars.registerHelper('types_template', function(block){
+      return $("#types_template").html()
+    })
+
+    Handlebars.registerHelper('static_or_pipelined', function(block){
+      return $("#static_or_pipelined").html()
+    })
+
+    var get_google_doc_column = function() {
+      var google_doc_column = $("#google_doc_column").html();
+      var google_doc_template = Handlebars.compile(google_doc_column)
+      return google_doc_template()
+    }
+
+    Handlebars.registerHelper('google_doc_column', function(block){
+      return get_google_doc_column()
+    })
+
+
     var generic_source   = $("#_generic_template").html();
     var generic_template = Handlebars.compile(generic_source);
-
-    var create_property = function(params) {
-
-    }
 
     var create_sms_pipe = function(pipe_id) {
       
@@ -82,21 +131,47 @@
         body_param: body_param
       })
 
-      return sms_html
+      return $("#pipes").append(sms_html)
+
     }
 
-    var num_pipes = 0
-    num_pipes++;
-    var sms_pipe_1 = create_sms_pipe(num_pipes)
+    var create_google_doc_pipe = function(pipe_id) {
+      
+      var filename_param = generic_template({
+        "pipe_type": "google_doc",
+        "pipe_id": pipe_id,
+        "property_name": "filename",
+        "human_readable": "Filename",
+        "static_tag_type": "input",
+        "pipelined_tag_type": "input"
+      })
 
-    $("#pipes").append(sms_pipe_1)
+      var google_doc_source = $("#google_doc_pipe_template").html();
+      var google_doc_template = Handlebars.compile(google_doc_source)
+
+      var google_doc_html = google_doc_template({
+        filename_param: filename_param,
+      })
+
+      var obj = $("#pipes").append(google_doc_html)
+
+      $.each( $(".add-column"), function(index, button) {
+        $(button).click(function(e){
+          var google_doc_column = $(this).prev(".google_doc_column").last()
+          google_doc_column.after(get_google_doc_column())
+        })
+      })
+
+
+      return obj
+    }
+
+    
+    create_google_doc_pipe(1)
+
+
 
   });
-</script>
-
-
-<script id="email_pipe_template" type="text/x-handlebars-template">
-  
 </script>
 
 
@@ -124,7 +199,8 @@
               <input type="text" class="input-large" placeholder="Pipe Name">
             </div>
 
-            <div id="pipes"></div>
+            <div id="pipes">
+            </div>
 
             <button type="submit" class="btn">Submit</button>
 
