@@ -88,9 +88,9 @@ class GoogleDoc
 		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
-		set_trigger 		# TODO
 		setup_schema
 		store_state
+		set_trigger
 	end
 
 	def validate_schema
@@ -181,8 +181,42 @@ self.save!
 	end
 
 	def set_trigger
-		# doc_url = @worksheet_obj.human_url
-		# set_trigger_with_watir google_doc_url: url, username: "hello", password: "movefastandbreakthings"
+		doc_url = @file_obj.human_url
+		set_trigger_with_watir google_doc_url: doc_url, username: "hello", password: "movefastandbreakthings"
+	end
+
+	def set_trigger_with_watir(params)
+		browser = Watir::Browser.new 
+
+		# navigate to the google doc page
+		browser.goto params[:google_doc_url]
+
+		# login on the way
+		browser.text_field(:id => 'Email').when_present.set(params[:username])
+		browser.text_field(:id => 'Passwd').when_present.set(params[:password])
+		browser.button(:id => 'signIn').click
+
+		editor_url = /"maestro_script_editor_uri":"(.*)","maestro_new_project/.match(browser.html)[1].gsub("\\/", "/")
+		browser.goto editor_url
+
+		# find the link to the script editor
+		# sleep 10
+		# puts browser.html
+		# look for 'maestro'
+
+		browser.div(:id, "triggersButton").when_present.click
+		
+		# click the add trigger link
+		browser.link(:class, "gwt-Anchor add-trigger").when_present.click
+		
+		# get the dropdown-menu objects
+		trigger_dropdowns = browser.div(:class, "trigger-row").selects(:class, "gwt-ListBox listbox")
+		
+		# find the dropdown containing on edit, click, and save
+		on_edit_dropdown = trigger_dropdowns.find { |dropdown| dropdown.include?("On edit") }
+		on_edit_dropdown.select("On edit")
+		browser.div(:class, "controls").button(:text => "Save").click
+		browser.close
 	end
 
 	def store_state
