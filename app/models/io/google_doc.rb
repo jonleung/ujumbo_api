@@ -219,7 +219,6 @@ self.save!
 					channel = "#{base_channel}:update"
 				end
 				triggering_column_names.each do |col_name|
-					#debugger
 					if row[col_name] == "Send"
 						update_row(row, { col_name => "SENT"} )
 						Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
