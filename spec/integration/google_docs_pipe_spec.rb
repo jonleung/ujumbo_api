@@ -11,7 +11,7 @@ describe "Google Docs Pipeline" do
 
 		client = ApiClient.new
 
-		filename = "Gdocs_pipe_31"
+		filename = "Gdocs_pipe_35"
 		google_doc_params = {
 			user_id: user.id,
 			filename: filename,
@@ -26,7 +26,7 @@ describe "Google Docs Pipeline" do
 
 		google_doc = GoogleDoc.find_or_create_by(google_doc_params)
 
-		filename = "Gdocs_pipe_32"
+		filename = "Gdocs_pipe_36"
 
 		google_doc_params = {
 			user_id: user.id,
