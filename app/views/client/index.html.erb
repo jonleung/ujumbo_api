@@ -1,1 +1,213 @@
-<h1>Pipelines</h1>
+<script id="_generic_template" type="text/x-handlebars-template">
+  <div>
+    {{{static_or_pipelined}}}
+    <{{static_tag_type}} type="text" class="input-large" placeholder="{{human_readable}}">
+  </div>
+</script>
+
+<script id="sms_pipe_template" type="text/x-handlebars-template">
+  <!--########################### -->
+  <!-- SMS Pipe {{pipe_id}} -->
+  <!--########################### -->
+  <div class="well round-box send-sms">
+    <h3>Send SMS</h3>
+
+    <select class="span3">
+      <option value="-1">Select Phone Number</option>
+      <option value="14158586924">415-858-6924</option>
+      <option value="14158586914">415-858-6914</option>
+      <option value="12073586260">207-358-6260</option>
+      <option value="14433933207">443-393-3207</option>
+    </select>
+
+    <div>
+      {{{to_param}}}
+    </div>
+    <div>
+      {{{body_param}}}
+    </div>
+
+  </div>
+</script>
+
+<script id="types_template" type="text/x-handlebars-template">
+  <select class="input-medium">
+    <option value="">Type</option>
+    <option value="first_name">First Name</option>
+    <option value="last_name">Last Name</option>
+    <option value="phone">Phone Number</option>
+    <option value="email">Email</option>
+    <option value="date">Date</option>
+  </select>
+</script>
+
+<script id="static_or_pipelined" type="text/x-handlebars-template">
+  <select class="input-small">
+    <option value="pipelined">Static</option>
+    <option value="pipelined">Pipelined</option>
+  </select>
+</script>
+
+<script id="google_doc_column" type="text/x-handlebars-template">
+  <div class="google_doc_column">
+    {{{static_or_pipelined}}}
+    <input type="text" class="input-large" placeholder="Column Name">
+    {{{types_template}}}
+  </div>
+</script>
+
+<script id="google_doc_pipe_template" type="text/x-handlebars-template">
+  <!--########################### -->
+  <!-- GoogleDoc -->
+  <!--########################### -->
+  <div class="well round-box google_docs">
+    <h3>Create Google Spreadsheet</h3>
+    {{{ filename_param }}}
+    <div>
+      <h4>Columns</h4>
+      {{{google_doc_column}}}
+      <div class="btn btn-small add-column">Add Column</div>
+    </div>
+  </div>
+
+
+
+</script>
+
+
+
+
+<script>
+  $(document).ready(function() {
+
+    Handlebars.registerHelper('types_template', function(block){
+      return $("#types_template").html()
+    })
+
+    Handlebars.registerHelper('static_or_pipelined', function(block){
+      return $("#static_or_pipelined").html()
+    })
+
+    var get_google_doc_column = function() {
+      var google_doc_column = $("#google_doc_column").html();
+      var google_doc_template = Handlebars.compile(google_doc_column)
+      return google_doc_template()
+    }
+
+    Handlebars.registerHelper('google_doc_column', function(block){
+      return get_google_doc_column()
+    })
+
+
+    var generic_source   = $("#_generic_template").html();
+    var generic_template = Handlebars.compile(generic_source);
+
+    var create_sms_pipe = function(pipe_id) {
+      
+      var to_param = generic_template({
+        pipe_type: "sms_pipe",
+        pipe_id: pipe_id,
+        property_name: "to",
+        human_readable: "To",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var body_param = generic_template({
+        pipe_type: "sms_pipe",
+        pipe_id: pipe_id,
+        property_name: "body",
+        human_readable: "Sms Message",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var sms_source = $("#sms_pipe_template").html();
+      var sms_template = Handlebars.compile(sms_source)
+
+      var sms_html = sms_template({
+        pipe_id: pipe_id,
+        to_param: to_param,
+        body_param: body_param
+      })
+
+      return $("#pipes").append(sms_html)
+
+    }
+
+    var create_google_doc_pipe = function(pipe_id) {
+      
+      var filename_param = generic_template({
+        "pipe_type": "google_doc",
+        "pipe_id": pipe_id,
+        "property_name": "filename",
+        "human_readable": "Filename",
+        "static_tag_type": "input",
+        "pipelined_tag_type": "input"
+      })
+
+      var google_doc_source = $("#google_doc_pipe_template").html();
+      var google_doc_template = Handlebars.compile(google_doc_source)
+
+      var google_doc_html = google_doc_template({
+        filename_param: filename_param,
+      })
+
+      var obj = $("#pipes").append(google_doc_html)
+
+      $.each( $(".add-column"), function(index, button) {
+        $(button).click(function(e){
+          var google_doc_column = $(this).prev(".google_doc_column").last()
+          google_doc_column.after(get_google_doc_column())
+        })
+      })
+
+
+      return obj
+    }
+
+    
+    create_google_doc_pipe(1)
+
+
+
+  });
+</script>
+
+
+<div class="fill">
+  <div class="container-fluid fill">
+    <div class="row-fluid main">
+
+      <div class="span5 master fill">
+        <div class="type">
+          <h4>Google Docs</h4>
+          <div class="item">
+            <h5 class="name">
+              AirPennNet Keys
+            </h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="span7">
+        <form action="api/pipelines/create">
+          <div class="detail fill">
+
+            <div class="well round-box">
+              <h3>Pipeline Name</h3>
+              <input type="text" class="input-large" placeholder="Pipe Name">
+            </div>
+
+            <div id="pipes">
+            </div>
+
+            <button type="submit" class="btn">Submit</button>
+
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -3,14 +3,20 @@
 <head>
   <title>Ujumbo</title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
+  <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+  
   <%= javascript_include_tag "application" %>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/ember-resource.js/1.0/ember-resource.min.js"></script>
-
+  <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
   <%= csrf_meta_tags %>
 </head>
 <body>
 
-<%= yield %>
+  <% flash.each do |key, msg| %>
+    <%= content_tag :div, msg, :id => key %>
+  <% end %>
+
+  <%= yield %>
 
 </body>
 </html>
