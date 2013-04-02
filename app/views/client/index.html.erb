@@ -100,6 +100,14 @@
   </div>
 </script>
 
+<script id="template_pipe_template" type="text/x-handlebars-template">
+  <div id="template" class="well round-box">
+    <h3>Template</h3>
+    <textarea id="type_text" rows="5" placeholder="Text"> </textarea>
+  </div>
+</script>
+
+
 <script>
   $(document).ready(function() {
 
@@ -167,12 +175,6 @@
 
       return email_html
     }
-
-    var num_pipes = 0
-    num_pipes++;
-    var email_pipe_1 = create_email_pipe(num_pipes)
-
-    $("#pipes").append(email_pipe_1)
 
   });
 </script>
@@ -269,7 +271,7 @@
     }
 
     
-    create_google_doc_pipe(1)
+    // create_google_doc_pipe(1)
 
 
 
@@ -302,11 +304,6 @@
             </div>
 
             <div id="pipes">
-            </div>
-
-            <div id="template" class="well round-box">
-              <h3>Template</h3>
-              <textarea id="type_text" rows="5" placeholder="Text"> </textarea>
             </div>
 
 

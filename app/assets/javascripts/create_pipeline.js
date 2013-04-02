@@ -9,7 +9,10 @@ $(document).ready(function() {
     })
   })
 
-  $("#type_text").keyup(function () {
+
+  var create_tempalte_pipe = function() {
+    template_pipe = $("#pipes").append($("#template_pipe_template").html())
+    $(template_pipe).find("#type_text").keyup(function() {
         var str = $(this).val();
         if(str.charAt( str.length-1 ) == ":" && str.match(/:::(.*?):::/)) {
               var temp = str.match(/:::(.*?):::/)[1];
@@ -18,7 +21,13 @@ $(document).ready(function() {
             }
         $("#submit_field").hide();
         $("#submit_text").hide();
-    });
+  })
+
+  }
+
+  create_tempalte_pipe(1)
+
+
 
 });
 
