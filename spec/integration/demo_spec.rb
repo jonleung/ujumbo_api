@@ -36,6 +36,7 @@ describe "demo-ing the project" do
 		# now that the google doc is created, we want to receive an SMS, and print the from_phone_# and 
 		# message_body into the google 
 
+# FIRST PIPELINE
 		first_sms_pipeline = product.pipelines.new
 		first_sms_pipeline.name = "name#{Pipeline.count}"
 		first_sms_pipeline.save.should == true
@@ -85,98 +86,86 @@ describe "demo-ing the project" do
 	               })
 	    sms_pipe.pipeline = first_sms_pipeline
 	    sms_pipe.save.should == true
+	    first_sms_pipeline.save.should == true
 
-		google_doc = GoogleDoc.find_or_create_by(google_doc_params)
-
-		# now that the google doc is created, we want to receive an SMS, and print the from_phone_# and 
-		# message_body into the google 
-
+# SECOND PIPELINE
 		second_sms_pipeline = product.pipelines.new
 		second_sms_pipeline.name = "name#{Pipeline.count}"
 		second_sms_pipeline.save.should == true
 
-		Trigger.delete_all
 		second_sms_pipeline.create_trigger(product.id, "sms:receive" ,  {to: PhoneHelper.standardize("2073586260")} )
 
-		# on sms receive, create a row
-	    gdoc_create_row_pipe = GoogleDocPipe.new({
+		# on sms receive, update the row with the person's email that they gave
+	    gdoc_update_row_pipe = GoogleDocPipe.new({
 	    	:previous_pipe_id => "first_pipe",
-	    	:action => :create_row,
+	    	:action => :update_row,
 	    	:static_properties => {
 	    		:google_doc_id => google_doc.id
     		},
     		:pipelined_properties => {
-    			"Email" => "Trigger:body",
+    			"update_to_Email" => "Trigger:body",
+    			"find_by_Phone Number" => "Trigger:from"
     		}
     	})
 
-	    gdoc_create_row_pipe.pipeline = first_sms_pipeline
-	    gdoc_create_row_pipe.save.should == true 
+	    gdoc_update_row_pipe.pipeline = second_sms_pipeline
+	    gdoc_update_row_pipe.save.should == true 
 
 	    # Then respond to the message 
-	    template_pipe = TemplatePipe.new({
-	                      :previous_pipe_id => gdoc_create_row_pipe.id,
-	                      :static_properties => {
-	                        :template_text => "Hello :::name:::! How many pineapple juices does it take to reach the Ballmer peak?" #filled 
-	                      },
-	                      :pipelined_properties => {
-	                        "name" => "Trigger:body"
-	                    }
-	                    }) 
-	    template_pipe.pipeline = first_sms_pipeline
-	    template_pipe.save.should == true 
-
 	    # NOTIFICATION
-	    sms_pipe = SmsPipe.new({
-	                :previous_pipe_id => template_pipe.id,
+	    pineapple_sms_pipe = SmsPipe.new({
+	                :previous_pipe_id => gdoc_update_row_pipe.id,
 	                :static_properties => {
-	                	:from_phone => "2073586260",
+	                	:from_phone => "4158586914",
+	                	:body => "How many pineapple juices does it take to reach the Ballmer peak?"
 	                },
 	                :pipelined_properties => {
 	                  :phone => "Trigger:from",
-	                  :body => "Templates:#{template_pipe.id}:text" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
-	                }    
+	                 }    
 	               })
-	    sms_pipe.pipeline = first_sms_pipeline
-	    sms_pipe.save.should == true
+	    pineapple_sms_pipe.pipeline = second_sms_pipeline
+	    pineapple_sms_pipe.save.should == true
 
-		# updating a row(s)
-		# gdoc_update_row_pipe = GoogleDocPipe.new({
-		# 	:previous_pipe_id => gdoc_create_row_pipe.id,
-		# 	:action => :update_row,
-		# 	:static_properties => {
-		# 		:google_doc_id => google_doc2.id,
-		# 		:find_by_params => {
-		# 			"First Name" => "U",
-		# 			"Last Name" => "Jumbo"
-		# 			},
-		# 			:update_to_params => {
-		# 				"First Name" => "You",
-		# 				"Last Name" => "Jumbo"
-		# 			}
-		# 			},
-		# 			:pipelined_properties => {
-		# 			}
-		# 			})
-		# gdoc_update_row_pipe.pipeline = pipeline
-	 #    gdoc_update_row_pipe.save.should == true 
+		second_sms_pipeline.save.should == true
 
-  # #   	# deleting a row(s)
-  #   	gdoc_destroy_row_pipe = GoogleDocPipe.new({
-  #   		:previous_pipe_id => gdoc_update_row_pipe.id,
-  #   		:action => :destroy_row,
-  #   		:static_properties => {
-  #   			:google_doc_id => google_doc2.id,
-  #   			:destroy_by_params => {
-  #   				"First Name" => "You"
-  #   			}
-  #   			},
-  #   			:pipelined_properties => {
-  #   			}
-  #   			})
-  #   	gdoc_destroy_row_pipe.pipeline = pipeline
-	 #    gdoc_destroy_row_pipe.save.should == true 
-	    
-		first_sms_pipeline.save.should == true
+# THIRD PIPELINE
+		third_sms_pipeline = product.pipelines.new
+		third_sms_pipeline.name = "name#{Pipeline.count}"
+		third_sms_pipeline.save.should == true
+
+		third_sms_pipeline.create_trigger(product.id, "sms:receive" ,  {to: PhoneHelper.standardize("2073586260")} )
+
+		# on sms receive, update the row with the person's email that they gave
+	    gdoc_update_row_pipe = GoogleDocPipe.new({
+	    	:previous_pipe_id => "first_pipe",
+	    	:action => :update_row,
+	    	:static_properties => {
+	    		:google_doc_id => google_doc.id
+    		},
+    		:pipelined_properties => {
+    			"update_to_Email" => "Trigger:body",
+    			"find_by_Phone Number" => "Trigger:from"
+    		}
+    	})
+
+	    gdoc_update_row_pipe.pipeline = second_sms_pipeline
+	    gdoc_update_row_pipe.save.should == true 
+
+	    # Then respond to the message 
+	    # NOTIFICATION
+	    pineapple_sms_pipe = SmsPipe.new({
+	                :previous_pipe_id => gdoc_update_row_pipe.id,
+	                :static_properties => {
+	                	:from_phone => "4158586914",
+	                	:body => "How many pineapple juices does it take to reach the Ballmer peak?"
+	                },
+	                :pipelined_properties => {
+	                  :phone => "Trigger:from",
+	                 }    
+	               })
+	    pineapple_sms_pipe.pipeline = second_sms_pipeline
+	    pineapple_sms_pipe.save.should == true
+
+		second_sms_pipeline.save.should == true
 	end
 end

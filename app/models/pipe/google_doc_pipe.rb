@@ -10,7 +10,12 @@ class GoogleDocPipe < Pipe
 		when :create_row
 			output = google_doc.create_row(combined_properties)
 		when :update_row
-			output = google_doc.update_all(self.static_properties[:find_by_params], self.static_properties[:update_to_params])
+			debugger
+			find_by_params = combined_properties.select { |k,v| k.start_with?("find_by_") }
+			find_by_params = Hash[find_by_params.map {|k, v| [k.gsub("find_by_", ""), v] }]
+			update_to_params = combined_properties.select { |k,v| k.start_with?("update_to_") }
+			update_to_params = Hash[update_to_params.map {|k, v| [k.gsub("update_to_", ""), v] }]
+			output = google_doc.update_all(find_by_params, update_to_params)
 		when :destroy_row
 			debugger
 			output = google_doc.delete_all(self.static_properties[:destroy_by_params])
