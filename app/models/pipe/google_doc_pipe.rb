@@ -8,9 +8,8 @@ class GoogleDocPipe < Pipe
 		google_doc = GoogleDoc.where(id: self.static_properties[:google_doc_id]).first
 		case self.action
 		when :create_row
-			output = google_doc.create_row(self.static_properties[:create_by_params])
+			output = google_doc.create_row(combined_properties)
 		when :update_row
-			debugger
 			output = google_doc.update_all(self.static_properties[:find_by_params], self.static_properties[:update_to_params])
 		when :destroy_row
 			debugger
