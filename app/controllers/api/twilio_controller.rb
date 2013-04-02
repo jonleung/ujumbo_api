@@ -1,4 +1,4 @@
-class TwilioController < ApiController
+class Api::TwilioController < ApiController
 
   def sms_receive
     underscore

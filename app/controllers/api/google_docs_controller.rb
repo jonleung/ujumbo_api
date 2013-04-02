@@ -1,4 +1,4 @@
-class GoogleDocsController < ApiController
+class Api::GoogleDocsController < ApiController
   
   before_filter :ensure_user, only: [:create, :create_row]
 
