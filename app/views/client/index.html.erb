@@ -74,6 +74,110 @@
 
 </script>
 
+<script id="email_pipe_template" type="text/x-handlebars-template">
+  <!--########################### -->
+  <!-- Email Pipe {{pipe_id}} -->
+  <!--########################### -->
+  <div class="well round-box send-email">
+    <h3>Send Email</h3>
+
+    <div>
+      {{{to_param}}}
+    </div>
+    <div>
+      {{{cc_param}}}
+    </div>
+    <div>
+      {{{bcc_param}}}
+    </div>
+    <div>
+      {{{subject_param}}}
+    </div>
+    <div>
+      {{{body_param}}}
+    </div>
+
+  </div>
+</script>
+
+<script id="template_pipe_template" type="text/x-handlebars-template">
+  <div id="template" class="well round-box">
+    <h3>Template</h3>
+    <textarea id="type_text" rows="5" placeholder="Text"> </textarea>
+  </div>
+</script>
+
+
+<script>
+  $(document).ready(function() {
+
+    var generic_source   = $("#_generic_template").html();
+    var generic_template = Handlebars.compile(generic_source);
+
+    var create_email_pipe = function(pipe_id) {
+      
+      var to_param = generic_template({
+        pipe_type: "email_pipe",
+        pipe_id: pipe_id,
+        property_name: "to",
+        human_readable: "To",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var cc_param = generic_template({
+        pipe_type: "email_pipe",
+        pipe_id: pipe_id,
+        property_name: "cc",
+        human_readable: "Cc",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var bcc_param = generic_template({
+        pipe_type: "email_pipe",
+        pipe_id: pipe_id,
+        property_name: "bcc",
+        human_readable: "Bcc",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var subject_param = generic_template({
+        pipe_type: "email_pipe",
+        pipe_id: pipe_id,
+        property_name: "subject",
+        human_readable: "Subject",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var body_param = generic_template({
+        pipe_type: "email_pipe",
+        pipe_id: pipe_id,
+        property_name: "body",
+        human_readable: "Email Message",
+        static_tag_type: "input",
+        pipelined_tag_type: "input"
+      })
+
+      var email_source = $("#email_pipe_template").html();
+      var email_template = Handlebars.compile(email_source)
+
+      var email_html = email_template({
+        pipe_id: pipe_id,
+        to_param: to_param,
+        cc_param: cc_param,
+        bcc_param: bcc_param,
+        subject_param: subject_param,
+        body_param: body_param
+      })
+
+      return email_html
+    }
+
+  });
+</script>
 
 
 
@@ -167,7 +271,7 @@
     }
 
     
-    create_google_doc_pipe(1)
+    // create_google_doc_pipe(1)
 
 
 
@@ -201,6 +305,7 @@
 
             <div id="pipes">
             </div>
+
 
             <button type="submit" class="btn">Submit</button>
 
