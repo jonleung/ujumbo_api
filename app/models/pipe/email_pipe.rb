@@ -5,7 +5,6 @@ class EmailPipe < Pipe
   include Mongoid::Paranoia
 
   def flow
-    debugger
   	attrs = HashWithIndifferentAccess.new()
 
   	attrs[:from] = get_attr(:from)

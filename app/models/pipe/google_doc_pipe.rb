@@ -16,7 +16,6 @@ class GoogleDocPipe < Pipe
 			update_to_params = Hash[update_to_params.map {|k, v| [k.gsub("update_to_", ""), v] }]
 			output = google_doc.update_all(find_by_params, update_to_params)
 		when :destroy_row
-			debugger
 			output = google_doc.delete_all(self.static_properties[:destroy_by_params])
 		when :find_row
 			output = google_doc.find(self.static_properties[:find_by_params])

@@ -64,7 +64,6 @@ class Trigger
           klass = trigger.triggered_class.constantize
           id = trigger.triggered_id
           object = klass.find(id)
-          debugger
           triggering_properties = HashWithIndifferentAccess.new({:Trigger => triggering_properties})
           response_array << object.trigger(triggering_properties)
         end
