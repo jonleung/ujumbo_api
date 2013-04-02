@@ -1,6 +1,6 @@
 class Api::GoogleDocsController < ApiController
   
-  before_filter :ensure_user, only: [:create, :create_row]
+  # before_filter :ensure_user, only: [:create, :create_row]
 
   def omniauth_success_callback
     data = HashWithIndifferentAccess.new(request.env["omniauth.auth"])

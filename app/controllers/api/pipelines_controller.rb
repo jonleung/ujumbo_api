@@ -1,6 +1,6 @@
 class Api::PipelinesController < ApiController
 
-  before_filter :current_user, only: [:create]
+  # before_filter :current_user, only: [:create]
 
   def create
     render_error "user_id and product_id params required!" if !:user_id.in?(params.keys) || !:product_id.in?(params.keys)
