@@ -133,39 +133,46 @@ describe "demo-ing the project" do
 		third_sms_pipeline.name = "name#{Pipeline.count}"
 		third_sms_pipeline.save.should == true
 
-		third_sms_pipeline.create_trigger(product.id, "sms:receive" ,  {to: PhoneHelper.standardize("2073586260")} )
+		third_sms_pipeline.create_trigger(product.id, "sms:receive" ,  {to: PhoneHelper.standardize("4158586914")} )
 
-		# on sms receive, update the row with the person's email that they gave
-	    gdoc_update_row_pipe = GoogleDocPipe.new({
+		# on sms receive, update the row with the person's answer
+	    gdoc_pineapple_answer_pipe = GoogleDocPipe.new({
 	    	:previous_pipe_id => "first_pipe",
 	    	:action => :update_row,
 	    	:static_properties => {
 	    		:google_doc_id => google_doc.id
     		},
     		:pipelined_properties => {
-    			"update_to_Email" => "Trigger:body",
+    			"update_to_Number of Pineapple Juices" => "Trigger:body",
     			"find_by_Phone Number" => "Trigger:from"
     		}
     	})
 
-	    gdoc_update_row_pipe.pipeline = second_sms_pipeline
-	    gdoc_update_row_pipe.save.should == true 
+	    gdoc_pineapple_answer_pipe.pipeline = third_sms_pipeline
+	    gdoc_pineapple_answer_pipe.save.should == true 
+		third_sms_pipeline.save.should == true
 
-	    # Then respond to the message 
+# FOURTH PIPE
+		ballmer_response_pipeline = product.pipelines.new
+		ballmer_response_pipeline.name = "name#{Pipeline.count}"
+		ballmer_response_pipeline.save.should == true
+
+		ballmer_response_pipeline.create_trigger(product.id, "google_docs:spreadsheet:row:update" , {google_doc_id: google_doc.id} )
+
 	    # NOTIFICATION
-	    pineapple_sms_pipe = SmsPipe.new({
-	                :previous_pipe_id => gdoc_update_row_pipe.id,
+	    sms_pipe3 = SmsPipe.new({
+	                :previous_pipe_id => "first_pipe",
 	                :static_properties => {
-	                	:from_phone => "4158586914",
-	                	:body => "How many pineapple juices does it take to reach the Ballmer peak?"
+	                	:from_phone => "4158586924",
 	                },
 	                :pipelined_properties => {
-	                  :phone => "Trigger:from",
-	                 }    
+	                  :phone => "Trigger:Phone Number",
+	                  :body => "Trigger:Response to Balmer Question" #TODO: you should not have to specify this, just the template id, and it should know what to look for, I guess instead of specifying text, you could specify a template that knows to look for text                  
+	                }    
 	               })
-	    pineapple_sms_pipe.pipeline = second_sms_pipeline
-	    pineapple_sms_pipe.save.should == true
-
-		second_sms_pipeline.save.should == true
+	    sms_pipe3.pipeline = ballmer_response_pipeline
+	    sms_pipe3.save.should == true
+	    ballmer_response_pipeline.save.should == true
+		ballmer_response_pipeline.save.should == true
 	end
 end

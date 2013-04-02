@@ -10,7 +10,6 @@ class GoogleDocPipe < Pipe
 		when :create_row
 			output = google_doc.create_row(combined_properties)
 		when :update_row
-			debugger
 			find_by_params = combined_properties.select { |k,v| k.start_with?("find_by_") }
 			find_by_params = Hash[find_by_params.map {|k, v| [k.gsub("find_by_", ""), v] }]
 			update_to_params = combined_properties.select { |k,v| k.start_with?("update_to_") }
