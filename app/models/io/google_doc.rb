@@ -28,7 +28,8 @@ class GoogleDoc
 			:email,
 			:date,
 			:address,
-			:text
+			:text,
+			:triggering_column
 		]
 	end
 
@@ -44,9 +45,9 @@ class GoogleDoc
 	field :worksheet_name, type: String
 	field :key, type: String
 	field :trailing_key, type: String
+	#field :triggering_column, type: String 	# by default, the triggering column is the rightmost column on the doc
 
 	validates_presence_of :filename, :schema
-
 
 	belongs_to :product
 	belongs_to :user
@@ -87,11 +88,8 @@ class GoogleDoc
 		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
-
-		self.schema.keys.each do |attribute|
-			self.add_column_key(attribute)
-		end
-		self.add_column_key("Trigger")
+		set_trigger 		# TODO
+		setup_schema
 		store_state
 	end
 
@@ -138,8 +136,6 @@ self.save!
 
 =end
 
-
-
 	def convert_key(key)
 		key[13..key.length]
 	end
@@ -160,7 +156,6 @@ self.save!
 		user.google_credential.refresh
 		token = self.user.google_credential.token
 		@session = GoogleDrive.login_with_oauth(token)
-
 	end
 
 	def hookup_to_gdrive
@@ -175,12 +170,31 @@ self.save!
 		self.trailing_key = convert_key(self.key)
 	end
 
+	def setup_schema
+		self.schema.keys.each do |attribute|
+			self.add_column_key(attribute)
+		end
+	end
+
+	def triggering_column_names
+		self.schema.select{ |column_name, type| type == :triggering_column }.keys
+	end
+
+	def set_trigger
+		# doc_url = @worksheet_obj.human_url
+		# set_trigger_with_watir google_doc_url: url, username: "hello", password: "movefastandbreakthings"
+	end
+
 	def store_state
 		self.update_attribute(:data, self.all_hashed)
 	end
 
 	def get_state
 		self.data
+	end
+
+	def rightmost_key
+		@worksheet_obj[1, num_keys]
 	end
 
 	def column_key_exists(key)
@@ -204,8 +218,12 @@ self.save!
 				when :updates
 					channel = "#{base_channel}:update"
 				end
-				if row["Trigger"] == "send"
-					Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
+				triggering_column_names.each do |col_name|
+					#debugger
+					if row[col_name] == "Send"
+						update_row(row, { col_name => "SENT"} )
+						Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
+					end
 				end
 			end
 		end
@@ -256,8 +274,7 @@ self.save!
 	# adds a key (first row of spreadsheet)
 	def add_column_key(key)
 		restart_session_if_necessary #TODO do we actually need to do these?
-		numkeys = @worksheet_obj.list.keys.length
-		@worksheet_obj[1, numkeys+1] = key
+		@worksheet_obj[1, num_keys+1] = key
 		@worksheet_obj.save
 	end
 

@@ -30,6 +30,7 @@ gem 'twilio-ruby'
 
 # Separate
 gem 'httparty'
+gem "watir-webdriver", "~> 0.6.2"
 
 # Nicities
 gem 'colorize'
