@@ -11,7 +11,7 @@ describe "demo-ing the project" do
 
 		client = ApiClient.new
 
-		filename = "demo_1"
+		filename = "Hai! #{Time.now}"
 		google_doc_params = {
 			user_id: user.id,
 			filename: filename,
@@ -23,11 +23,11 @@ describe "demo-ing the project" do
 				"Email" => :email,
 				"Number of Pineapple Juices" => :triggering_column,
 				"Response to Balmer Question" => :text,
-				"Send Balmer Message" => :triggering_column,
-				"How many times has someone forked you on GitHub?" => :text,
-				"Total Score (Number of Pineapple Juices * Num Forks)" => :text,
-				"Congrats Message" => :text,
-				"Send Congrats Message" => :triggering_column
+				"Send Balmer Message" => :triggering_column
+				# "How many times has someone forked you on GitHub?" => :text,
+				# "Total Score (Number of Pineapple Juices * Num Forks)" => :text,
+				# "Congrats Message" => :text,
+				# "Send Congrats Message" => :triggering_column
 			}
 		}
 
