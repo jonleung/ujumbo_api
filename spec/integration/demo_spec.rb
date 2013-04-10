@@ -11,7 +11,7 @@ describe "demo-ing the project" do
 
 		client = ApiClient.new
 
-		filename = "demo_13"
+		filename = "Hai! #{Time.now}"
 		google_doc_params = {
 			user_id: user.id,
 			filename: filename,

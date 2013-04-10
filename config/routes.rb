@@ -1,6 +1,6 @@
 Ujumbo::Application.routes.draw do
 
-  root :to => 'client#index'
+  root :to => 'client#index1'
   match '/sample' => 'client#sample'
 
 
