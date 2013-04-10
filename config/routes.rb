@@ -3,6 +3,15 @@ Ujumbo::Application.routes.draw do
   root :to => 'client#index1'
   match '/sample' => 'client#sample'
 
+  match "/spreadsheets" => 'spreadsheet#index'
+  match "/spreadsheets/index" => 'spreadsheet#index'
+
+  match "/spreadsheets/create" => 'spreadheet#create'
+  match "/spreadsheets/:id" => 'spreadsheet#get'
+  match "/spreadsheets/:id/get" => 'spreadsheet#get'
+  match "/spreadsheets/:id/update" => 'spreadsheet#update'
+  match "/spreadsheets/:id/destroy" => 'spreadsheet#destroy'
+
 
   namespace :api do 
 
