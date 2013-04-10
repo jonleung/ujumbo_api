@@ -41,6 +41,7 @@ describe "Google Docs Pipeline" do
 
 		google_doc2 = GoogleDoc.find_or_create_by(google_doc_params)
 
+
 		pipeline = product.pipelines.new
 		pipeline.name = "name#{Pipeline.count}"
 		pipeline.save.should == true

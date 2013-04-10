@@ -47,11 +47,11 @@ class Api::GoogleDocsController < ApiController
   end
 
   def callback
-    # TODO, each script needs to have unique security tokens inside of it or else anyone can fake these
-    # therefore need to programatically edit script
     doc = GoogleDoc.where(key: params['key']).first
-  	changes = doc.trigger_changes
-    puts changes
+    raise "Google Doc with key #{params['key']} not found." if doc == nil
+    sheet = doc.google_doc_worksheets.where(name: params['sheet_name']).first
+    raise "Sheet #{params['sheet_name']} not found." if sheet == nil
+  	puts sheet.trigger_changes  
   end
 
   def create

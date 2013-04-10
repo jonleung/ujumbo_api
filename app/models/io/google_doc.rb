@@ -3,20 +3,10 @@ require 'securerandom'
 require 'base64'
 
 =begin
-	
-	- abstract out authentication (use oauth token to login)
-		- get a token to test with
 
-	- write watir script to add the google script to the spreadsheet
+	- share the ujumbo-created-spreadsheet with user
+	- add support for multiple worksheets 
 
-	- throw error on dumb schemas
-
-	- duplicate filenames
-
-	= combine google_doc and g_doc
-			- changes trigger_changes
-
-	- remove all
 =end
 
 class GoogleDoc
@@ -37,16 +27,16 @@ class GoogleDoc
 	self.mass_assignment_sanitizer = :strict
 	include Mongoid::Timestamps
 	include Mongoid::Paranoia
+
+	embeds_many :google_doc_worksheets, store_as: "worksheets"
 	
 	field :filename, type: String
-	field :data, type: Hash
-	field :schema, type: Hash
 	field :auth_tokens, type: Hash
-	field :worksheet_name, type: String
 	field :key, type: String
 	field :trailing_key, type: String
 
-	validates_presence_of :filename, :schema
+	validates_presence_of :filename
+	validates_presence_of :worksheets
 
 	belongs_to :product
 	belongs_to :user
@@ -55,15 +45,12 @@ class GoogleDoc
 
 	attr_accessor :session
 	attr_accessor :file_obj
-	attr_accessor :worksheet_obj
 	attr_accessor :use_existing_doc
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
 		raise "Google Doc must have a user" if self.user.nil?
-
 		restart_session
-		self.worksheet_name ||= "Sheet1"
 		if (GoogleDoc.where(:id => self.id).exists?)
 			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
 			restart_session_if_necessary
@@ -77,63 +64,21 @@ class GoogleDoc
 
 	end
 
-	before_save :before_save_hook
-	def before_save_hook
-		validate_schema
-	end
-
 	after_create :after_create_hook
 	def after_create_hook
 		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
-		setup_schema
-		store_state
-		set_trigger
-	end
-
-	def validate_schema
-		self.schema.each do |key, value|
-			unless value.in?(GoogleDoc.valid_types)
-				return false
-			end
+		self.google_doc_worksheets.each do |worksheet|
+			worksheet.validate_schema
+			worksheet.set_worksheet_object
+			worksheet.setup_schema
+			worksheet.store_state
 		end
-		return true
+		@file_obj.worksheet_by_title("Sheet1").delete if self.google_doc_worksheets.length > 0  # delete the default worksheet tab
+		set_trigger
+		self.save!
 	end
-
-
-=begin
-	g = GoogleDoc.new(filename: "hello world",  )
-	# new should only be for creating new docs
-	# and where should be used for retrieving them
-
-	.new, it should stay in instance variable that DOES NOT create a drive instance
-	but if you do .save
-		then it creates the Real Drive INstance
-
-		so the object stores the conditions of a doc to be created
-
-		so the only docs that have live connections are ones where you do
-
-			GoogleDoc.where
-			GoogleDoc.new.save(params: already_exists=>true)
-			GoogleDoc.create
-=end
-
-
-
-=begin
-
-@file_obj = create_new_doc(params[:filename]) if params[:create_new].to_bool
-worksheet_name = params[:worksheet_name] != nil ? params[:worksheet_name] : "Sheet1"
-key = convert_key(@file_obj.key)
-
-super(params.merge(data: {}, key: key, worksheet_name: "Sheet1"))
-
-@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
-self.save!
-
-=end
 
 	def convert_key(key)
 		key[13..key.length]
@@ -159,7 +104,6 @@ self.save!
 
 	def hookup_to_gdrive
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
-		@worksheet_obj = @file_obj.worksheet_by_title(self.worksheet_name)
 		key = @file_obj.key
 		if key.length == 23
 			self.key = Base64.encode64(key)[0...-2]
@@ -167,16 +111,7 @@ self.save!
 			self.key = key
 		end
 		self.trailing_key = convert_key(self.key)
-	end
-
-	def setup_schema
-		self.schema.keys.each do |attribute|
-			self.add_column_key(attribute)
-		end
-	end
-
-	def triggering_column_names
-		self.schema.select{ |column_name, type| type == :triggering_column }.keys
+		self.save!
 	end
 
 	def set_trigger
@@ -195,13 +130,9 @@ self.save!
 		browser.text_field(:id => 'Passwd').when_present.set(params[:password])
 		browser.button(:id => 'signIn').click
 
+		# go to the editor
 		editor_url = /"maestro_script_editor_uri":"(.*)","maestro_new_project/.match(browser.html)[1].gsub("\\/", "/")
 		browser.goto editor_url
-
-		# find the link to the script editor
-		# sleep 10
-		# puts browser.html
-		# look for 'maestro'
 
 		browser.div(:id, "triggersButton").when_present.click
 		
@@ -218,274 +149,4 @@ self.save!
 		browser.close
 	end
 
-	def store_state
-		self.update_attribute(:data, self.all_hashed)
-	end
-
-	def get_state
-		self.data
-	end
-
-	def rightmost_key
-		@worksheet_obj[1, num_keys]
-	end
-
-	def column_key_exists(key)
-		@worksheet_obj.list.keys.include?(key)
-	end
-
-	def key_index(key)
-		(1..@worksheet_obj.num_cols).detect {|i| @worksheet_obj[1,i] == key }
-	end
-
-	def trigger_changes
-		base_channel = "google_docs:spreadsheet:row"
-		changes = get_changes
-		changes.each do |status, rows|
-			rows.each do |row|
-				case status
-				when :additions
-					channel = "#{base_channel}:create"
-				when :deletions
-					channel = "#{base_channel}:destroy"
-				when :updates
-					channel = "#{base_channel}:update"
-				end
-				triggering_column_names.each do |col_name|
-					if row[col_name].downcase == "send"
-						update_row(row, { col_name => "SENT"} )
-						Trigger.trigger(self.product.id, channel, row.merge(google_doc_id: self.id)) if channel.present?
-					end
-				end
-			end
-		end
-	end
-
-	def get_changes
-		old_rows = self.get_state
-		curr_rows = self.all_hashed
-		changes = { all: [], additions: [], deletions: [], updates: [] }
-		curr_rows.keys.each do |curr_key|
-			old_rows.keys.each do |old_key|
-				# check existing rows for changes
-				if curr_key == old_key
-					dif = curr_rows[curr_key].diff(old_rows[old_key])
-					if dif != {}
-						# adds the entire row to the changes list
-						changes[:all] 		<< curr_rows[curr_key]
-						changes[:updates]	<< curr_rows[curr_key] if curr_rows[curr_key] != {}
-						# to add the specific change, use: changes << dif
-					end
-				end
-			end
-		end
-
-		# if there's a new row
-		curr_rows.keys.each do |curr_key|
-			if !old_rows.keys.include?(curr_key)
-				if !curr_rows[curr_key].values.all?(&:empty?)  # check if it's an empty row
-					changes[:all] 		<< curr_rows[curr_key]
-					changes[:additions] << curr_rows[curr_key]
-				end
-			end
-		end
-
-
-		# if a row was deleted
-		old_rows.keys.each do |old_key|
-			if !curr_rows.keys.include?(old_key)
-				changes[:all]		<< {deleted: old_rows[old_key]}
-				changes[:deletions] << {deleted: old_rows[old_key]}
-			end
-		end
-
-		store_state
-		return changes
-	end
-
-	# adds a key (first row of spreadsheet)
-	def add_column_key(key)
-		restart_session_if_necessary #TODO do we actually need to do these?
-		@worksheet_obj[1, num_keys+1] = key
-		@worksheet_obj.save
-	end
-
-	def delete_column_key(key)
-		restart_session_if_necessary
-		if column_key_exists(key)
-			index = key_index(key) # finds index of key
-			@worksheet_obj.list.each { |row| row[key] = "" }  # deletes value in key's column from every row
-			@worksheet_obj[1,index] = ""					  # deletes the top row value
-		end
-		@worksheet_obj.save
-	end
-
-	def num_keys
-		restart_session_if_necessary
-		@worksheet_obj.list.keys.length
-	end
-
-	# creates a row with hash of key-value params
-	def create_row(params)
-		restart_session_if_necessary
-		# add the keys if they don't exist
-		params.each do | key, value |
-			if(!@worksheet_obj.list.keys.include?(key))
-				add_column_key(key)
-			end
-		end
-		# save key changes
-		if(@worksheet_obj.dirty?)
-			@worksheet_obj.synchronize
-		end
-		#push the new row
-		new_row = @worksheet_obj.list.push(params)
-		@worksheet_obj.save
-		return new_row
-	end
-
-	def where(params)
-		restart_session_if_necessary
-		matches = []
-		rows = @worksheet_obj.list
-		params.each do | param_key, param_val |
-			rows.each do | row |
-				if( row[param_key].to_s == param_val.to_s)
-					matches << row.to_hash
-				end
-			end
-		end
-		return matches
-	end
-
-	def find(params)
-		return where(params)
-	end
-
-	def delete(params)
-		restart_session_if_necessary
-		rows = @worksheet_obj.list
-		params.each do | param_key, param_val |
-			rows.each do | row |
-				if( row[param_key].to_s == param_val.to_s)
-					row.clear
-					@worksheet_obj.save
-					return
-				end
-			end
-		end
-		
-	end
-
-	def delete_all(params)
-		restart_session_if_necessary
-		rows = @worksheet_obj.list
-		deleted_rows = {}
-		params.each do | param_key, param_val |
-			rows.each_with_index do | row, index |
-				if( row[param_key].to_s == param_val.to_s)
-					deleted_rows[index.to_s] = row
-					row.clear
-				end
-			end
-		end
-		@worksheet_obj.save
-		return deleted_rows
-	end
-
-	def clear_sheet
-		restart_session_if_necessary
-		rows = @worksheet_obj.list
-		rows.each do | row |
-			row.clear
-		end
-		@worksheet_obj.save
-		@worksheet_obj.list.keys = []
-		@worksheet_obj.save
-	end
-
-	# returns all the rows as an array of hashes
-	def all
-		restart_session_if_necessary
-		if(@worksheet_obj.nil?)
-			return []
-		else
-			@worksheet_obj.list.to_hash_array
-		end
-	end
-
-	def all_hashed
-		restart_session_if_necessary
-		if(@worksheet_obj.nil?)
-			return {}
-		else
-			arr = @worksheet_obj.list.to_hash_array
-			hsh = Hash[arr.each_with_index.map { |row, id| [id.to_s, row] }]
-			return hsh
-		end
-	end
-
-	def update_row(search_hash, update_hash)
-		restart_session_if_necessary
-		rows = @worksheet_obj.list
-		search_hash.each do | param_key, param_val |
-			rows.each do | row |
-				if( row[param_key].to_s == param_val.to_s)
-					row.update(update_hash)
-					@worksheet_obj.save
-					return row.to_hash
-				end
-			end
-		end
-	end
-
-	def update_all(search_hash, update_hash)
-		restart_session_if_necessary
-		updated_rows = {}
-		rows = @worksheet_obj.list
-		search_hash.each do | param_key, param_val |
-			rows.each_with_index do | row, index |
-				if( row[param_key].to_s == param_val.to_s)
-					row.update(update_hash)
-					@worksheet_obj.save
-					updated_rows[index.to_s] = row.to_hash
-				end
-			end
-		end
-		return updated_rows
-	end
-
-	def replace(search_hash, replace_hash)
-		restart_session_if_necessary
-		rows = @worksheet_obj.list
-		search_hash.each do | param_key, param_val |
-			rows.each do | row |
-				if( row[param_key].to_s == param_val.to_s)
-					row.clear
-					@worksheet_obj.save
-					row.update(replace_hash)
-					@worksheet_obj.save
-					return row.to_hash
-				end
-			end
-		end
-	end
-
-	def replace_all(search_hash, replace_hash)
-		restart_session_if_necessary
-		replaced_rows = []
-		rows = @worksheet_obj.list
-		search_hash.each do | param_key, param_val |
-			rows.each do | row |
-				if( row[param_key].to_s == param_val.to_s)
-					row.clear
-					@worksheet_obj.save
-					row.update(replace_hash)
-					@worksheet_obj.save
-					replaced_rows << row.to_hash
-				end
-			end
-		end
-		return replaced_rows
-	end
 end

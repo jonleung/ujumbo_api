@@ -52,7 +52,6 @@ class Trigger
 
       triggers.each do |trigger|
         match = true
-
         trigger.properties.each do |required_key, required_value|
           if triggering_properties[required_key] != required_value
             match = false
