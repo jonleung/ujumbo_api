@@ -6,14 +6,15 @@ Ujumbo::Application.routes.draw do
   match "/spreadsheets" => 'spreadsheet#index'
   match "/spreadsheets/index" => 'spreadsheet#index'
 
-  match "/spreadsheets/create" => 'spreadheet#create'
-  match "/spreadsheets/:id" => 'spreadsheet#get'
-  match "/spreadsheets/:id/get" => 'spreadsheet#get'
-  match "/spreadsheets/:id/update" => 'spreadsheet#update'
-  match "/spreadsheets/:id/destroy" => 'spreadsheet#destroy'
+  # match "/spreadsheets/create" => 'spreadheet#create' #Stick with RESTful Convetions
+  # match "/spreadsheets/:id" => 'spreadsheet#get'
+  # match "/spreadsheets/:id/get" => 'spreadsheet#get'
+  # match "/spreadsheets/:id/update" => 'spreadsheet#update'
+  # match "/spreadsheets/:id/destroy" => 'spreadsheet#destroy'
 
+  resources "spreadsheets"
 
-  namespace :api do 
+  namespace :api do
 
     # AUTHENTICATION
     match '/login' => redirect('/auth/google_oauth2')

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "demo-ing the project" do
 	it "should work" do
-		user = User.where(email: "hello@ujumbo.com").first
+		user = User.where(email: "hello@jumbo.com").first
 		raise "Cannot find hello@ujumbo.com" if user.nil?
 
 		product = Product.find_or_create_by(name: "ProjectDemo")

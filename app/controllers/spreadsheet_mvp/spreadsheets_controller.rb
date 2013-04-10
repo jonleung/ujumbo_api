@@ -1,6 +1,7 @@
 class SpreadsheetController < ApplicationController
 
   def create
+    
   end
 
   def update
