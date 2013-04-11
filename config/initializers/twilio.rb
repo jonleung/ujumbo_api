@@ -1,13 +1,13 @@
-ENV["sms_for_real"] ||= "true"
-
 module Twilio
 
-  def self.default_sms_url
-    "#{ENV["base_url"]}/api/twilio/sms"
-  end
+  if set_external_ip?
+    def self.default_sms_url
+      "#{ENV["base_url"]}/api/twilio/sms"
+    end
 
-  def self.default_voice_url
-    "#{ENV["base_url"]}/api/twilio/voice"
+    def self.default_voice_url
+      "#{ENV["base_url"]}/api/twilio/voice"
+    end
   end
 
   module REST
@@ -37,48 +37,29 @@ module Twilio
   end
 end
 
-is_production = Rails.env.production? || ENV["sms_for_real"].to_bool
 
-if is_production
+module Twilio
 
-  module Twilio
-    def self.account_sid
-      'ACc458afd493c7ad55a6da08b2df28f56d'
-    end
-
-    def self.auth_token
-      'eee531456e7c25281a30b23d07866e89'
-    end
-
-    def self.default_phone
-      "4433933207"
-    end
-
-    def self.phone_numbers
-      ["4433933207", "2073586260", "4158586914", "4158586924"]
-    end
+  def self.account_sid
+    'ACc458afd493c7ad55a6da08b2df28f56d'
   end
 
-else
+  def self.auth_token
+    'eee531456e7c25281a30b23d07866e89'
+  end
 
-  module Twilio
-    def self.account_sid
-      'ACf98b98936a70e47813f38dcfb1f921d4'
-    end
+  def self.default_phone
+    "4433933207"
+  end
 
-    def self.auth_token
-      'aed5fcb8cbfc9026afe45d2a8facbf6b'
-    end
-
-    def self.default_phone
-      "15005550006"
-    end
+  def self.phone_numbers
+    ["4433933207", "2073586260", "4158586914", "4158586924"]
   end
 end
 
 $twilio = Twilio::REST::Client.new Twilio.account_sid, Twilio.auth_token
 
-if is_production
+if set_external_ip?
   Twilio.phone_numbers.each do |phone|
     # Set Appropriate Callback
     params = {
