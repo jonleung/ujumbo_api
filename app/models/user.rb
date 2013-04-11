@@ -35,6 +35,18 @@ class User
     return user
   end
 
+  def google_docs
+    GoogleDoc.where(user: self).entries
+  end
+
+  def google_spreadsheet_urls
+    session = GoogleDrive.login_with_oauth(self.google_credential.token)
+    throw "Google Drive login failed" if session.nil?
+    files = session.files.select { |file| file.resource_type == "spreadsheet" }
+    urls = files.collect { |file| file.human_url }
+    return urls
+  end
+
   def full_name
     "#{self.first_name} #{self.last_name} "
   end

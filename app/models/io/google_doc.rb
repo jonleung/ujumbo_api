@@ -2,13 +2,6 @@ require 'google/api_client'
 require 'securerandom'
 require 'base64'
 
-=begin
-
-	- share the ujumbo-created-spreadsheet with user
-	- add support for multiple worksheets 
-
-=end
-
 class GoogleDoc
 	def self.valid_types
 		[
@@ -76,7 +69,6 @@ class GoogleDoc
 			worksheet.store_state
 		end
 		@file_obj.worksheet_by_title("Sheet1").delete if self.google_doc_worksheets.length > 0  # delete the default worksheet tab
-		set_trigger
 		self.save!
 	end
 
@@ -86,8 +78,11 @@ class GoogleDoc
 
 	def create_new_doc
 		doc_with_script = "BLANK_WITH_SCRIPT"
-		template = @session.spreadsheet_by_title(doc_with_script)
-		template.duplicate(self.filename)
+		ujumbo_session = GoogleDrive.login("hello@ujumbo.com", "movefastandbreakthings")
+		template = ujumbo_session.spreadsheet_by_title(doc_with_script)
+		new_doc  = template.duplicate(self.filename)
+		set_trigger(new_doc.human_url)
+		new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "writer"})  # change to 'owner' once we use a .gmail
 	end
 
 	def restart_session_if_necessary
@@ -114,9 +109,8 @@ class GoogleDoc
 		self.save!
 	end
 
-	def set_trigger
-		doc_url = @file_obj.human_url
-		set_trigger_with_watir google_doc_url: doc_url, username: "hello", password: "movefastandbreakthings"
+	def set_trigger(url)
+		set_trigger_with_watir google_doc_url: url, username: "hello", password: "movefastandbreakthings"
 	end
 
 	def set_trigger_with_watir(params)
