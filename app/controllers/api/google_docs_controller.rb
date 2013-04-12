@@ -28,15 +28,14 @@ class Api::GoogleDocsController < ApiController
       :credential_params => credential_params,
     }
     user = User.from_omniauth(omniauth_params)
-    product = Product.find_or_create_by(user.fullname+"#{User.count}")
-    
-    user.products << product
-    product.users << user
+    product = user.products.first
+
+    session[:user_id] = user.id
 
     if path = params[:then_redirect_to]
       redirect_to path, notice: "Welcome #{user.first_name}"
     else
-      redirect_to "/", notice: "Welcome #{user.first_name}"
+      redirect_to "/home", notice: "Welcome #{user.first_name}"
     end
     
   end

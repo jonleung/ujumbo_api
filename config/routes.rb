@@ -1,18 +1,21 @@
 Ujumbo::Application.routes.draw do
 
   root :to => 'client#index1'
+  match '/home' => 'client#home'
+
   match '/sample' => 'client#sample'
 
-  match "/spreadsheets" => 'spreadsheet#index'
-  match "/spreadsheets/index" => 'spreadsheet#index'
+  #match "/spreadsheets" => 'spreadsheet#index'
+  #match "/spreadsheets/index" => 'spreadsheet#index'
 
   # match "/spreadsheets/create" => 'spreadheet#create' #Stick with RESTful Convetions
   # match "/spreadsheets/:id" => 'spreadsheet#get'
   # match "/spreadsheets/:id/get" => 'spreadsheet#get'
   # match "/spreadsheets/:id/update" => 'spreadsheet#update'
   # match "/spreadsheets/:id/destroy" => 'spreadsheet#destroy'
+  match '/auth/google_oauth2/callback' => 'api/google_docs#omniauth_success_callback'
 
-  resources "spreadsheets"
+  resources :spreadsheets
 
   namespace :api do
 

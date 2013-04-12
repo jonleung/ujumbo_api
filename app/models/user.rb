@@ -35,6 +35,11 @@ class User
     return user
   end
 
+  after_create :after_create_callback
+  def after_create_callback
+    self.products << Product.create(name: self.email)
+  end
+
   def google_docs
     GoogleDoc.where(user: self).entries
   end

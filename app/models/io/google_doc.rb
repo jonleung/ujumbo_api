@@ -27,6 +27,7 @@ class GoogleDoc
 	field :auth_tokens, type: Hash
 	field :key, type: String
 	field :trailing_key, type: String
+	field :url, type: String
 
 	validates_presence_of :filename
 	validates_presence_of :worksheets
@@ -39,17 +40,18 @@ class GoogleDoc
 	attr_accessor :session
 	attr_accessor :file_obj
 	attr_accessor :use_existing_doc
+	attr_accessor :url
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
-		raise "Google Doc must have a user" if self.user.nil?
 		restart_session
+
 		if (GoogleDoc.where(:id => self.id).exists?)
 			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
 			restart_session_if_necessary
 			hookup_to_gdrive
 		end
-
+		save!
 		#if self.use_existing_doc
 			#then make the GDrive Hookups
 			#hookup_to_gdrive
@@ -62,6 +64,7 @@ class GoogleDoc
 		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
+		self.url = @file_obj.human_url
 		self.google_doc_worksheets.each do |worksheet|
 			worksheet.validate_schema
 			worksheet.set_worksheet_object
@@ -82,7 +85,9 @@ class GoogleDoc
 		template = ujumbo_session.spreadsheet_by_title(doc_with_script)
 		new_doc  = template.duplicate(self.filename)
 		set_trigger(new_doc.human_url)
-		new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "writer"})  # change to 'owner' once we use a .gmail
+		if self.user.email != "hello@ujumbo.com"
+			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "writer"})  # change to 'owner' once we use a .gmail
+		end
 	end
 
 	def restart_session_if_necessary
