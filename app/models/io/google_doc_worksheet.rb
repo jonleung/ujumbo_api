@@ -78,7 +78,7 @@ class GoogleDocWorksheet
 				triggering_column_names.each do |col_name|
 					if row[col_name].downcase == "send"
 						update_row(row, { col_name => "SENT"} )
-						Trigger.trigger(self.google_doc.product.id, channel, row.merge(google_doc_id: self.google_doc.id, sheet_name: self.name)) if channel.present?
+						Trigger.trigger(self.google_doc.product_id, channel, row.merge(google_doc_id: self.google_doc.id, sheet_name: self.name)) if channel.present?
 					end
 				end
 			end

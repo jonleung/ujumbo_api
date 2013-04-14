@@ -80,9 +80,10 @@ class GoogleDoc
 	end
 
 	def create_new_doc
-		doc_with_script = "BLANK_WITH_SCRIPT"
+		template_doc = "BLANK_WITH_SCRIPT"
+		#template_doc = "MVP_TEMPLATE"
 		ujumbo_session = GoogleDrive.login("hello@ujumbo.com", "movefastandbreakthings")
-		template = ujumbo_session.spreadsheet_by_title(doc_with_script)
+		template = ujumbo_session.spreadsheet_by_title(template_doc)
 		new_doc  = template.duplicate(self.filename)
 		set_trigger(new_doc.human_url)
 		if self.user.email != "hello@ujumbo.com"
