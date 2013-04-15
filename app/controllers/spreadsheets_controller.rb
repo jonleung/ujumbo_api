@@ -4,7 +4,7 @@ class SpreadsheetsController < ApplicationController
 
   def create
     product = Product.create(name: current_user.email)
-    filename = "#{params[:filename]} #{Time.now}" if params[:filename]
+    filename = "#{params[:filename]} #{GoogleDoc.count}" if params[:filename]
 
     google_doc_params = {
       # user_id: current_user.id,
@@ -88,7 +88,7 @@ class SpreadsheetsController < ApplicationController
     sms_pipeline.save
 
     #render text: "hello gdocs"
-    redirect_to google_doc.url
+    render :index
   end
 
   def update
