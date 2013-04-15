@@ -61,7 +61,6 @@ class GoogleDoc
 
 	after_create :after_create_hook
 	def after_create_hook
-		debugger
 		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
