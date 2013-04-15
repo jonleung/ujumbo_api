@@ -25,7 +25,7 @@ class GoogleDocWorksheet
 
 	def setup_schema
 		self.schema.keys.each do |attribute|
-			self.add_column_key(attribute)
+			self.add_column_key(attribute) unless column_key_exists(attribute)
 		end
 	end
 

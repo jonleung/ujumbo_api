@@ -71,7 +71,7 @@ class GoogleDoc
 			worksheet.setup_schema
 			worksheet.store_state
 		end
-		@file_obj.worksheet_by_title("Sheet1").delete if self.google_doc_worksheets.length > 0  # delete the default worksheet tab
+		#@file_obj.worksheet_by_title("Sheet1").delete if self.google_doc_worksheets.length > 0  # delete the default worksheet tab
 		self.save!
 	end
 
@@ -80,12 +80,12 @@ class GoogleDoc
 	end
 
 	def create_new_doc
-		template_doc = "BLANK_WITH_SCRIPT"
-		#template_doc = "MVP_TEMPLATE"
+		#template_doc = "BLANK_WITH_SCRIPT"
+		template_doc = "MVP_TEMPLATE"
 		ujumbo_session = GoogleDrive.login("hello@ujumbo.com", "movefastandbreakthings")
 		template = ujumbo_session.spreadsheet_by_title(template_doc)
 		new_doc  = template.duplicate(self.filename)
-		# set_trigger(new_doc.human_url)
+		set_trigger(new_doc.human_url)
 		if self.user.email != "hello@ujumbo.com"
 			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "writer"})  # change to 'owner' once we use a .gmail
 		end
