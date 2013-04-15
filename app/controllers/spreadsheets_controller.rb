@@ -101,8 +101,7 @@ class SpreadsheetsController < ApplicationController
   end
 
   def index
-    # render text: current_user.id
-    @spreadsheets = GoogleDoc.where(user: current_user).entries
+    @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
   end
 
 end
