@@ -4,8 +4,8 @@
 <% end %>
 
 Here is a list of all your spreadsheets
-<%= @spreadsheets.each do |spreadsheet| %>
+<% @spreadsheets.each do |spreadsheet| %>
 
-	<%= link_to spreadsheet.filename.to_s, spreadsheet.url.to_s %>
+	<%= link_to spreadsheet.filename.to_s, spreadsheet.url %></br>
 
 <% end %>
