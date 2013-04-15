@@ -1,16 +1,16 @@
 class SpreadsheetsController < ApplicationController
 
-  def create
-    user = current_user
+  before_filter :ensure_current_user
 
-    product = Product.create(name: user.email)
-    product.save
-    filename = "MVPs Rock! #{Time.now}"
+  def create
+    product = Product.create(name: current_user.email)
+    filename = "#{params[:filename]} #{Time.now}" if params[:filename]
+
     google_doc_params = {
-      user_id: user.id,
+      # user_id: current_user.id,
+      user: current_user,
       filename: filename,
-      create_new: "true",
-      product_id: product.id,
+      create_new: "true", #TODO Do we still need this?
       product: product,
       worksheets: [
         {
@@ -22,26 +22,26 @@ class SpreadsheetsController < ApplicationController
             "Email" => :email,
             "Phone" => :phone
           }
-          },
-          {
-            name: "Email",
-            schema: {
-              "To" => :email,
-              "Subject" => :text,
-              "Body" => :text,
-              "Type 'Send'" => :triggering_column
-            }
-            },
-            {
-              name: "Sms",
-              schema: {
-                "To" => :phone,
-                "Message" => :text,
-                "Type 'Send'" => :triggering_column
-              }
-            }
-          ]
+        },
+        {
+          name: "Email",
+          schema: {
+            "To" => :email,
+            "Subject" => :text,
+            "Body" => :text,
+            "Type 'Send'" => :triggering_column
+          }
+        },
+        {
+          name: "Sms",
+          schema: {
+            "To" => :phone,
+            "Message" => :text,
+            "Type 'Send'" => :triggering_column
+          }
         }
+      ]
+    }
 
     google_doc = GoogleDoc.create(google_doc_params)
 
@@ -55,7 +55,7 @@ class SpreadsheetsController < ApplicationController
     email_pipe = EmailPipe.new({
       :previous_pipe_id => "first_pipe",
       :static_properties => {
-        :from => user.email,
+        :from => current_user.email,
         },
         :pipelined_properties => {
           :to => "Trigger:To",

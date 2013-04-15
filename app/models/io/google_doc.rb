@@ -3,6 +3,7 @@ require 'securerandom'
 require 'base64'
 
 class GoogleDoc
+	
 	def self.valid_types
 		[
 			:first_name,
@@ -105,6 +106,7 @@ class GoogleDoc
 
 	def hookup_to_gdrive
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
+		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 		key = @file_obj.key
 		if key.length == 23
 			self.gdoc_key = Base64.encode64(key)[0...-2]
@@ -120,15 +122,10 @@ class GoogleDoc
 	end
 
 	def set_trigger_with_watir(params)
-		browser = Watir::Browser.new 
+		browser = $browser
 
 		# navigate to the google doc page
 		browser.goto params[:google_doc_url]
-
-		# login on the way
-		browser.text_field(:id => 'Email').when_present.set(params[:username])
-		browser.text_field(:id => 'Passwd').when_present.set(params[:password])
-		browser.button(:id => 'signIn').click
 
 		# go to the editor
 		editor_url = /"maestro_script_editor_uri":"(.*)","maestro_new_project/.match(browser.html)[1].gsub("\\/", "/")
@@ -146,7 +143,6 @@ class GoogleDoc
 		on_edit_dropdown = trigger_dropdowns.find { |dropdown| dropdown.include?("On edit") }
 		on_edit_dropdown.select("On edit")
 		browser.div(:class, "controls").button(:text => "Save").click
-		browser.close
 	end
 
 end

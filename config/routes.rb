@@ -1,18 +1,8 @@
 Ujumbo::Application.routes.draw do
 
-  root :to => 'client#index1'
-  match '/home' => 'client#home'
-
-  match '/sample' => 'client#sample'
-
-  #match "/spreadsheets" => 'spreadsheet#index'
-  #match "/spreadsheets/index" => 'spreadsheet#index'
-
-  # match "/spreadsheets/create" => 'spreadheet#create' #Stick with RESTful Convetions
-  # match "/spreadsheets/:id" => 'spreadsheet#get'
-  # match "/spreadsheets/:id/get" => 'spreadsheet#get'
-  # match "/spreadsheets/:id/update" => 'spreadsheet#update'
-  # match "/spreadsheets/:id/destroy" => 'spreadsheet#destroy'
+  root :to => 'welcome#index'
+  match 'login' => redirect('/auth/google_oauth2')
+  match '/logout' => 'session#destroy', as: 'logout'
   match '/auth/google_oauth2/callback' => 'api/google_docs#omniauth_success_callback'
 
   resources :spreadsheets

@@ -1,0 +1,6 @@
+<%= form_tag "/spreadsheets", method: "post" do %>
+  <%= text_field_tag(:filename, nil, placeholder: "New Spreadsheet Name") %>
+  <%= submit_tag "Create Spreadsheet!", class: "btn btn-primary" %>
+<% end %>
+
+Here is a list of all your spreadsheets

@@ -35,7 +35,7 @@ class Api::GoogleDocsController < ApiController
     if path = params[:then_redirect_to]
       redirect_to path, notice: "Welcome #{user.first_name}"
     else
-      redirect_to "/home", notice: "Welcome #{user.first_name}"
+      redirect_to "/spreadsheets", notice: "Welcome #{user.first_name}"
     end
     
   end
