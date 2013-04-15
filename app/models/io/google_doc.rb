@@ -104,7 +104,10 @@ class GoogleDoc
 	end
 
 	def hookup_to_gdrive
+		@file_obj1 = @session.spreadsheet_by_title(self.filename) #TODO find by key
+		@file_obj2 = @session.spreadsheet_by_title(self.filename) #TODO find by key
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
+
 		key = @file_obj.key
 		if key.length == 23
 			self.gdoc_key = Base64.encode64(key)[0...-2]
