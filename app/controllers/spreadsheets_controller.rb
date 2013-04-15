@@ -103,6 +103,7 @@ class SpreadsheetsController < ApplicationController
   def index
     # render text: current_user.id
     @spreadsheets = GoogleDoc.where(user: current_user).entries
+    render erb: index
   end
 
 end

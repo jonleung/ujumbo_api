@@ -113,6 +113,7 @@ class GoogleDoc
 
 		key = @file_obj.key
 		self.url = @file_obj.human_url
+		debugger
 		if key.length == 23
 			self.gdoc_key = Base64.encode64(key)[0...-2]
 		else
