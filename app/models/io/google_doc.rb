@@ -45,14 +45,16 @@ class GoogleDoc
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
-		restart_session
+		# restart_session
 
-		if (GoogleDoc.where(:id => self.id).exists?)
-			raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
-			restart_session_if_necessary
-			hookup_to_gdrive
-		end
-		save!
+		# if (GoogleDoc.where(:id => self.id).exists?)
+		# 	raise "The user must have a GoogleCredential set" if self.user.google_credential.token.nil?
+		# 	restart_session_if_necessary
+		# 	hookup_to_gdrive
+		# else
+
+		# end
+		# save!
 		#if self.use_existing_doc
 			#then make the GDrive Hookups
 			#hookup_to_gdrive
@@ -62,10 +64,10 @@ class GoogleDoc
 
 	after_create :after_create_hook
 	def after_create_hook
-		restart_session_if_necessary
+		restart_session
+		# restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
-		self.url = @file_obj.human_url
 		self.google_doc_worksheets.each do |worksheet|
 			worksheet.validate_schema
 			worksheet.set_worksheet_object
@@ -110,6 +112,7 @@ class GoogleDoc
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 
 		key = @file_obj.key
+		self.url = @file_obj.human_url
 		if key.length == 23
 			self.gdoc_key = Base64.encode64(key)[0...-2]
 		else
