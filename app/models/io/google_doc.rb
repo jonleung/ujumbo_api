@@ -128,12 +128,31 @@ class GoogleDoc
 
 	def set_trigger_with_watir(params)
 		browser = $browser
-		debugger
+
+		begin
+			browser.url
+		rescue
+			$browser = Watir::Browser.new
+			browser = $browser
+
+			username = "hello"
+			password = "movefastandbreakthings"
+
+			browser = $browser
+			browser.goto "https://www.google.com/a/ujumbo.com/ServiceLogin?service=writely&passive=1209600&continue=https://docs.google.com/a/ujumbo.com/%23&followup=https://docs.google.com/a/ujumbo.com/&ltmpl=homepage"
+			browser.text_field(:id => 'Email').when_present.set(username)
+			browser.text_field(:id => 'Passwd').when_present.set(password)
+			browser.button(:id => 'signIn').click
+		end
+
 		# navigate to the google doc page
 		browser.goto params[:google_doc_url]
 
+		debugger
+
 		# go to the editor
 		editor_url = /"maestro_script_editor_uri":"(.*)","maestro_new_project/.match(browser.html)[1].gsub("\\/", "/")
+		puts "EDITOR URL: " + editor_url
 		browser.goto editor_url
 
 		browser.div(:id, "triggersButton").when_present.click

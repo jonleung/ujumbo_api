@@ -1,6 +1,5 @@
 $browser = Watir::Browser.new
 
-
 username = "hello"
 password = "movefastandbreakthings"
 
