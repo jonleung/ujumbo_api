@@ -43,7 +43,8 @@ class SpreadsheetsController < ApplicationController
           ]
         }
 
-        google_doc = GoogleDoc.create(google_doc_params)
+    google_doc = GoogleDoc.create(google_doc_params)
+    debugger
 
     # setup pipeline to send out an email when 'send' is typed into a row in the Email worksheet
     email_pipeline = product.pipelines.new

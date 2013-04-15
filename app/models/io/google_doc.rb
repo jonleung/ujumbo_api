@@ -25,7 +25,7 @@ class GoogleDoc
 	
 	field :filename, type: String
 	field :auth_tokens, type: Hash
-	field :key, type: String
+	field :gdoc_key, type: String
 	field :trailing_key, type: String
 	field :url, type: String
 
@@ -61,6 +61,7 @@ class GoogleDoc
 
 	after_create :after_create_hook
 	def after_create_hook
+		debugger
 		restart_session_if_necessary
 		create_new_doc
 		hookup_to_gdrive
@@ -85,7 +86,7 @@ class GoogleDoc
 		ujumbo_session = GoogleDrive.login("hello@ujumbo.com", "movefastandbreakthings")
 		template = ujumbo_session.spreadsheet_by_title(template_doc)
 		new_doc  = template.duplicate(self.filename)
-		set_trigger(new_doc.human_url)
+		# set_trigger(new_doc.human_url)
 		if self.user.email != "hello@ujumbo.com"
 			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "writer"})  # change to 'owner' once we use a .gmail
 		end
@@ -107,11 +108,11 @@ class GoogleDoc
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 		key = @file_obj.key
 		if key.length == 23
-			self.key = Base64.encode64(key)[0...-2]
+			self.gdoc_key = Base64.encode64(key)[0...-2]
 		else
-			self.key = key
+			self.gdoc_key = key
 		end
-		self.trailing_key = convert_key(self.key)
+		self.trailing_key = convert_key(self.gdoc_key)
 		self.save!
 	end
 
