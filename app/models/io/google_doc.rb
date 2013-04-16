@@ -61,6 +61,11 @@ class GoogleDoc
 
 	end
 
+	def setup
+		restart_session_if_necessary
+		hookup_to_gdrive
+	end
+
 	after_create :after_create_hook
 	def after_create_hook
 		restart_session
