@@ -23,6 +23,10 @@ class GoogleDocWorksheet
 		end
 	end
 
+	def reset_worksheet_obj
+		@worksheet_obj = self.google_doc.file_obj.worksheet_by_title(self.name)
+	end
+
 	def setup_schema
 		self.schema.keys.each do |attribute|
 			self.add_column_key(attribute) unless column_key_exists(attribute)
@@ -130,12 +134,14 @@ class GoogleDocWorksheet
 	# adds a key (first row of spreadsheet)
 	def add_column_key(key)
 		self.google_doc.restart_session_if_necessary #TODO do we actually need to do these?
+		reset_worksheet_obj if @worksheet_obj == nil
 		@worksheet_obj[1, num_keys+1] = key
 		@worksheet_obj.save
 	end
 
 	def delete_column_key(key)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		if column_key_exists(key)
 			index = key_index(key) # finds index of key
 			@worksheet_obj.list.each { |row| row[key] = "" }  # deletes value in key's column from every row
@@ -146,12 +152,14 @@ class GoogleDocWorksheet
 
 	def num_keys
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		@worksheet_obj.list.keys.length
 	end
 
 	# creates a row with hash of key-value params
 	def create_row(params)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		# add the keys if they don't exist
 		params.each do | key, value |
 			if(!@worksheet_obj.list.keys.include?(key))
@@ -170,11 +178,15 @@ class GoogleDocWorksheet
 
 	def where(params)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		matches = []
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
 			rows.each do | row |
 				if( row[param_key].to_s == param_val.to_s)
+					matches << row.to_hash
+				debugger
+				elsif PhoneHelper.standardize(row[param_key].to_s) == PhoneHelper.standardize(param_val.to_s) # if you're searching by phone number, standardize it
 					matches << row.to_hash
 				end
 			end
@@ -186,8 +198,24 @@ class GoogleDocWorksheet
 		return where(params)
 	end
 
+	# def find_row_by_phone(params)
+	# 	self.google_doc.restart_session_if_necessary
+	# 	reset_worksheet_obj if @worksheet_obj == nil
+	# 	matches = []
+	# 	rows = @worksheet_obj.list
+	# 	params.each do | param_key, param_val |
+	# 		rows.each do | row |
+	# 			if( PhoneHelper.standardize(row[param_key].to_s) == PhoneHelper.standardize(param_val.to_s))
+	# 				matches << row.to_hash
+	# 			end
+	# 		end
+	# 	end
+	# 	return matches
+	# end
+
 	def delete(params)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		rows = @worksheet_obj.list
 		params.each do | param_key, param_val |
 			rows.each do | row |
@@ -203,6 +231,7 @@ class GoogleDocWorksheet
 
 	def delete_all(params)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		rows = @worksheet_obj.list
 		deleted_rows = {}
 		params.each do | param_key, param_val |
@@ -219,6 +248,7 @@ class GoogleDocWorksheet
 
 	def clear_sheet
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		rows = @worksheet_obj.list
 		rows.each do | row |
 			row.clear
@@ -231,6 +261,7 @@ class GoogleDocWorksheet
 	# returns all the rows as an array of hashes
 	def all
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		if(@worksheet_obj.nil?)
 			return []
 		else
@@ -252,6 +283,7 @@ class GoogleDocWorksheet
 
 	def update_row(search_hash, update_hash)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each do | row |
@@ -266,6 +298,7 @@ class GoogleDocWorksheet
 
 	def update_all(search_hash, update_hash)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		updated_rows = {}
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
@@ -282,6 +315,7 @@ class GoogleDocWorksheet
 
 	def replace(search_hash, replace_hash)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each do | row |
@@ -298,6 +332,7 @@ class GoogleDocWorksheet
 
 	def replace_all(search_hash, replace_hash)
 		self.google_doc.restart_session_if_necessary
+		reset_worksheet_obj if @worksheet_obj == nil
 		replaced_rows = []
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |

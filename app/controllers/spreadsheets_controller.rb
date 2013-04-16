@@ -73,7 +73,7 @@ class SpreadsheetsController < ApplicationController
     email_pipeline.save
 
 
-    ##########################################
+    #########################################
     # Setup SMS Sending
     sms_pipeline = product.pipelines.new
     sms_pipeline.name = "gdoc_sms_pipeline#{Pipeline.count}"
@@ -94,53 +94,47 @@ class SpreadsheetsController < ApplicationController
     sms_pipe.save
     sms_pipeline.save
 
-    ##########################################
-    # Setup SMS Receiving
-    sms_recieve_pipeline = product.pipelines.new
-    sms_recieve_pipeline.name = "gdoc_sms_recieve#{Pipeline.count}"
-    sms_recieve_pipeline.save
-    sms_recieve_pipeline.create_trigger(product.id, "sms:receive" , {to: PhoneHelper.standardize("4433933207")} )
+    # ##########################################
+    # # Setup SMS Receiving
+    sms_receive_pipeline = product.pipelines.new
+    sms_receive_pipeline.name = "gdoc_sms_receive#{Pipeline.count}"
+    sms_receive_pipeline.save
+    Trigger.where(channel: "sms:receive").delete_all
+
+    sms_receive_pipeline.create_trigger(product.id, "sms:receive" , {to: PhoneHelper.standardize("4433933207")} )
 
     gdoc_update_row_pipe = GoogleDocPipe.new({
       :previous_pipe_id => "first_pipe",
       :action => :update_row,
       :static_properties => {
-        :worksheet_name => "Sms"
         :google_doc_id => google_doc.id,
+        :worksheet_name => "Sms"
       },
-      :pipelined_references => {
-        :find_by_params => {
-          :to => "Trigger:from"
-        }
-        :update_to_params => {
-          :response => "Trigger:body",
-        }
+      :pipelined_properties => {
+        "find_by_To" => "Trigger:from",
+        "update_to_Response" => "Trigger:body"
+
       }
     })
 
-    gdoc_update_row_pipe.pipeline = sms_recieve_pipeline
+    gdoc_update_row_pipe.pipeline = sms_receive_pipeline
+    gdoc_update_row_pipe.pipeline = sms_receive_pipeline
     gdoc_update_row_pipe.save
+    sms_receive_pipeline.save
 
-    sms_pipe = SmsPipe.new({
-      :previous_pipe_id => gdoc_update_row_pipe.id,
-      :static_properties => {
-          :body => "Awesome! We got your message!"
-        },
-        :pipelined_properties => {
-          :phone => "Trigger:from",
-        }
-    })
+    # sms_pipe = SmsPipe.new({
+    #   :previous_pipe_id => gdoc_update_row_pipe.id,
+    #   :static_properties => {
+    #       :body => "Awesome! We got your message!"
+    #     },
+    #     :pipelined_properties => {
+    #       :phone => "Trigger:from",
+    #     }
+    # })
 
-    sms_pipe.pipeline = sms_recieve_pipeline
-    sms_pipe.save
+    # sms_pipe.pipeline = sms_recieve_pipeline
+    # sms_pipe.save
 
-
-
-
-    @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
-    @spreadsheets = [] if @spreadsheets == nil
-
-    #render text: "hello gdocs"
     @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
     render :index
   end

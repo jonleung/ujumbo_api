@@ -47,8 +47,10 @@ class Trigger
       if product_id.nil?
         triggers = Trigger.where(channel: channel).entries
       else
-        triggers = Trigger.where(product_id: product_id, channel: channel).order_by(:date_created.dsc)
+        triggers = Trigger.where(product_id: product_id, channel: channel).order_by(date_created: "dsc")
       end
+
+      debugger
 
       triggers.each do |trigger|
         match = true
