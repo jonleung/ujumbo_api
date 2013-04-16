@@ -46,7 +46,8 @@ class Api::GoogleDocsController < ApiController
   end
 
   def callback
-    doc = GoogleDoc.where(filename: params['filename']).first    # maybe at some point change this to gdoc_key
+    #doc = GoogleDoc.where(filename: params['filename']).first    # maybe at some point change this to gdoc_key
+    doc = GoogleDoc.where(gdoc_key: params["key"]).first
     doc.setup
     raise "Google Doc with filename #{params['filename']} not found." if doc == nil
     sheet = doc.google_doc_worksheets.where(name: params['sheet_name']).first
