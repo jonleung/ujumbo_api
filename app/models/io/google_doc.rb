@@ -89,12 +89,12 @@ class GoogleDoc
 	def create_new_doc
 		#template_doc = "BLANK_WITH_SCRIPT"
 		template_doc = "MVP_TEMPLATE"
-		ujumbo_session = GoogleDrive.login("hello@ujumbo.com", "movefastandbreakthings")
+		ujumbo_session = GoogleDrive.login("ujumboplatform@gmail.com", "movefastandbreakthings")
 		template = ujumbo_session.spreadsheet_by_title(template_doc)
 		new_doc  = template.duplicate(self.filename)
 		set_trigger(new_doc.human_url)
-		if self.user.email != "hello@ujumbo.com"
-			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "writer"})  # change to 'owner' once we use a .gmail
+		if self.user.email != "ujumboplatform@gmail.com"
+			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "owner"})  # change to 'owner' once we use a .gmail
 		end
 	end
 
@@ -127,7 +127,7 @@ class GoogleDoc
 	end
 
 	def set_trigger(url)
-		set_trigger_with_watir google_doc_url: url, username: "hello", password: "movefastandbreakthings"
+		set_trigger_with_watir google_doc_url: url, username: "ujumboplatform", password: "movefastandbreakthings"
 	end
 
 	def set_trigger_with_watir(params)
@@ -140,11 +140,12 @@ class GoogleDoc
 			$browser = Watir::Browser.new
 			browser = $browser
 
-			username = "hello"
+			username = "ujumboplatform"
 			password = "movefastandbreakthings"
 
 			browser = $browser
-			browser.goto "https://www.google.com/a/ujumbo.com/ServiceLogin?service=writely&passive=1209600&continue=https://docs.google.com/a/ujumbo.com/%23&followup=https://docs.google.com/a/ujumbo.com/&ltmpl=homepage"
+			#browser.goto "https://www.google.com/a/ujumbo.com/ServiceLogin?service=writely&passive=1209600&continue=https://docs.google.com/a/ujumbo.com/%23&followup=https://docs.google.com/a/ujumbo.com/&ltmpl=homepage"
+			browser.goto "https://accounts.google.com/ServiceLogin?service=wise&passive=1209600&continue=https://drive.google.com/%23my-drive&followup=https://drive.google.com/&ltmpl=drive"
 			browser.text_field(:id => 'Email').when_present.set(username)
 			browser.text_field(:id => 'Passwd').when_present.set(password)
 			browser.button(:id => 'signIn').click
