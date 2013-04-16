@@ -38,7 +38,6 @@ class Trigger
   class << self
 
     def trigger(product_id, channel, triggering_properties)
-      debugger
       raise "The channel '#{channel}' does not exist" if !channel.in? Trigger.valid_channels 
       triggering_properties = HashWithIndifferentAccess.new(triggering_properties)
       return trigger_via_mongo(product_id, channel, triggering_properties)
@@ -56,7 +55,7 @@ class Trigger
       triggers.each do |trigger|
         match = true
         trigger.properties.each do |required_key, required_value|
-          
+
           a = triggering_properties[required_key]
           a = a.to_s if a.class == Moped::BSON::ObjectId
 

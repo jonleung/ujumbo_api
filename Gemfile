@@ -26,6 +26,8 @@ gem 'handlebars-rails'
 gem 'jquery-rails'
 gem 'localtunnel'
 
+gem 'nokogiri'
+
 # Input / Output
 gem 'google_drive'
 gem 'google-api-client'
