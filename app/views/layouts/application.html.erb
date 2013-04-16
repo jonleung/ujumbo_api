@@ -19,8 +19,6 @@
           <%= link_to "Ujumbo", root_path, id: "logo" %>
           <nav>
             <ul class="nav pull-right">
-              <li><%= link_to "Home",    root_path %></li>
-              <li><%= link_to "Help",    '#' %></li>
               <li>
                 <% if current_user %>
                   <%= link_to "Logout", 'logout'%>
@@ -33,16 +31,21 @@
         </div>
       </div>
     </header>
-    <div class="container">
+  <div class="container">
+    <div class="row">
+      <div class="offset2 span10">
+        <% flash.each do |key, msg| %>
+          <%= content_tag :div, msg, :id => key %>
+        <% end %>
+      </div>
 
+      <%= yield %>
+      
     </div>
+      
 
+  </div>
 
-  <% flash.each do |key, msg| %>
-    <%= content_tag :div, msg, :id => key %>
-  <% end %>
-
-  <%= yield %>
 
 </body>
 </html>
