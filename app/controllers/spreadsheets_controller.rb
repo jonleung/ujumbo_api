@@ -91,6 +91,7 @@ class SpreadsheetsController < ApplicationController
     @spreadsheets = [] if @spreadsheets == nil
 
     #render text: "hello gdocs"
+    @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
     render :index
   end
 
