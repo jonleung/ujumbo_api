@@ -22,6 +22,8 @@ class Trigger
 
       sms:receive
       voice:receive
+
+      email:receive
     }
   end
 

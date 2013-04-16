@@ -23,6 +23,7 @@ class GoogleCredential
     
     options = { :body => data, :query => {} }
     response = HTTParty.post("https://accounts.google.com/o/oauth2/token", options).to_hash
+
     if (new_token = response["access_token"]).present?
       self.token = new_token
       self.expires_at = Time.now + response["expires_in"].seconds

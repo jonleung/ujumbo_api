@@ -10,7 +10,7 @@ ENV['GOOGLE_SECRET'] = "4U4C2jFXQC84Aydy2XBogbKQ"
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :google_oauth2, ENV['GOOGLE_KEY'], ENV['GOOGLE_SECRET'], {
     :scope => "https://www.googleapis.com/auth/userinfo.profile,https://www.googleapis.com/auth/userinfo.email,https://docs.google.com/feeds,https://docs.googleusercontent.com,https://spreadsheets.google.com/feeds",
-    :approval_prompt => "auto"
+    :approval_prompt => "force"
   }
 end
 

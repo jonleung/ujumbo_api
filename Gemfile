@@ -24,6 +24,7 @@ gem 'omniauth-google-oauth2'
 gem 'ember-rails'
 gem 'handlebars-rails'
 gem 'jquery-rails'
+gem 'localtunnel'
 
 # Input / Output
 gem 'google_drive'
