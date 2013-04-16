@@ -92,6 +92,7 @@ class GoogleDoc
 		ujumbo_session = GoogleDrive.login("ujumboplatform@gmail.com", "movefastandbreakthings")
 		template = ujumbo_session.spreadsheet_by_title(template_doc)
 		new_doc  = template.duplicate(self.filename)
+		
 		new_form = ujumbo_session.files.find{ |f| f if f.document_feed_url.include?("form") && f.title == "Copy of MVP_TEMPLATE" }
 		set_trigger(new_doc.human_url)
 		if self.user.email != "ujumboplatform@gmail.com"
@@ -136,9 +137,22 @@ class GoogleDoc
 		browser = $browser
 
 		begin
+			if browser.nil?
+				$browser = Watir::Browser.new
+				browser = $browser
+
+				username = "ujumboplatform"
+				password = "movefastandbreakthings"
+
+				browser = $browser
+				#browser.goto "https://www.google.com/a/ujumbo.com/ServiceLogin?service=writely&passive=1209600&continue=https://docs.google.com/a/ujumbo.com/%23&followup=https://docs.google.com/a/ujumbo.com/&ltmpl=homepage"
+				browser.goto "https://accounts.google.com/ServiceLogin?service=wise&passive=1209600&continue=https://drive.google.com/%23my-drive&followup=https://drive.google.com/&ltmpl=drive"
+				browser.text_field(:id => 'Email').when_present.set(username)
+				browser.text_field(:id => 'Passwd').when_present.set(password)
+				browser.button(:id => 'signIn').click
+			end
 			browser.url
 		rescue
-			browser.close
 			$browser = Watir::Browser.new
 			browser = $browser
 

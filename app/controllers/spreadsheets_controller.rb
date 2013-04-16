@@ -73,6 +73,32 @@ class SpreadsheetsController < ApplicationController
     email_pipe.save
     email_pipeline.save
 
+    ##########################################
+    # Setup Email Recieving
+
+    email_receive_pipeline = product.pipelines.new
+    email_receive_pipeline.name = "gdoc_email_receive#{Pipeline.count}"
+    email_receive_pipeline.save
+
+    email_receive_pipeline.create_trigger(product.id, "email:receive", {google_doc_id: google_doc.id})
+
+    gdoc_update_row_pipe = GoogleDocPipe.new({
+      :previous_pipe_id => "first_pipe",
+      :action => :update_row,
+      :static_properties => {
+        :google_doc_id => google_doc.id,
+        :worksheet_name => "Email"  
+      },
+      :pipelined_properties => {
+        "find_by_To" => "Trigger:from",
+        "update_to_Response" => "Trigger:text"
+      }
+    })
+
+    gdoc_update_row_pipe.pipeline = email_receive_pipeline
+    gdoc_update_row_pipe.pipeline = email_receive_pipeline
+    gdoc_update_row_pipe.save
+    email_receive_pipeline.save
 
     #########################################
     # Setup SMS Sending
@@ -85,11 +111,11 @@ class SpreadsheetsController < ApplicationController
       :previous_pipe_id => "first_pipe",
       :static_properties => {
           :from_phone => Twilio.default_phone
-        },
-        :pipelined_properties => {
-          :phone => "Trigger:To",
-          :body => "Trigger:Message"
-        }
+      },
+      :pipelined_properties => {
+        :phone => "Trigger:To",
+        :body => "Trigger:Message"
+      }
     })
     sms_pipe.pipeline = sms_pipeline
     sms_pipe.save

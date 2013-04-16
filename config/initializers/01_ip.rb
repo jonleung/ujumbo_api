@@ -23,16 +23,17 @@ def localtunnel_please
 
   @port = Rails::Server.new.options[:Port].to_s
 
-  pid = fork do
+  $pid = fork do
     $redis = Redis.new
 
     cmd = "localtunnel #{@port}" 
-
+    puts "RUNNING COMMAND #{cmd}"
     begin
 
-      PTY.spawn( cmd ) do |stdin, stdout, pid|
+      $pty = PTY.spawn( cmd ) do |stdin, stdout, pid|
         begin
           stdin.each do |line|
+            puts line
             if !(localtunnel_url = line[/(http:\/\/.*?\.localtunnel\.com)/]).nil?
               $redis.set(redis_channel, localtunnel_url)
               break
@@ -50,12 +51,14 @@ def localtunnel_please
 
   loop do 
     if (localtunnel_url = $redis.get(redis_channel) ).empty?
-      puts "Waiting for localtunnel"
+      print "Waiting for localtunnel"
       sleep 1
     else
       puts "localtunnel URL found: #{localtunnel_url}"
       return localtunnel_url
     end
+    trap "INT" do exit end
+
   end
 
 end
@@ -93,7 +96,7 @@ def ip_is_external?(ip)
 
   callback_echoer_url = "http://www.callbackmemaybe.com"
 
-  servlet_port = 3333
+  servlet_port = 3334
   
   thread = Thread.new do
     @server = WEBrick::HTTPServer.new(:Port => servlet_port)
@@ -141,7 +144,12 @@ if set_external_ip?
   if (ip = canihazip_please) && ip_is_external?(ip)
     port = Rails::Server.new.options[:Port].to_s
     set_environment("http://#{ip}:#{port}")
-  else base_url = localtunnel_please
-    set_environment(base_url) #assuming that icanhazip address works
+  else
+    puts "ERROR: Unable to automatically set your external ip!"
+    puts "Please set your ENV['base_url'] here to a http://localtunnel address!"
+    debugger
+    puts "SET ENV['base_url'] = #{ENV['base_url']}"
+  # else base_url = localtunnel_please
+  #   set_environment(base_url) #assuming that icanhazip address works
   end
 end

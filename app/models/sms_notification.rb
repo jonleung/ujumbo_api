@@ -35,14 +35,14 @@ class SmsNotification
     }
 
     sms_response = $twilio.account.sms.messages.create(sms_params)
-    i = 0
-    while sms_response.status != "sent" && sms_response.status != "failed"
-      i += 1
-      puts "REFRESHING sms status, attempt [#{i} of MAX_WAIT]..."
-      sms_response.refresh
-      pp sms_response.attributes
-      break if i > MAX_WAIT
-    end
+    # i = 0
+    # while sms_response.status != "sent" && sms_response.status != "failed"
+    #   i += 1
+    #   puts "REFRESHING sms status, attempt [#{i} of MAX_WAIT]..."
+    #   sms_response.refresh
+    #   pp sms_response.attributes
+    #   break if i > MAX_WAIT
+    # end
     
     return sms_response.attributes
   end

@@ -131,6 +131,10 @@ GEM
       addressable (~> 2.3)
     libv8 (3.11.8.17)
     listen (0.7.3)
+    localtunnel (0.3)
+      json (>= 1.2.4)
+      net-ssh (>= 2.0.22)
+      net-ssh-gateway (>= 1.0.1)
     lumberjack (1.0.3)
     mail (2.4.4)
       i18n (>= 0.4.0)
@@ -148,6 +152,9 @@ GEM
     multi_json (1.7.2)
     multi_xml (0.5.3)
     multipart-post (1.2.0)
+    net-ssh (2.6.6)
+    net-ssh-gateway (1.1.0)
+      net-ssh (>= 1.99.1)
     nokogiri (1.5.9)
     oauth (0.4.7)
     oauth2 (0.5.2)
@@ -299,6 +306,7 @@ DEPENDENCIES
   hiredis
   httparty
   jquery-rails
+  localtunnel
   mongoid
   oauth2 (~> 0.5.0)
   omniauth

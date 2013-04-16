@@ -5,6 +5,8 @@ Ujumbo::Application.routes.draw do
   match '/logout' => 'session#destroy', as: 'logout'
   match '/auth/google_oauth2/callback' => 'api/google_docs#omniauth_success_callback'
 
+  match '/d' => 'debugger#index'
+
   resources :spreadsheets
 
   namespace :api do

@@ -19,7 +19,7 @@ class Api::GoogleDocsController < ApiController
 
     credential_params = HashWithIndifferentAccess.new
     credential_params[:token] = data[:credentials][:token]
-    credential_params[:refresh_token] = data[:credentials][:refresh_token]
+    credential_params[:refresh_token] = data[:credentials][:refresh_token] if data[:credentials][:refresh_token] 
     credential_params[:expires_at] = data[:credentials][:expires_at]
     credential_params[:expires] = data[:credentials][:expires]
 
