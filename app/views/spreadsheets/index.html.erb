@@ -1,11 +1,33 @@
-<%= form_tag "/spreadsheets", method: "post" do %>
-  <%= text_field_tag(:filename, nil, placeholder: "New Spreadsheet Name") %>
-  <%= submit_tag "Create Spreadsheet!", class: "btn btn-primary" %>
-<% end %>
+<div class="container">
+  <div class="row">
+    <div class="offset1 span10">
+      <%= form_tag "/spreadsheets", method: "post", class: "form-inline" do %>
+        <%= text_field_tag(:filename, nil, placeholder: "New Spreadsheet Name") %>
+        <%= submit_tag "Create Spreadsheet!", class: "btn" %>
+      <% end %>
 
-Here is a list of all your spreadsheets
-<% @spreadsheets.each do |spreadsheet| %>
+      <p>Here is a list of all your spreadsheets</p>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Spreadsheet Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @spreadsheets.each do |spreadsheet| %>
+            <tr>
+              <td>
+                <%= link_to spreadsheet.filename.to_s, spreadsheet.url, target: "_blank" %></br>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        
+      </table>
 
-	<%= link_to spreadsheet.filename.to_s, spreadsheet.url %></br>
 
-<% end %>
+
+    </div>
+  </div>
+</div>
+
