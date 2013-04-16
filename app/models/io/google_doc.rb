@@ -120,7 +120,6 @@ class GoogleDoc
 		puts "file: #{@file_obj.human_url}"
 		puts "self: #{self.url}"
 
-		debugger
 		if key.length == 23
 			self.write_attribute(:gdoc_key, Base64.encode64(key)[0...-2])
 		else
