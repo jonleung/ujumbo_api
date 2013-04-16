@@ -41,7 +41,6 @@ class GoogleDoc
 	attr_accessor :session
 	attr_accessor :file_obj
 	attr_accessor :use_existing_doc
-	attr_accessor :url
 
 	after_initialize :after_initialize_hook
 	def after_initialize_hook
@@ -112,14 +111,22 @@ class GoogleDoc
 		@file_obj = @session.spreadsheet_by_title(self.filename) #TODO find by key
 
 		key = @file_obj.key
-		self.url = @file_obj.human_url
+		self.write_attribute(:url, @file_obj.human_url)
+		self.write_attribute(:url, @file_obj.human_url)
+		itself = GoogleDoc.find(self.id)
+		itself.url = @file_obj.human_url
+		itself.save
+
+		puts "file: #{@file_obj.human_url}"
+		puts "self: #{self.url}"
+
+		debugger
 		if key.length == 23
-			self.gdoc_key = Base64.encode64(key)[0...-2]
+			self.write_attribute(:gdoc_key, Base64.encode64(key)[0...-2])
 		else
-			self.gdoc_key = key
+			self.write_attribute(:gdoc_key, key)
 		end
-		self.trailing_key = convert_key(self.gdoc_key)
-		self.save!
+		self.write_attribute(:trailing_key, convert_key(self.gdoc_key))
 	end
 
 	def set_trigger(url)
