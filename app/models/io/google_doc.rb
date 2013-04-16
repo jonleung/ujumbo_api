@@ -92,9 +92,12 @@ class GoogleDoc
 		ujumbo_session = GoogleDrive.login("ujumboplatform@gmail.com", "movefastandbreakthings")
 		template = ujumbo_session.spreadsheet_by_title(template_doc)
 		new_doc  = template.duplicate(self.filename)
+		debugger
+		new_form = ujumbo_session.files.find{ |f| f if f.document_feed_url.include?("form") && f.title == "Copy of MVP_TEMPLATE" }
 		set_trigger(new_doc.human_url)
 		if self.user.email != "ujumboplatform@gmail.com"
-			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "owner"})  # change to 'owner' once we use a .gmail
+			new_doc.acl.push({scope_type: "user", scope: self.user.email, role: "owner"})
+			new_form.acl.push({scope_type: "user", scope: self.user.email, role: "owner"})
 		end
 	end
 

@@ -185,7 +185,6 @@ class GoogleDocWorksheet
 			rows.each do | row |
 				if( row[param_key].to_s == param_val.to_s)
 					matches << row.to_hash
-				debugger
 				elsif PhoneHelper.standardize(row[param_key].to_s) == PhoneHelper.standardize(param_val.to_s) # if you're searching by phone number, standardize it
 					matches << row.to_hash
 				end
@@ -197,21 +196,6 @@ class GoogleDocWorksheet
 	def find(params)
 		return where(params)
 	end
-
-	# def find_row_by_phone(params)
-	# 	self.google_doc.restart_session_if_necessary
-	# 	reset_worksheet_obj if @worksheet_obj == nil
-	# 	matches = []
-	# 	rows = @worksheet_obj.list
-	# 	params.each do | param_key, param_val |
-	# 		rows.each do | row |
-	# 			if( PhoneHelper.standardize(row[param_key].to_s) == PhoneHelper.standardize(param_val.to_s))
-	# 				matches << row.to_hash
-	# 			end
-	# 		end
-	# 	end
-	# 	return matches
-	# end
 
 	def delete(params)
 		self.google_doc.restart_session_if_necessary
@@ -303,7 +287,7 @@ class GoogleDocWorksheet
 		rows = @worksheet_obj.list
 		search_hash.each do | param_key, param_val |
 			rows.each_with_index do | row, index |
-				if( row[param_key].to_s == param_val.to_s)
+				if row[param_key].to_s == param_val.to_s || PhoneHelper.standardize(row[param_key].to_s) == PhoneHelper.standardize(param_val.to_s) # if you're searching by phone number, standardize it
 					row.update(update_hash)
 					@worksheet_obj.save
 					updated_rows[index.to_s] = row.to_hash
