@@ -132,6 +132,7 @@ class GoogleDoc
 		begin
 			browser.url
 		rescue
+			browser.close
 			$browser = Watir::Browser.new
 			browser = $browser
 
@@ -148,12 +149,15 @@ class GoogleDoc
 		# navigate to the google doc page
 		browser.goto params[:google_doc_url]
 
-		debugger
-
 		# go to the editor
 		editor_url = /"maestro_script_editor_uri":"(.*)","maestro_new_project/.match(browser.html)[1].gsub("\\/", "/")
 		puts "EDITOR URL: " + editor_url
 		browser.goto editor_url
+
+		while browser.url[/splash=yes/]
+			puts "TRY OPENING AGAIN #{editor_url}"
+			browser.goto editor_url
+		end
 
 		browser.div(:id, "triggersButton").when_present.click
 		

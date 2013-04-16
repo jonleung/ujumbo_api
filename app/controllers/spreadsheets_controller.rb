@@ -88,6 +88,7 @@ class SpreadsheetsController < ApplicationController
     sms_pipeline.save
 
     #render text: "hello gdocs"
+    @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
     render :index
   end
 
