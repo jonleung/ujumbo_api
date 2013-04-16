@@ -11,8 +11,9 @@ class EmailNotification
   field :subject, type: String
   field :text_body, type: String
   field :html_body, type: String
+  field :google_doc_id, type: String
 
-  attr_accessible :to, :cc, :bcc, :subject, :from, :text_body, :html_body
+  attr_accessible :to, :cc, :bcc, :subject, :from, :text_body, :html_body, :google_doc_id
 
   after_create :after_create_hook
 
@@ -21,8 +22,13 @@ class EmailNotification
   end
 
   def send_mail
-  	response = UserMailer.send_mail(self.indifferent_attributes.
-      except("_id", "updated_at", "created_at")).deliver
+    send_with_ujumbo_gmail_action_mailer
+  end
+
+  def send_with_ujumbo_gmail_action_mailer
+    params = self.indifferent_attributes.except("_id", "updated_at", "created_at")
+    params.merge!(reply_to: "reply_to_#{self.google_doc_id}@modmail.cc")
+    response = UserMailer.send_mail(params).deliver
   end
 
 end

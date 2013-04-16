@@ -61,6 +61,7 @@ class SpreadsheetsController < ApplicationController
       :previous_pipe_id => "first_pipe",
       :static_properties => {
         :from => current_user.email,
+        :google_doc_id => google_doc.id
         },
         :pipelined_properties => {
           :to => "Trigger:To",

@@ -34,6 +34,9 @@ Ujumbo::Application.routes.draw do
     # Twilio
     match "/twilio/sms" => 'twilio#sms_receive'
     match "/twilio/voice" => 'twilio#voice_receive'
+
+    # SendGrid
+    match "/sendgrid/callback" => "sendgrid#callback"
   
   end
 

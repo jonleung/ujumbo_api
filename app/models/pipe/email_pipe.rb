@@ -9,6 +9,7 @@ class EmailPipe < Pipe
 
   	attrs[:from] = get_attr(:from)
   	attrs[:subject] = get_attr(:subject)
+    attrs[:google_doc_id] = get_attr(:google_doc_id)
   	
   	[:to, :cc, :bcc].each do |field|
   		if ( value = get_attr(field) ).present?

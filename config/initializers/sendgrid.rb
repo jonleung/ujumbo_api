@@ -11,7 +11,7 @@ if set_external_ip?
 
   raise "So you need to not do this SendGrid config stuff in production..." if Rails.env.production?
 
-  callback_url = ENV['base_url']+"/sendgrid/callback?security_token=#{SendGrid.security_token}"
+  callback_url = ENV['base_url']+"/api/sendgrid/callback?security_token=#{SendGrid.security_token}"
 
   options = { 
     body: nil, 

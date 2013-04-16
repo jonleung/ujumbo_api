@@ -14,7 +14,6 @@ class Pipeline
   
   def trigger(pipelined_hash)
     pipes = self.pipes
-    debugger
     
     pipes_mapping = HashWithIndifferentAccess.new #maps from pipe_id => pipe
     prev_pipes_mapping = HashWithIndifferentAccess.new #maps previous_pipe_id => pipe that contains the preivous_pipe_id

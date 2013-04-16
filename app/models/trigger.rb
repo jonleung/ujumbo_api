@@ -50,8 +50,6 @@ class Trigger
         triggers = Trigger.where(product_id: product_id, channel: channel).order_by(date_created: "dsc")
       end
 
-      debugger
-
       triggers.each do |trigger|
         match = true
         trigger.properties.each do |required_key, required_value|
