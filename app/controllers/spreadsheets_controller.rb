@@ -87,6 +87,9 @@ class SpreadsheetsController < ApplicationController
     sms_pipe.save
     sms_pipeline.save
 
+    @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
+    @spreadsheets = [] if @spreadsheets == nil
+
     #render text: "hello gdocs"
     render :index
   end
@@ -102,6 +105,7 @@ class SpreadsheetsController < ApplicationController
 
   def index
     @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
+    @spreadsheets = [] if @spreadsheets == nil
   end
 
 end
