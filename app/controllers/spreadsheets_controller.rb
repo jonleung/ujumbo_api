@@ -87,6 +87,29 @@ class SpreadsheetsController < ApplicationController
     sms_pipe.save
     sms_pipeline.save
 
+    sms_recieve_pipeline = product.pipelines.new
+    sms_recieve_pipeline.name = "gdoc_sms_recieve#{Pipeline.count}"
+    sms_recieve_pipeline.save
+    # Trigger.where(channel: "sms:receive")
+    # sms_recieve_pipeline.create_trigger(product.id, "sms:receive" , {to: PhoneHelper.standardize("4433933207")} )
+
+    sms_pipe = SmsPipe.new({
+      :previous_pipe_id => "first_pipe",
+      :static_properties => {
+          :from_phone => Twilio.default_phone
+        },
+        :pipelined_properties => {
+          :phone => "Trigger:To",
+          :body => "Trigger:Message"
+        }
+    })
+    sms_pipe.pipeline = sms_pipeline
+    sms_pipe.save
+    sms_pipeline.save
+
+
+
+
     @spreadsheets = GoogleDoc.only(:url, :filename).where(user: current_user).entries
     @spreadsheets = [] if @spreadsheets == nil
 
