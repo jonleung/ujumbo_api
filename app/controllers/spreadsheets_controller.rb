@@ -29,7 +29,8 @@ class SpreadsheetsController < ApplicationController
             "To" => :email,
             "Subject" => :text,
             "Body" => :text,
-            "Type 'Send'" => :triggering_column
+            "Type 'Send'" => :triggering_column,
+            "Response" => :text
           }
         },
         {
@@ -37,7 +38,8 @@ class SpreadsheetsController < ApplicationController
           schema: {
             "To" => :phone,
             "Message" => :text,
-            "Type 'Send'" => :triggering_column
+            "Type 'Send'" => :triggering_column,
+            "Response" => :text
           }
         }
       ]
