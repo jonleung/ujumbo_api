@@ -45,6 +45,9 @@ class SpreadsheetsController < ApplicationController
 
     google_doc = GoogleDoc.create(google_doc_params)
 
+
+    ##########################################
+    # Setup Email Sending
     # setup pipeline to send out an email when 'send' is typed into a row in the Email worksheet
     email_pipeline = product.pipelines.new
     email_pipeline.name = "gdoc_email_pipeline#{Pipeline.count}"
@@ -68,6 +71,8 @@ class SpreadsheetsController < ApplicationController
     email_pipeline.save
 
 
+    ##########################################
+    # Setup SMS Sending
     sms_pipeline = product.pipelines.new
     sms_pipeline.name = "gdoc_sms_pipeline#{Pipeline.count}"
     sms_pipeline.save
@@ -87,25 +92,45 @@ class SpreadsheetsController < ApplicationController
     sms_pipe.save
     sms_pipeline.save
 
+    ##########################################
+    # Setup SMS Receiving
     sms_recieve_pipeline = product.pipelines.new
     sms_recieve_pipeline.name = "gdoc_sms_recieve#{Pipeline.count}"
     sms_recieve_pipeline.save
-    # Trigger.where(channel: "sms:receive")
-    # sms_recieve_pipeline.create_trigger(product.id, "sms:receive" , {to: PhoneHelper.standardize("4433933207")} )
+    sms_recieve_pipeline.create_trigger(product.id, "sms:receive" , {to: PhoneHelper.standardize("4433933207")} )
+
+    gdoc_update_row_pipe = GoogleDocPipe.new({
+      :previous_pipe_id => "first_pipe",
+      :action => :update_row,
+      :static_properties => {
+        :worksheet_name => "Sms"
+        :google_doc_id => google_doc.id,
+      },
+      :pipelined_references => {
+        :find_by_params => {
+          :to => "Trigger:from"
+        }
+        :update_to_params => {
+          :response => "Trigger:body",
+        }
+      }
+    })
+
+    gdoc_update_row_pipe.pipeline = sms_recieve_pipeline
+    gdoc_update_row_pipe.save
 
     sms_pipe = SmsPipe.new({
-      :previous_pipe_id => "first_pipe",
+      :previous_pipe_id => gdoc_update_row_pipe.id,
       :static_properties => {
-          :from_phone => Twilio.default_phone
+          :body => "Awesome! We got your message!"
         },
         :pipelined_properties => {
-          :phone => "Trigger:To",
-          :body => "Trigger:Message"
+          :phone => "Trigger:from",
         }
     })
-    sms_pipe.pipeline = sms_pipeline
+
+    sms_pipe.pipeline = sms_recieve_pipeline
     sms_pipe.save
-    sms_pipeline.save
 
 
 
