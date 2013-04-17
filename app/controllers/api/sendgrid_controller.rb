@@ -13,7 +13,6 @@ private
   def edit_params(params)
     new_params = HashWithIndifferentAccess.new
     new_params[:text] = clean_html(params[:html])
-    debugger
     new_params[:from] = params[:from][/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/]
     new_params[:to] = params[:to][/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/]
     new_params[:google_doc_id] = /#{EmailNotification.default_heading}(.*?)@/.match(new_params[:to])[1]
@@ -21,7 +20,6 @@ private
   end
 
   def clean_html(html)
-    debugger
     d1 = Nokogiri::HTML(html)
     d1.search('blockquote').remove
     d1.css('script, link').each { |node| node.remove }
