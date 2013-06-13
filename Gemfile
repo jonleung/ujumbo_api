@@ -40,7 +40,6 @@ gem "watir-webdriver", "~> 0.6.2"
 # Nicities
 gem 'colorize'
 
-
 group :development do
   gem 'rspec'
   gem 'debugger'
