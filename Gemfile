@@ -6,10 +6,7 @@ gem 'rails', '3.2.9'
 gem 'thin'
 
 # Databses
-# gem 'pg'
 gem "mongoid"
-# gem 'sqlite3'
-# gem 'mysql2'
 
 gem 'hiredis'
 gem 'redis'
@@ -21,7 +18,7 @@ gem 'resque'
 gem 'omniauth'
 gem 'oauth2', '~> 0.5.0'
 gem 'omniauth-google-oauth2'
-gem 'ember-rails'
+# gem 'ember-rails'
 gem 'handlebars-rails'
 gem 'jquery-rails'
 gem 'localtunnel'
@@ -46,6 +43,8 @@ group :development do
   gem 'annotate', '~> 2.4.1.beta'
   gem 'guard'
   gem 'rspec-rails'
+  gem 'capybara'
+
 end
 
 group :test do
@@ -53,6 +52,7 @@ group :test do
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'syntax'
+  gem 'capybara'
   gem 'simplecov', :require => false, :group => :test
 end
 
@@ -60,7 +60,6 @@ group :assets do
   gem 'sass-rails',   '~> 3.2.5'
   gem 'coffee-rails', '~> 3.2.2'
   gem 'uglifier', '>= 1.2.4'
-  gem 'bootstrap-sass', '~> 2.0.3.1'
 end
 
 # To use ActiveModel has_secure_password
